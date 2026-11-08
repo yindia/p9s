@@ -17,6 +17,12 @@ concurrency:
 permissions:
   contents: read
 
+# Go caching: setup-go's built-in cache is one key per go.sum shared by every
+# job, so the first job to finish (lint, with a small build cache) wins and
+# every go.sum change starts cold. Instead each job restores its own cache,
+# falling back to its latest one, and saves from main only, so pull requests
+# read main's cache instead of filling the quota.
+
 jobs:
   lint:
     runs-on: ubuntu-latest
@@ -26,6 +32,18 @@ jobs:
         with:
           go-version-file: go.mod
           check-latest: true
+          cache: false
+      - name: Restore Go cache
+        id: go-cache
+        uses: actions/cache/restore@v4
+        with:
+          path: |
+            ~/go/pkg/mod
+            ~/.cache/go-build
+          key: go-${{ runner.os }}-lint-${{ hashFiles('go.sum') }}-${{ github.sha }}
+          restore-keys: |
+            go-${{ runner.os }}-lint-${{ hashFiles('go.sum') }}-
+            go-${{ runner.os }}-lint-
       - uses: golangci/golangci-lint-action@v9
         with:
           version: v2.12.2
@@ -33,6 +51,14 @@ jobs:
         run: |
           go mod tidy
           git diff --exit-code -- go.mod go.sum
+      - name: Save Go cache
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        uses: actions/cache/save@v4
+        with:
+          path: |
+            ~/go/pkg/mod
+            ~/.cache/go-build
+          key: ${{ steps.go-cache.outputs.cache-primary-key }}
 
   test:
     runs-on: ubuntu-latest
@@ -42,6 +68,18 @@ jobs:
         with:
           go-version-file: go.mod
           check-latest: true
+          cache: false
+      - name: Restore Go cache
+        id: go-cache
+        uses: actions/cache/restore@v4
+        with:
+          path: |
+            ~/go/pkg/mod
+            ~/.cache/go-build
+          key: go-${{ runner.os }}-test-${{ hashFiles('go.sum') }}-${{ github.sha }}
+          restore-keys: |
+            go-${{ runner.os }}-test-${{ hashFiles('go.sum') }}-
+            go-${{ runner.os }}-test-
       - name: Build
         run: make build
       # One run: make cover is go test -race with a coverage profile.
@@ -52,6 +90,14 @@ jobs:
           make golden
           git status --porcelain
           test -z "$(git status --porcelain)"
+      - name: Save Go cache
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        uses: actions/cache/save@v4
+        with:
+          path: |
+            ~/go/pkg/mod
+            ~/.cache/go-build
+          key: ${{ steps.go-cache.outputs.cache-primary-key }}
 
   e2e:
     runs-on: ubuntu-latest
@@ -63,6 +109,18 @@ jobs:
         with:
           go-version-file: go.mod
           check-latest: true
+          cache: false
+      - name: Restore Go cache
+        id: go-cache
+        uses: actions/cache/restore@v4
+        with:
+          path: |
+            ~/go/pkg/mod
+            ~/.cache/go-build
+          key: go-${{ runner.os }}-e2e-${{ hashFiles('go.sum') }}-${{ github.sha }}
+          restore-keys: |
+            go-${{ runner.os }}-e2e-${{ hashFiles('go.sum') }}-
+            go-${{ runner.os }}-e2e-
       - uses: helm/kind-action@v1
         with:
           install_only: true
@@ -73,6 +131,14 @@ jobs:
         run: go test -tags e2e -count=1 -v ./test/e2e/...
         env:
           E2E_CONTEXT: kind-p9s
+      - name: Save Go cache
+        if: always() && github.event_name == 'push' && github.ref == 'refs/heads/main'
+        uses: actions/cache/save@v4
+        with:
+          path: |
+            ~/go/pkg/mod
+            ~/.cache/go-build
+          key: ${{ steps.go-cache.outputs.cache-primary-key }}
       - name: Cluster state on failure
         if: failure()
         run: |
