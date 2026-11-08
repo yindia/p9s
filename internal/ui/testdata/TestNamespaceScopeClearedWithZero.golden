@@ -1,0 +1,24 @@
+ p9s │ ctx kind-demo │ ns all │ alpha v1.2.0 · beta 0.9.1 │ last audit 30s ago (alpha)                               RO
+─ Policies [4] ─────────────────────────────────────────────────────────────────────────────────────────────────────────
+! beta: forbidden to list betareports.beta.example — data from it is missing
+  ENGINE  NAME                                                KIND        NAMESPACE  ENFORCEMENT  VIOLATIONS↓  AUDIT AGE
+▸ alpha   require-owner                                       AlphaRule   -          enforce      2            30s
+  beta    no-latest                                           BetaPolicy  payments   audit        1            10s
+  alpha   prefer-limits                                       AlphaRule   -          warn         0            90s
+  alpha   observe-images                                      AlphaRule   -          audit        -            -
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ namespace scope: all

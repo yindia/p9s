@@ -1,0 +1,24 @@
+ p9s │ ctx kind-gatekeeper │ ns all │ kyverno v1.19.2 │ last audit 60s ago                                           RO
+─ Policies [6] ─────────────────────────────────────────────────────────────────────────────────────────────────────────
+  ENGINE   NAME                                                  KIND   NAMESPACE    ENFORCEMENT  VIOLATIONS↓  AUDIT AGE
+▸ kyverno  require-team-label                                    CPol   -            audit        2            60s
+  kyverno  team-quota                                            NVPol  payments     warn         1            60s
+  kyverno  no-latest-tag                                         Pol    kube-system  enforce      1            2m
+  kyverno  disallow-privileged-containers                        VPol   -            audit        1            60s
+  kyverno  require-limits                                        VPol   -            enforce      0            60s
+  kyverno  add-managed-by                                        MPol   -            mutate       -            -
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ connected to kind-gatekeeper

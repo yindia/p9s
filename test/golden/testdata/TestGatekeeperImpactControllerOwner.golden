@@ -1,0 +1,24 @@
+ p9s │ ctx kind-gatekeeper │ ns all │ kyverno v1.19.2 · gatekeeper v3.17.1 │ last audit 60s ago (gatekeeper)         RO
+─ Impact: pods-must-have-app [1] ───────────────────────────────────────────────────────────────────────────────────────
+ gatekeeper K8sRequiredLabels/pods-must-have-app · audit (engine: dryrun)
+ If enforced: 1 violation on 1 object. Matching creates and updates would be rejected; running objects keep running.
+ Owners whose requests may be rejected: 1 controller-managed (new pods, rollouts) · 0 bare (re-create, update)
+ Objects by namespace: payments 1
+  NAMESPACE  OWNER                       MANAGED     OBJECTS  MESSAGE
+▸ payments   Deployment/payments/worker  controller  1        you must provide labels: {"app"}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ » you must provide labels: {"app"}
+ connected to kind-gatekeeper

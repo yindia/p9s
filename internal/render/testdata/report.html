@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>p9s policy report</title>
+<style>
+:root {
+  --bg: #fbfaf7; --fg: #1d1f24; --muted: #5f6470; --line: #dcd9d1; --panel: #ffffff;
+  --crit: #b3261e; --warn: #8a5a00; --ok: #1e6b3a; --accent: #2f4a8a;
+  --mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  --sans: system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root { --bg: #15171b; --fg: #e6e4df; --muted: #9aa0ab; --line: #30333a; --panel: #1c1f24;
+    --crit: #ff8a80; --warn: #f2c14e; --ok: #7bd389; --accent: #9fb4ff; }
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--fg); font: 15px/1.5 var(--sans); }
+main { max-width: 1100px; margin: 0 auto; padding: 32px 16px 64px; }
+h1 { font-size: 28px; margin: 0 0 4px; letter-spacing: -0.01em; }
+h2 { font-size: 18px; margin: 40px 0 12px; padding-top: 16px; border-top: 1px solid var(--line); }
+.meta { display: grid; grid-template-columns: max-content 1fr; gap: 4px 16px; color: var(--muted); margin: 12px 0 24px; }
+.meta b { color: var(--fg); font-weight: 600; }
+code, .mono { font-family: var(--mono); font-size: 13px; word-break: break-all; }
+.tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 12px; }
+.tile { background: var(--panel); border: 1px solid var(--line); border-radius: 6px; padding: 12px 14px; }
+.tile .n { font-size: 26px; font-weight: 650; font-variant-numeric: tabular-nums; }
+.tile .l { color: var(--muted); font-size: 13px; }
+table { width: 100%; border-collapse: collapse; background: var(--panel); border: 1px solid var(--line); margin: 8px 0 16px; }
+th, td { text-align: left; padding: 6px 10px; border-bottom: 1px solid var(--line); vertical-align: top; }
+th { font-size: 12px; text-transform: uppercase; letter-spacing: 0.04em; color: var(--muted); font-weight: 600; }
+td.n { text-align: right; font-variant-numeric: tabular-nums; }
+.critical, .missing { color: var(--crit); font-weight: 600; }
+.warning, .audit { color: var(--warn); font-weight: 600; }
+.enforced { color: var(--ok); font-weight: 600; }
+.note { color: var(--muted); font-size: 14px; }
+.notice { border-left: 3px solid var(--warn); padding: 4px 12px; margin: 8px 0; }
+.scroll { overflow-x: auto; }
+hr { border: 0; border-top: 2px solid var(--line); margin: 56px 0; }
+</style>
+</head>
+<body>
+<main>
+
+<h1>Policy report: prod-tokyo-1</h1>
+
+<div class="meta">
+  <span>Cluster</span><b>prod</b>
+  <span>Engines</span><b>kyverno v1.19.2</b>
+  <span>Generated</span><b>2026-11-09T10:00:00Z</b>
+  
+  <span>p9s</span><b>v1.0.0</b>
+  <span>Body SHA-256</span><code>94045ab8d1e73c7cfefe06ab7b983626de2a15e53ca543dd7c4962be697c76d4</code>
+</div>
+<p class="notice">kyverno: forbidden to list clusterpolicies.kyverno.io | data from it is missing</p>
+
+<h2>1. Summary</h2>
+<div class="tiles">
+  <div class="tile"><div class="n">7</div><div class="l">violations (engines' own counts); 1 policies without audit data</div></div>
+  <div class="tile"><div class="n critical">1</div><div class="l">critical health findings</div></div>
+  <div class="tile"><div class="n warning">0</div><div class="l">warnings</div></div>
+  <div class="tile"><div class="n">0</div><div class="l">policies: audit 2, enforce 1</div></div>
+</div>
+
+<h2>2. Pod Security Standards coverage</h2>
+<p class="note">Mapped from policy metadata only. Namespace exclusions are not considered.</p>
+<div class="scroll"><table>
+<tr><th>Level</th><th>Control</th><th>Status</th><th>Caveats</th><th>Policies</th></tr>
+<tr><td>baseline</td><td>HostPath Volumes</td><td class="audit">audit only</td><td class="note"></td><td class="mono">kyverno:ValidatingPolicy/disallow-host-path</td></tr>
+<tr><td>restricted</td><td>Volume Types</td><td class="missing">missing</td><td class="note"></td><td class="mono">-</td></tr>
+</table></div>
+<p class="note">Uncategorised (1): <span class="mono">kyverno:ClusterPolicy/require-team-label</span></p>
+
+<h2>3. Violations</h2>
+
+<div class="tiles">
+<div class="scroll"><table><tr><th>Severity</th><th>Count</th></tr>
+<tr><td class="mono">medium</td><td class="n">5</td></tr><tr><td class="mono">unspecified</td><td class="n">2</td></tr>
+</table></div><div class="scroll"><table><tr><th>Namespace</th><th>Count</th></tr>
+<tr><td class="mono">payments</td><td class="n">6</td></tr><tr><td class="mono">(cluster)</td><td class="n">1</td></tr>
+</table></div><div class="scroll"><table><tr><th>Owner (top 20, objects)</th><th>Count</th></tr>
+<tr><td class="mono">Deployment/payments/api</td><td class="n">4</td></tr>
+</table></div>
+</div>
+
+<h2>4. Fail-open and other health findings</h2>
+<div class="scroll"><table><tr><th>Severity</th><th>Panel</th><th>Engine</th><th>Check</th><th>Status</th></tr>
+<tr><td class="critical">critical</td><td>Webhooks</td><td>kyverno</td><td class="mono">validate.kyverno.svc-fail</td><td>✗ fail-open, no endpoints</td></tr>
+</table></div>
+
+<h2>5. Unprotected kinds <span class="note">(approximate)</span></h2>
+<p class="note">Served, user-created kinds no active validating policy selects by kind. Namespace selectors, exclusions and conditions are not read.</p>
+
+
+<div class="scroll"><table><tr><th>Kind</th><th>Group</th><th>Scope</th><th>Note</th></tr>
+<tr><td>ConfigMap</td><td class="mono">-</td><td>namespaced</td><td class="note"></td></tr>
+<tr><td>Deployment</td><td class="mono">apps</td><td>namespaced</td><td class="note">its Pods are checked by Pod policies</td></tr>
+</table></div>
+
+<h2>6. Changes since 2026-11-08T10:00:00Z</h2>
+
+<div class="tiles">
+  <div class="tile"><div class="n">1</div><div class="l">new violations</div></div>
+  <div class="tile"><div class="n">0</div><div class="l">resolved violations</div></div>
+  <div class="tile"><div class="n">0</div><div class="l">still failing, new message</div></div>
+  <div class="tile"><div class="n">1</div><div class="l">enforcement changes</div></div>
+  <div class="tile"><div class="n">0 / 0</div><div class="l">policies added / removed</div></div>
+</div>
+<table><tr><th>Policy</th><th>From</th><th>To</th></tr><tr><td class="mono">kyverno:ValidatingPolicy/disallow-host-path</td><td>audit</td><td>enforce</td></tr></table>
+
+<h2>Not included</h2>
+<ul><li class="note">Exemptions inventory: not part of this release.</li></ul>
+
+
+</main>
+</body>
+</html>

@@ -1,0 +1,24 @@
+ p9s │ ctx kind-demo │ ns all │ alpha v1.2.0 · beta 0.9.1 │ last audit 30s ago (alpha)                               RO
+─ Policies › Impact: no-latest [1] ─────────────────────────────────────────────────────────────────────────────────────
+ beta BetaPolicy/payments/no-latest · audit (engine: Audit)
+ If enforced: 1 violation on 1 object. Matching creates and updates would be rejected; running objects keep running.
+ Owners whose requests may be rejected: 1 controller-managed (new pods, rollouts) · 0 bare (re-create, update)
+ Objects by namespace: payments 1
+! beta: forbidden to list betareports.beta.example — data from it is missing
+  NAMESPACE  OWNER                     MANAGED     OBJECTS  MESSAGE
+▸ payments   StatefulSet/payments/api  controller  1        image tag latest is not allowed
+
+
+
+
+
+
+
+
+
+
+
+
+
+ » image tag latest is not allowed
+ :cmd  /filter  enter open  g goto  c copy  esc back  ? help

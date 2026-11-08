@@ -1,0 +1,24 @@
+ p9s │ ctx kind-gatekeeper │ ns all │ kyverno v1.19.2 · gatekeeper v3.17.1 │ last audit 60s ago (gatekeeper)         RO
+─ Violations · recent [4] ──────────────────────────────────────────────────────────────────────────────────────────────
+  TIME↑  ENGINE      POLICY            KIND              ACTION   USER              TARGET             MESSAGE
+▸ 2m     gatekeeper  ns-must-have-ow…  K8sRequiredLabe…  enforce  alice@example.c…  Namespace/scratch  you must provide…
+  2m59s  kyverno     no-latest-tag     Pol               enforce  -                 Deployment/kube-…  validation error…
+  14m    kyverno     require-team-la…  CPol              audit    -                 Pod/payments/api…  validation error…
+  20m    gatekeeper  pods-must-have-…  K8sRequiredLabe…  audit    system:servicea…  Pod/payments/wor…  you must provide…
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ » you must provide labels: {"owner"}
+ connected to kind-gatekeeper

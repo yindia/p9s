@@ -1,0 +1,24 @@
+ p9s │ ctx kind-demo │ ns all │ alpha v1.2.0 · beta 0.9.1 │ last audit 30s ago (alpha)                               RO
+─ Policies [1] /require ────────────────────────────────────────────────────────────────────────────────────────────────
+! beta: forbidden to list betareports.beta.example — data from it is missing
+  ENGINE  NAME                                                 KIND       NAMESPACE  ENFORCEMENT  VIOLATIONS↓  AUDIT AGE
+▸ alpha   require-owner                                        AlphaRule  -          enforce      2            30s
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ :cmd  /filter  enter open  d describe  y yaml  e edit  i impact  esc back  ? help

@@ -1,0 +1,22 @@
+== Health
+✗ 0 critical · ! 0 warning · ✓ 0 ok
+All checks pass.
+
+== Top violating owners
+OWNER               POLICIES  OBJECTS
+Namespace/payments  1         1
+Namespace/search    1         1
+Pod/payments/api-0  1         1
+
+== Enforcement candidates (audit or warn)
+3 in audit or warn mode, 1 with no current violations
+ENGINE  NAME            KIND        ENFORCEMENT  VIOLATIONS
+alpha   prefer-limits   AlphaRule   warn         0
+beta    no-latest       BetaPolicy  audit        1
+alpha   observe-images  AlphaRule   audit        -
+
+== Recent admission denials
+No active engine records admission events.
+
+== Exemptions
+Not available yet: the exemptions inventory arrives in a later release.

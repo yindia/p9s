@@ -1,0 +1,24 @@
+ p9s │ ctx kind-gatekeeper │ ns all │ kyverno v1.19.2 │ last audit 60s ago                                           RO
+─ CEL Policies › ValidatingPolicy require-limits ───────────────────────────────────────────────────────────────────────
+ Summary
+ Kind:         ValidatingPolicy
+ Namespace:    -
+ Name:         require-limits
+ Enforcement:  enforce (engine: Deny)
+ Violations:   0
+ Title:        -
+ Category:     -
+ Severity:     -
+ ! policy is not ready: failed to compile: undeclared reference to 'resources'
+ ! WebhookConfigured: compilation failed
+
+ Match constraints
+ (none)
+
+ CEL
+ // variable containers
+ object.spec.containers
+
+ // validation 0: limits are required
+ variables.containers.all(c, has(c.resources.limits))
+ j/k scroll  y yaml  e edit  esc back  ? help

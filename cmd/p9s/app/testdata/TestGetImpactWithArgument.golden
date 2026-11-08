@@ -1,0 +1,7 @@
+alpha AlphaRule/require-owner · enforce (engine: block)
+Already enforcing: 2 violations on 2 objects exist today. Matching creates and updates of them are rejected.
+Owners whose requests may be rejected: 0 controller-managed (new pods, rollouts) · 0 bare (re-create, update) · 2 unknown (ownership not cached)
+Objects by namespace: (cluster) 2
+NAMESPACE  OWNER               MANAGED  OBJECTS  MESSAGE
+(cluster)  Namespace/payments  -        1        label owner is required
+(cluster)  Namespace/search    -        1        label owner is required

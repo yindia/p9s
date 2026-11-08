@@ -1,0 +1,24 @@
+ p9s │ ctx kind-demo │ ns all │ kyverno v1.19.2 │ last audit -                                                       RO
+─ Violations [1] ───────────────────────────────────────────────────────────────────────────────────────────────────────
+! kyverno: forbidden to list clusterpolicies.kyverno.io — data from it is missing
+  ENGINE   POLICY↑             KIND           ACTION  TARGET              MESSAGE
+▸ kyverno  require-team-label  ClusterPolicy  n/a     Pod/p9s-demo/web-0  validation error: label 'team' is required.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ » validation error: label 'team' is required.
+ ✗ policy kyverno:ClusterPolicy/require-team-label is not readable with your permissions

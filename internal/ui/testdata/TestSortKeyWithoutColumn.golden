@@ -1,0 +1,24 @@
+ p9s │ ctx kind-demo │ ns all │ alpha v1.2.0 · beta 0.9.1 │ last audit 30s ago (alpha)                               RO
+─ Contexts [2] ─────────────────────────────────────────────────────────────────────────────────────────────────────────
+  CURRENT  NAME                                                                          CLUSTER    USER       NAMESPACE
+▸ *        kind-demo                                                                     kind-demo  kind-demo  -
+           prod                                                                          prod-eu    sre        payments
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ ✗ this view has no severity column

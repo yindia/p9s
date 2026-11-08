@@ -1,0 +1,24 @@
+ p9s │ ctx kind-gatekeeper │ ns all │ kyverno v1.19.2 · gatekeeper v3.17.1 │ last audit 60s ago (gatekeeper)         RO
+─ Health ───────────────────────────────────────────────────────────────────────────────────────────────────────────────
+  OVERALL   ✗ 0 critical   ! 5 warning   ✓ 4 ok                                                        refreshed 0s ago
+
+─ Webhooks [2] ─────────────────────────────────────────────────────────────────────────────────────────────────────────
+  ENGINE      WEBHOOK                                           FAILURE  TIMEOUT  ENDPOINTS  CERT   STATUS
+▸ gatekeeper  validation.gatekeeper.sh                          Ignore   3s       1/2        7d     ! cert expires in 7d
+  kyverno     validate.kyverno.svc-fail                         Fail     10s      1/1        3650d  ✓
+
+─ Controllers [3] ──────────────────────────────────────────────────────────────────────────────────────────────────────
+  ENGINE      DEPLOYMENT                                      READY  RESTARTS  LAST REASON  IMAGE    STATUS
+  gatekeeper  gatekeeper-audit                                1/1    2         OOMKilled    v3.17.1  ! restarted 20m ago
+  gatekeeper  gatekeeper-controller-manager                   2/3    0         -            v3.17.1  ✓
+  kyverno     kyverno-admission-controller                    1/1    0         -            v1.19.2  ✓
+
+─ Audit [2] ────────────────────────────────────────────────────────────────────────────────────────────────────────────
+  ENGINE      SOURCE             INTERVAL  LAST RUN  LEADER                                              STATUS
+  kyverno     policy reports     1h        1m ago    kyverno-reports-controller-5d4b-x                   ! 1 audit error
+  gatekeeper  constraint status  1m        1m ago    -                                                   ✓
+
+─ Policies [2] ─────────────────────────────────────────────────────────────────────────────────────────────────────────
+  ENGINE      LOADED  NOT ENFORCED  COMPILE ERRORS  MISSING CRD  NOT READY  STATUS
+  gatekeeper  2/3     0             0               1            0          ! 1 policy not active
+ connected to kind-gatekeeper

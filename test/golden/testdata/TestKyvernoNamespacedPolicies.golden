@@ -1,0 +1,24 @@
+ p9s │ ctx kind-gatekeeper │ ns all │ kyverno v1.19.2 │ last audit 60s ago                                           RO
+─ Policies [1] ─────────────────────────────────────────────────────────────────────────────────────────────────────────
+  NAMESPACE    NAME                                            ACTION   READY  RULES       BACKGROUND  VIOLATIONS↓  AGE
+▸ kube-system  no-latest-tag                                   enforce  ✓      1 validate  ✗           1            2d2h
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ connected to kind-gatekeeper

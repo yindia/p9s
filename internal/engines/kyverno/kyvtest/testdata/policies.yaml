@@ -1,0 +1,156 @@
+apiVersion: policies.kyverno.io/v1
+kind: ValidatingPolicy
+metadata:
+  name: disallow-privileged-containers
+  creationTimestamp: "2026-11-01T10:00:00Z"
+  annotations:
+    policies.kyverno.io/title: Disallow Privileged Containers
+    policies.kyverno.io/category: Pod Security Standards (Baseline)
+    policies.kyverno.io/severity: medium
+    policies.kyverno.io/description: >-
+      Privileged mode disables most security mechanisms. Set
+      securityContext.privileged to false (or remove it) in every container.
+spec:
+  validationActions: [Audit]
+  matchConstraints:
+    resourceRules:
+      - apiGroups: [""]
+        apiVersions: [v1]
+        operations: [CREATE, UPDATE]
+        resources: [pods]
+  validations:
+    - expression: "object.spec.containers.all(c, !has(c.securityContext) || c.securityContext.privileged != true)"
+      message: Privileged mode is disallowed.
+status:
+  conditionStatus:
+    ready: true
+    conditions:
+      - type: WebhookConfigured
+        status: "True"
+        message: Webhook configured.
+---
+apiVersion: policies.kyverno.io/v1
+kind: ValidatingPolicy
+metadata:
+  name: require-limits
+  creationTimestamp: "2026-11-02T10:00:00Z"
+spec:
+  validationActions: [Deny]
+  variables:
+    - name: containers
+      expression: "object.spec.containers"
+  validations:
+    - expression: "variables.containers.all(c, has(c.resources.limits))"
+      message: limits are required
+status:
+  conditionStatus:
+    ready: false
+    message: "failed to compile: undeclared reference to 'resources'"
+    conditions:
+      - type: WebhookConfigured
+        status: "False"
+        message: "compilation failed"
+---
+apiVersion: policies.kyverno.io/v1
+kind: NamespacedValidatingPolicy
+metadata:
+  name: team-quota
+  namespace: payments
+  creationTimestamp: "2026-11-03T10:00:00Z"
+spec:
+  validationActions: [Warn, Audit]
+  validations:
+    - expression: "has(object.metadata.labels.team)"
+      message: team label is recommended
+---
+apiVersion: policies.kyverno.io/v1
+kind: MutatingPolicy
+metadata:
+  name: add-managed-by
+  creationTimestamp: "2026-11-04T10:00:00Z"
+spec:
+  matchConstraints:
+    resourceRules:
+      - apiGroups: [""]
+        apiVersions: [v1]
+        operations: [CREATE]
+        resources: [configmaps]
+  mutations:
+    - patchType: ApplyConfiguration
+      applyConfiguration:
+        expression: "Object{metadata: Object.metadata{labels: {'managed-by': 'p9s'}}}"
+---
+apiVersion: kyverno.io/v1
+kind: ClusterPolicy
+metadata:
+  name: require-team-label
+  creationTimestamp: "2026-11-05T10:00:00Z"
+spec:
+  background: true
+  rules:
+    - name: check-team
+      match:
+        any:
+          - resources:
+              kinds: [Pod]
+      validate:
+        failureAction: Audit
+        message: "label 'team' is required"
+        pattern:
+          metadata:
+            labels:
+              team: "?*"
+    - name: default-pull-policy
+      match:
+        any:
+          - resources:
+              kinds: [Pod]
+      mutate:
+        patchStrategicMerge:
+          spec:
+            containers:
+              - (name): "*"
+                imagePullPolicy: IfNotPresent
+status:
+  conditions:
+    - type: Ready
+      status: "True"
+      reason: Succeeded
+---
+apiVersion: kyverno.io/v1
+kind: Policy
+metadata:
+  name: no-latest-tag
+  namespace: kube-system
+  creationTimestamp: "2026-11-06T10:00:00Z"
+spec:
+  background: false
+  validationFailureAction: Enforce
+  rules:
+    - name: tag-not-latest
+      match:
+        any:
+          - resources:
+              kinds: [Pod]
+      validate:
+        message: "the ':latest' tag is not allowed"
+        pattern:
+          spec:
+            containers:
+              - image: "!*:latest"
+---
+apiVersion: kyverno.io/v2
+kind: PolicyException
+metadata:
+  name: allow-debug-pods
+  namespace: payments
+  creationTimestamp: "2026-11-07T10:00:00Z"
+spec:
+  exceptions:
+    - policyName: require-team-label
+      ruleNames: [check-team]
+  match:
+    any:
+      - resources:
+          kinds: [Pod]
+          names: ["debug-*"]

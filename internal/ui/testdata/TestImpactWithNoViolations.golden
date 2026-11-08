@@ -1,0 +1,24 @@
+ p9s │ ctx kind-demo │ ns all │ alpha v1.2.0 · beta 0.9.1 │ last audit 30s ago (alpha)                               RO
+─ Policies › Impact: prefer-limits [0] ─────────────────────────────────────────────────────────────────────────────────
+ alpha AlphaRule/prefer-limits · warn
+ If enforced: nothing that exists today violates it.
+
+  Nothing that exists today violates it: enforcing would block no current object.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ :cmd  /filter  esc back  ? help

@@ -1,0 +1,24 @@
+ p9s │ ctx kind-gatekeeper │ ns all │ kyverno v1.19.2 │ last audit 60s ago                                           RO
+─ Violations › Violation of disallow-privileged-containers ─────────────────────────────────────────────────────────────
+ Message
+ Privileged mode is disallowed.
+
+ Target
+ Object:   v1 Pod/payments/api-0
+ Owner:    -
+ Audited:  60s ago
+
+ Policy
+ Name:         kyverno:ValidatingPolicy/disallow-privileged-containers
+ Engine:       kyverno
+ Rule:         validation 0
+ Enforcement:  audit (engine: fail)
+
+ How to fix
+ Disallow Privileged Containers
+ Privileged mode disables most security mechanisms. Set securityContext.privileged to false (or remove it) in every
+ container.
+ (from annotation policies.kyverno.io/description)
+
+
+ j/k scroll  y yaml  e edit  esc back  ? help

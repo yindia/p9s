@@ -1,0 +1,24 @@
+ p9s │ ctx kind-demo │ ns all │ alpha v1.2.0 · beta 0.9.1 │ last audit 30s ago (alpha)                               RO
+─ Policies › Violations · recent [1] (alpha:AlphaRule:require-owner) ───────────────────────────────────────────────────
+! beta: beta admission events are off.
+  TIME↑  ENGINE  POLICY         KIND       ACTION   USER  TARGET             MESSAGE
+▸ 60s    alpha   require-owner  AlphaRule  enforce  bob   Namespace/scratch  label owner is required
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ » label owner is required
+ recent: admission events

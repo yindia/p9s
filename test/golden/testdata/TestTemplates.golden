@@ -1,0 +1,24 @@
+ p9s │ ctx kind-gatekeeper │ ns all │ gatekeeper v3.17.1 │ last audit 60s ago                                        RO
+─ ConstraintTemplates [3] ──────────────────────────────────────────────────────────────────────────────────────────────
+  NAME↑                                                              KIND               LANG  CREATED  CONSTRAINTS  AGE
+▸ k8sbroken                                                          K8sBroken          rego  ✗        0            26h
+  k8sreplicalimits                                                   K8sReplicaLimits   cel   ✓        1            3d2h
+  k8srequiredlabels                                                  K8sRequiredLabels  rego  ✓        2            7d2h
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ connected to kind-gatekeeper

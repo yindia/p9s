@@ -1,0 +1,24 @@
+ p9s │ ctx kind-gatekeeper │ ns all │ kyverno v1.19.2 · gatekeeper v3.17.1 │ last audit 60s ago (gatekeeper)         RO
+─ Impact: require-team-label [1] ───────────────────────────────────────────────────────────────────────────────────────
+ kyverno ClusterPolicy/require-team-label · audit (engine: Audit)
+ If enforced: 1 violation on 1 object. Matching creates and updates would be rejected; running objects keep running.
+ 1 result failed to evaluate (not violations; see :health).
+ Owners whose requests may be rejected: 1 controller-managed (new pods, rollouts) · 0 bare (re-create, update)
+ Objects by namespace: payments 1
+  NAMESPACE  OWNER                     MANAGED     OBJECTS  MESSAGE
+▸ payments   StatefulSet/payments/api  controller  1        validation error: label 'team' is required. rule check-team…
+
+
+
+
+
+
+
+
+
+
+
+
+
+ » validation error: label 'team' is required. rule check-team failed at path /metadata/labels/team/
+ connected to kind-gatekeeper

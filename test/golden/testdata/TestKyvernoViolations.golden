@@ -1,0 +1,24 @@
+ p9s │ ctx kind-gatekeeper │ ns all │ kyverno v1.19.2 │ last audit 60s ago                                           RO
+─ Violations [5] ───────────────────────────────────────────────────────────────────────────────────────────────────────
+  ENGINE   OWNER                                     POLICY               KIND   ACTION   OBJECTS↓  MESSAGE
+▸ kyverno  Namespace/payments                        require-team-label   CPol   audit    1         failed to evaluate:…
+  kyverno  Pod/kube-system/coredns-6f6b679f8f-x2v9q  no-latest-tag        Pol    enforce  1         the ':latest' tag i…
+  kyverno  Pod/payments/api-0                        require-team-label   CPol   audit    1         validation error: l…
+  kyverno  Pod/payments/api-0                        team-quota           NVPol  warn     1         team label is recom…
+  kyverno  Pod/payments/api-0                        disallow-privilege…  VPol   audit    1         Privileged mode is …
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ » failed to evaluate: variable substitution failed
+ connected to kind-gatekeeper

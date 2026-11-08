@@ -1,0 +1,62 @@
+# Shapes captured from Kyverno v1.19 on kind (2026-11-08): events.k8s.io
+# style (empty source, reportingComponent and eventTime set).
+# A blocked request, on the policy side.
+apiVersion: v1
+kind: Event
+metadata:
+  name: no-latest-tag.18e615416a4d4a30
+  namespace: kube-system
+  creationTimestamp: "2026-11-08T11:57:00Z"
+action: Resource Blocked
+eventTime: "2026-11-08T11:57:00.254218Z"
+involvedObject: {apiVersion: kyverno.io/v1, kind: Policy, name: no-latest-tag, namespace: kube-system}
+related: {apiVersion: apps/v1, kind: Deployment, name: coredns, namespace: kube-system}
+reason: PolicyViolation
+reportingComponent: kyverno-admission
+source: {}
+type: Warning
+message: "Deployment kube-system/coredns: [no-latest] fail (blocked); validation error: images must not use latest. rule no-latest failed at path /spec/template/spec/containers/0/image/"
+---
+# A recorded failure (Audit) that let the request through.
+apiVersion: v1
+kind: Event
+metadata:
+  name: require-team-label.18e615367fb8cff1
+  namespace: default
+  creationTimestamp: "2026-11-08T11:45:00Z"
+action: Resource Passed
+eventTime: "2026-11-08T11:45:00.368950Z"
+involvedObject: {apiVersion: kyverno.io/v1, kind: ClusterPolicy, name: require-team-label}
+related: {apiVersion: v1, kind: Pod, name: api-0, namespace: payments}
+reason: PolicyViolation
+reportingComponent: kyverno-admission
+source: {}
+type: Warning
+message: "Pod payments/api-0: [check-team] fail; validation error: label 'team' is required."
+---
+# The resource-side duplicate of the above: skipped.
+apiVersion: v1
+kind: Event
+metadata: {name: api-0.18e615367fb8dddd, namespace: payments, creationTimestamp: "2026-11-08T11:45:00Z"}
+action: Resource Passed
+eventTime: "2026-11-08T11:45:00.368950Z"
+involvedObject: {apiVersion: v1, kind: Pod, name: api-0, namespace: payments}
+reason: PolicyViolation
+reportingComponent: kyverno-admission
+source: {}
+type: Warning
+message: "policy require-team-label/check-team fail: validation error: label 'team' is required."
+---
+# A background scan result: not admission.
+apiVersion: v1
+kind: Event
+metadata: {name: require-team-label.scan, namespace: default, creationTimestamp: "2026-11-08T11:30:00Z"}
+action: Resource Passed
+eventTime: "2026-11-08T11:30:00Z"
+involvedObject: {apiVersion: kyverno.io/v1, kind: ClusterPolicy, name: require-team-label}
+related: {apiVersion: v1, kind: Pod, name: api-0, namespace: payments}
+reason: PolicyViolation
+reportingComponent: kyverno-scan
+source: {}
+type: Warning
+message: "Pod payments/api-0: [check-team] fail; validation error: label 'team' is required."

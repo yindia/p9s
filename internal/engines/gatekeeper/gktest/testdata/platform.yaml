@@ -1,0 +1,83 @@
+apiVersion: admissionregistration.k8s.io/v1
+kind: ValidatingWebhookConfiguration
+metadata:
+  name: gatekeeper-validating-webhook-configuration
+  labels: {gatekeeper.sh/system: "yes"}
+webhooks:
+  - name: validation.gatekeeper.sh
+    failurePolicy: Ignore
+    timeoutSeconds: 3
+    clientConfig:
+      service: {namespace: gatekeeper-system, name: gatekeeper-webhook-service}
+      caBundle: LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCk1JSUROakNDQWg2Z0F3SUJBZ0lVQ2k1U1hlVFppZEU5UjU3ME9kLzQwSTkrYitvd0RRWUpLb1pJaHZjTkFRRUwKQlFBd096RTVNRGNHQTFVRUF3d3daMkYwWld0bFpYQmxjaTEzWldKb2IyOXJMWE5sY25acFkyVXVaMkYwWld0bApaWEJsY2kxemVYTjBaVzB1YzNaak1CNFhEVEkyTVRFd09ERXlOVFUwTmxvWERUSTJNVEV4TlRFeU5UVTBObG93Ck96RTVNRGNHQTFVRUF3d3daMkYwWld0bFpYQmxjaTEzWldKb2IyOXJMWE5sY25acFkyVXVaMkYwWld0bFpYQmwKY2kxemVYTjBaVzB1YzNaak1JSUJJakFOQmdrcWhraUc5dzBCQVFFRkFBT0NBUThBTUlJQkNnS0NBUUVBNFdIeQp1MjY5MERrZTJjQVlBZDBaT2pWc1ZqSE9MdWg2RzZCMFVBaDFvcFI4cDNBMktucDJVS0dRdWpoWmtyMWgwRXhMCi9CRXVNcThsOUxZWVI1bDdxdS9lbGs1bWVYbzlGNEVuV2tQV29paHQ1MGQxUk5HYUQrVWU3VGtzK3VsakVjSE8KUFJvajQveW51MzBYVzJtbHpQZVZNUEdyWndOY2ZrVk5xaVg5VmFhV2tXb0tVMUpwck9PdWRoaFRWSHd2K3I3MgpKcUk2dGR5bDdMQVJLNHNxL21ndlpOZ09Sa3V4bEhsZDRsei9sQU5ySHZOcStGdVpiNk8vcE1rbnNZeUl3UEZhCjlFZE9ONUpiRWdZeDd6ZFVwQXptNXg3QjdiM3dTMVVHUldRYTR6R1NDWFg5S1JTOENrbTJOYW1ocHFxd25zajYKUDJsR29Ud0J6eGkrRUpiaHNRSURBUUFCb3pJd01EQWRCZ05WSFE0RUZnUVV6K1JIVitEekRweXROQVRJcFZ4MApYbDJtVVpzd0R3WURWUjBUQVFIL0JBVXdBd0VCL3pBTkJna3Foa2lHOXcwQkFRc0ZBQU9DQVFFQUxoUjN6M0RICnQrN1JPNEdJVmdYcWRDZDlnMUlBUS9GQk1ISW5KQlc2eWFQU2pMTTYwdTQxeDZJdllmNXY2YVdjSkkvUG9TRVMKL0pndE1jRWtWbC9DYzVPNGVHN1NWZHF1bHdJRjdDd1VpUWUyZk14eUY2c1RaRWo5T05CTnhhYS9ENVlVZmpvaApkNVBLZGttQitidmZvVEtvNmI1UmlnZFc1RHV3c3dCOWpKN3dOWVlHdlc2UkJydThRZEt4SndBVVVJT2ozZzdrCmZWSGdXYlZKdmYyTVBxNXZsSjdCZmZQeElRTG00cThJRTNucUF4V3QrNjR1bWhEU09mVm5JYjVvQXptTncvS0YKTTArWmtMaEMzTVcxYktUMGZqMXJ3a3NlSWxoZ3JJYXNiMGhDUUwvU1hWYTIxbUF6WlF4Ny9HODZFaSswdGF0Kwovb012cGJpRnBLelJpZz09Ci0tLS0tRU5EIENFUlRJRklDQVRFLS0tLS0K
+    namespaceSelector:
+      matchExpressions:
+        - {key: admission.gatekeeper.sh/ignore, operator: DoesNotExist}
+    rules:
+      - {apiGroups: ["*"], apiVersions: ["*"], operations: [CREATE, UPDATE], resources: ["*"]}
+---
+apiVersion: discovery.k8s.io/v1
+kind: EndpointSlice
+metadata:
+  name: gatekeeper-webhook-service-x7k2p
+  namespace: gatekeeper-system
+  labels: {kubernetes.io/service-name: gatekeeper-webhook-service}
+addressType: IPv4
+endpoints:
+  - addresses: [10.0.0.11]
+    conditions: {ready: true}
+    targetRef: {kind: Pod, namespace: gatekeeper-system, name: gatekeeper-controller-manager-5d8f-a}
+  - addresses: [10.0.0.12]
+    conditions: {ready: false}
+    targetRef: {kind: Pod, namespace: gatekeeper-system, name: gatekeeper-controller-manager-5d8f-b}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: gatekeeper-audit
+  namespace: gatekeeper-system
+  labels: {gatekeeper.sh/system: "yes"}
+spec:
+  replicas: 1
+  selector: {matchLabels: {control-plane: audit-controller}}
+  template:
+    spec:
+      containers:
+        - {name: manager, image: openpolicyagent/gatekeeper:v3.17.1, args: ["--audit-interval=60"]}
+status: {readyReplicas: 1}
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: gatekeeper-audit-7c9f-q
+  namespace: gatekeeper-system
+  labels: {control-plane: audit-controller}
+status:
+  phase: Running
+  conditions: [{type: Ready, status: "True"}]
+  containerStatuses:
+    - name: manager
+      restartCount: 2
+      lastState: {terminated: {reason: OOMKilled, finishedAt: "2026-11-08T11:40:00Z"}}
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: gatekeeper-controller-manager-5d8f-a
+  namespace: gatekeeper-system
+  labels: {control-plane: controller-manager}
+status:
+  phase: Running
+  conditions: [{type: Ready, status: "True"}]
+  containerStatuses: [{name: manager, restartCount: 0}]
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: gatekeeper-controller-manager-5d8f-b
+  namespace: gatekeeper-system
+  labels: {control-plane: controller-manager}
+status:
+  phase: Pending
+  conditions: [{type: Ready, status: "False"}]
+  containerStatuses: [{name: manager, restartCount: 0}]

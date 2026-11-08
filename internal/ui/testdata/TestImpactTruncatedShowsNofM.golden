@@ -1,0 +1,24 @@
+ p9s │ ctx kind-demo │ ns all │ alpha v1 · beta v2 │ last audit 0s ago (alpha)                                       RO
+─ Impact: need-team [3] ────────────────────────────────────────────────────────────────────────────────────────────────
+ alpha AlphaRule/need-team · warn
+ If enforced: 40 violations. Matching creates and updates would be rejected; running objects keep running.
+ Showing 3 of 40 (the engine lists fewer than it counts): the groups below cover the listed 3 only.
+ Owners whose requests may be rejected: 1 controller-managed (new pods, rollouts) · 1 bare (re-create, update) · 1 unkn…
+ Objects by namespace: payments 2 · search 1
+  NAMESPACE  OWNER                     MANAGED     OBJECTS  MESSAGE
+▸ payments   Pod/payments/bare         bare        1        label team is required
+  payments   StatefulSet/payments/api  controller  1        label team is required
+  search     Pod/search/idx-0          -           1        label team is required
+
+
+
+
+
+
+
+
+
+
+
+ » label team is required
+ connected to kind-demo

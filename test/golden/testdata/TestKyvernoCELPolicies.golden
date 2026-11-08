@@ -1,0 +1,24 @@
+ p9s │ ctx kind-gatekeeper │ ns all │ kyverno v1.19.2 │ last audit 60s ago                                           RO
+─ CEL Policies [4] ─────────────────────────────────────────────────────────────────────────────────────────────────────
+  NAME                                                               KIND   NAMESPACE  ACTIONS  READY  VIOLATIONS↓  AGE
+▸ team-quota                                                         NVPol  payments   warn     ✓      1            5d2h
+  disallow-privileged-containers                                     VPol   -          audit    ✓      1            7d2h
+  require-limits                                                     VPol   -          enforce  ✗      0            6d2h
+  add-managed-by                                                     MPol   -          mutate   ✓      -            4d2h
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ connected to kind-gatekeeper

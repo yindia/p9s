@@ -1,0 +1,86 @@
+name: ci
+
+on:
+  push:
+    branches: [main]
+    paths-ignore:
+      - "Formula/**"
+      - "docs/image/**"
+  pull_request:
+    branches: [main]
+  workflow_dispatch: {}
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+          check-latest: true
+      - uses: golangci/golangci-lint-action@v8
+        with:
+          version: v2.12.2
+      - name: go mod tidy
+        run: |
+          go mod tidy
+          git diff --exit-code -- go.mod go.sum
+
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+          check-latest: true
+      - name: Build
+        run: make build
+      - name: Test (unit, contract, golden, boundaries)
+        run: make test
+      - name: Test with the race detector
+        run: make test-race
+      - name: Coverage
+        run: make cover
+      - name: Goldens are up to date
+        run: |
+          make golden
+          git status --porcelain
+          test -z "$(git status --porcelain)"
+
+  e2e:
+    runs-on: ubuntu-latest
+    needs: test
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+          check-latest: true
+      - uses: helm/kind-action@v1
+        with:
+          install_only: true
+      - uses: azure/setup-helm@v4
+      - name: Cluster (Gatekeeper, Kyverno, VAPs, demo workloads)
+        run: make e2e-up
+      - name: e2e
+        run: go test -tags e2e -count=1 -v ./test/e2e/...
+        env:
+          E2E_CONTEXT: kind-p9s
+      - name: Cluster state on failure
+        if: failure()
+        run: |
+          kubectl --context kind-p9s get pods -A
+          kubectl --context kind-p9s get events -A --sort-by=.lastTimestamp | tail -100
+      - name: Delete the cluster
+        if: always()
+        run: make e2e-down

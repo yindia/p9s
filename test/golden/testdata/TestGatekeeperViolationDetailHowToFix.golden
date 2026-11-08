@@ -1,0 +1,24 @@
+ p9s │ ctx kind-gatekeeper │ ns all │ kyverno v1.19.2 · gatekeeper v3.17.1 │ last audit 60s ago (gatekeeper)         RO
+─ Violations › Violation of pods-must-have-app ─────────────────────────────────────────────────────────────────────────
+ Message
+ you must provide labels: {"app"}
+
+ Target
+ Object:   v1 Pod/payments/worker-7d9f
+ Owner:    apps/v1 Deployment/payments/worker
+ Audited:  90s ago
+
+ Policy
+ Name:         gatekeeper:K8sRequiredLabels/pods-must-have-app
+ Engine:       gatekeeper
+ Rule:         -
+ Enforcement:  audit (engine: dryrun)
+
+ How to fix
+ Add an app label to the pod template, e.g. app=<your service name>.
+ (from constraint annotation description)
+
+ Required Labels
+ Requires resources to contain specified labels, with values matching provided regular expressions.
+ (from template k8srequiredlabels annotation description)
+ j/k scroll  y yaml  e edit  esc back  ? help

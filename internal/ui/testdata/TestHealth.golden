@@ -1,0 +1,24 @@
+ p9s │ ctx kind-demo │ ns all │ alpha v1.2.0 · beta 0.9.1 │ last audit 30s ago (alpha)                               RO
+─ Health ───────────────────────────────────────────────────────────────────────────────────────────────────────────────
+  OVERALL   ✗ 1 critical   ! 0 warning   ? 2 unknown   ✓ 1 ok                                          refreshed 2s ago
+
+─ Webhooks [2] ─────────────────────────────────────────────────────────────────────────────────────────────────────────
+  ENGINE  WEBHOOK                                                 FAILURE  TIMEOUT  ENDPOINTS  CERT  STATUS
+▸ alpha   validate.alpha.example                                  Ignore   3s       ?          -     ? endpoints unknown
+  beta    validate.beta.example                                   Fail     10s      ?          -     ? endpoints unknown
+
+─ Controllers [2] ──────────────────────────────────────────────────────────────────────────────────────────────────────
+  ENGINE  DEPLOYMENT                                              READY  RESTARTS  LAST REASON       IMAGE   STATUS
+  alpha   alpha-controller                                        0/2    14        CrashLoopBackOff  v1.2.0  ✗ not ready
+  beta    beta-controller                                         1/1    0         -                 0.9.1   ✓
+
+─ Audit [0] ────────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+  Nothing to check.
+
+─ Policies [0] ─────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+  Nothing to check.
+
+
+ connected to kind-demo

@@ -1,0 +1,71 @@
+apiVersion: constraints.gatekeeper.sh/v1beta1
+kind: K8sRequiredLabels
+metadata:
+  name: ns-must-have-owner
+  creationTimestamp: "2026-11-01T10:05:00Z"
+spec:
+  enforcementAction: deny
+  match:
+    kinds:
+      - apiGroups: [""]
+        kinds: ["Namespace"]
+  parameters:
+    labels: ["owner"]
+status:
+  auditTimestamp: "2026-11-08T11:59:00Z"
+  totalViolations: 3
+  violations:
+    - enforcementAction: deny
+      group: ""
+      version: v1
+      kind: Namespace
+      name: payments
+      message: 'you must provide labels: {"owner"}'
+    - enforcementAction: deny
+      group: ""
+      version: v1
+      kind: Namespace
+      name: default
+      message: 'you must provide labels: {"owner"}'
+---
+apiVersion: constraints.gatekeeper.sh/v1beta1
+kind: K8sRequiredLabels
+metadata:
+  name: pods-must-have-app
+  creationTimestamp: "2026-11-02T10:05:00Z"
+  annotations:
+    description: Add an app label to the pod template, e.g. app=<your service name>.
+spec:
+  enforcementAction: dryrun
+  match:
+    kinds:
+      - apiGroups: [""]
+        kinds: ["Pod"]
+  parameters:
+    labels: ["app"]
+status:
+  auditTimestamp: "2026-11-08T11:58:30Z"
+  totalViolations: 1
+  violations:
+    - enforcementAction: dryrun
+      group: ""
+      version: v1
+      kind: Pod
+      namespace: payments
+      name: worker-7d9f
+      message: 'you must provide labels: {"app"}'
+---
+apiVersion: constraints.gatekeeper.sh/v1beta1
+kind: K8sReplicaLimits
+metadata:
+  name: max-ten-replicas
+  creationTimestamp: "2026-11-05T10:05:00Z"
+spec:
+  enforcementAction: scoped
+  scopedEnforcementActions:
+    - action: warn
+      enforcementPoints:
+        - name: validation.gatekeeper.sh
+    - action: dryrun
+      enforcementPoints:
+        - name: audit.gatekeeper.sh

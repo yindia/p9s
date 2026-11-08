@@ -1,0 +1,24 @@
+ p9s │ ctx kind-demo │ ns all │ alpha v1.2.0 · beta 0.9.1 │ last audit 30s ago (alpha)                               RO
+─ Violations · recent › Admission event: must-have-owner ───────────────────────────────────────────────────────────────
+ Summary
+ Engine:  alpha
+ Policy:  alpha:RequiredLabels/must-have-owner
+ Action:  enforce (engine: deny)
+ User:    alice@example.com
+ Target:  apps/v1 Deployment/payments/checkout
+ When:    2m ago
+ Count:   3
+
+ Message
+ missing label owner
+
+ Note
+ Events are kept for a limited time (kube-apiserver --event-ttl, 1h by default): this is recent history only. Server-
+ side dry-run requests are included (the engines do not mark them). Denials by generated ValidatingAdmissionPolicies
+ are not recorded as Events.
+
+
+
+
+
+ j/k scroll  esc back  ? help

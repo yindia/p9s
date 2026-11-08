@@ -1,0 +1,24 @@
+ p9s │ ctx kind-gatekeeper │ ns all │ gatekeeper v3.17.1 │ last audit 60s ago                                        RO
+─ ConstraintTemplates › Constraints [2] (K8sRequiredLabels) ────────────────────────────────────────────────────────────
+  NAME                                                            KIND               ENFORCEMENT  VIOLATIONS↓  AUDIT AGE
+▸ ns-must-have-owner                                              K8sRequiredLabels  enforce      3            60s
+  pods-must-have-app                                              K8sRequiredLabels  audit        1            90s
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ :cmd  /filter  enter open  d describe  y yaml  e edit  i impact  esc back  ? help
