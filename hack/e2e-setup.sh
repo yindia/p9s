@@ -111,4 +111,28 @@ k apply -f "$(dirname "$0")/manifests/tenant.yaml" >/dev/null
 
 "$(dirname "$0")/demo-webhooks.sh" "$CTX"
 
+# The tests read what the engines report, so wait until each has reported
+# once: on a fresh cluster Kyverno's reports and Gatekeeper's first audit
+# take a minute or two after the pods are Ready.
+wait_for() { # description, command...
+  local what="$1"; shift
+  for _ in $(seq 1 60); do
+    if "$@" >/dev/null 2>&1; then echo "ready: $what"; return 0; fi
+    sleep 5
+  done
+  echo "timed out waiting for $what" >&2
+  return 1
+}
+gatekeeper_audited() {
+  k get constraints -o jsonpath='{range .items[*]}{.status.auditTimestamp}{"\n"}{end}' | grep -q .
+}
+wait_for "Gatekeeper audit" gatekeeper_audited
+if [ "$KYVERNO" = "1" ]; then
+  kyverno_reported() {
+    k get policyreports -n p9s-demo -o jsonpath='{range .items[*].results[*]}{.policy}={.result}{"\n"}{end}' \
+      | grep -q '^disallow-privilege-escalation=fail$'
+  }
+  wait_for "Kyverno reports in p9s-demo" kyverno_reported
+fi
+
 echo "done. context: $CTX"
