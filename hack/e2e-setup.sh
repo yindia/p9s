@@ -88,9 +88,18 @@ if [ "$KYVERNO" = "1" ]; then
     `# Kyverno turns those into report labels and every report write fails.` \
     --set features.validatingAdmissionPolicyReports.enabled=false \
     --wait --timeout 6m
-  # The standard Pod Security Standards policies, in Audit mode.
-  helm upgrade --install kyverno-policies kyverno/kyverno-policies --kube-context "$CTX" -n kyverno \
-    --set podSecurityStandard=restricted --set validationFailureAction=Audit --wait --timeout 3m
+  # The standard Pod Security Standards policies, in Audit mode. --wait above
+  # returns when the pods are Ready, which can be before the policy webhook
+  # accepts connections (seen on GitHub runners): retry until it answers.
+  for i in 1 2 3 4 5 6; do
+    if helm upgrade --install kyverno-policies kyverno/kyverno-policies --kube-context "$CTX" -n kyverno \
+      --set podSecurityStandard=restricted --set validationFailureAction=Audit --wait --timeout 3m; then
+      break
+    fi
+    [ "$i" = 6 ] && { echo "kyverno-policies: webhook never became reachable" >&2; exit 1; }
+    echo "kyverno-policies: webhook not ready, retrying in 15s ($i/6)"
+    sleep 15
+  done
   k apply -f "$(dirname "$0")/manifests/kyverno-classic.yaml" 2>&1 | grep -v "deprecated" || true
 fi
 
