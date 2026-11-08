@@ -112,27 +112,36 @@ k apply -f "$(dirname "$0")/manifests/tenant.yaml" >/dev/null
 "$(dirname "$0")/demo-webhooks.sh" "$CTX"
 
 # The tests read what the engines report, so wait until each has reported
-# once: on a fresh cluster Kyverno's reports and Gatekeeper's first audit
-# take a minute or two after the pods are Ready.
-wait_for() { # description, command...
-  local what="$1"; shift
-  for _ in $(seq 1 60); do
-    if "$@" >/dev/null 2>&1; then echo "ready: $what"; return 0; fi
+# once: on a fresh cluster Gatekeeper's first audit and Kyverno's reports can
+# take several minutes after the pods are Ready (slower on CI runners).
+wait_for() { # description, on-timeout command, check command...
+  local what="$1" dump="$2"; shift 2
+  for i in $(seq 1 120); do
+    if "$@" >/dev/null 2>&1; then echo "ready: $what ($((i * 5))s)"; return 0; fi
+    [ $((i % 12)) = 0 ] && echo "waiting for $what ($((i * 5))s)"
     sleep 5
   done
   echo "timed out waiting for $what" >&2
+  "$dump" >&2 || true
   return 1
 }
 gatekeeper_audited() {
-  k get constraints -o jsonpath='{range .items[*]}{.status.auditTimestamp}{"\n"}{end}' | grep -q .
+  k get constraints -o jsonpath='{range .items[*]}{.status.auditTimestamp}{"\n"}{end}' | grep . >/dev/null
 }
-wait_for "Gatekeeper audit" gatekeeper_audited
+gatekeeper_dump() { k get constraints; }
+wait_for "Gatekeeper audit" gatekeeper_dump gatekeeper_audited
 if [ "$KYVERNO" = "1" ]; then
-  kyverno_reported() {
-    k get policyreports -n p9s-demo -o jsonpath='{range .items[*].results[*]}{.policy}={.result}{"\n"}{end}' \
-      | grep -q '^disallow-privilege-escalation=fail$'
+  report_results() {
+    k get policyreports -n p9s-demo -o jsonpath='{range .items[*].results[*]}{.policy}={.result}{"\n"}{end}'
   }
-  wait_for "Kyverno reports in p9s-demo" kyverno_reported
+  kyverno_reported() { report_results | grep -x 'disallow-privilege-escalation=fail' >/dev/null; }
+  kyverno_dump() {
+    k get policyreports -n p9s-demo
+    report_results | sort | uniq -c
+    k get validatingpolicies
+    k -n kyverno logs deploy/kyverno-reports-controller --tail=50
+  }
+  wait_for "Kyverno reports in p9s-demo" kyverno_dump kyverno_reported
 fi
 
 echo "done. context: $CTX"
