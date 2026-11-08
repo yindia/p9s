@@ -22,10 +22,10 @@ jobs:
   dryrun:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           fetch-depth: 0
-      - uses: actions/setup-go@v5
+      - uses: actions/setup-go@v7
         with:
           go-version-file: go.mod
           check-latest: true
@@ -34,7 +34,7 @@ jobs:
       # `brews` (the Formula/p9s.rb formula) is deprecated in favour of casks.
       # The snapshot below parses the same config and fails on real errors.
       - name: GoReleaser dry-run
-        uses: goreleaser/goreleaser-action@v6
+        uses: goreleaser/goreleaser-action@v7
         with:
           version: "~> v2"
           args: release --snapshot --skip=publish --clean
