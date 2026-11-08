@@ -1,0 +1,77 @@
+version: 2
+project_name: p9s
+
+before:
+  hooks:
+    - go mod tidy
+
+builds:
+  - id: p9s
+    main: ./cmd/p9s
+    binary: p9s
+    env:
+      - CGO_ENABLED=0
+    goos:
+      - linux
+      - darwin
+      - windows
+    goarch:
+      - amd64
+      - arm64
+    flags:
+      - -trimpath
+    ldflags:
+      - "-s -w -X github.com/yindia/p9s/cmd/p9s/app.Version={{ .Version }}"
+
+archives:
+  - id: p9s
+    ids: [p9s]
+    formats: [tar.gz]
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+    # install.sh downloads p9s_<version>_<os>_<arch>.tar.gz by this name.
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    files:
+      - README.md
+
+checksum:
+  name_template: "checksums.txt"
+
+# The formula is committed to this repository (Formula/p9s.rb):
+#   brew tap yindia/p9s https://github.com/yindia/p9s && brew install p9s
+brews:
+  - ids: [p9s]
+    name: p9s
+    homepage: "https://github.com/yindia/p9s"
+    description: "Terminal UI for Kubernetes policy engines: Gatekeeper, Kyverno and ValidatingAdmissionPolicies"
+    directory: Formula
+    repository:
+      owner: yindia
+      name: p9s
+      branch: main
+    commit_author:
+      name: github-actions[bot]
+      email: 41898282+github-actions[bot]@users.noreply.github.com
+    commit_msg_template: "chore: bump p9s formula to {{ .Tag }}"
+    test: |
+      assert_match version.to_s, shell_output("#{bin}/p9s --version")
+    install: |
+      bin.install "p9s"
+
+changelog:
+  sort: asc
+  filters:
+    exclude:
+      - "^docs:"
+      - "^test:"
+      - "^chore: bump p9s formula"
+
+release:
+  github:
+    owner: yindia
+    name: p9s
+  # Not a draft: brew and install.sh download the assets as soon as the
+  # tag's release exists.
+  draft: false
+  prerelease: auto

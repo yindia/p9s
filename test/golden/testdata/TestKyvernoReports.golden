@@ -1,0 +1,24 @@
+ p9s │ ctx kind-gatekeeper │ ns all │ kyverno v1.19.2 │ last audit 60s ago                                           RO
+─ PolicyReports [3] ────────────────────────────────────────────────────────────────────────────────────────────────────
+  RESOURCE                                                              NAMESPACE    PASS  FAIL↓  WARN  ERROR  SKIP  AGE
+▸ Pod/coredns-6f6b679f8f-x2v9q                                          kube-system  1     2      0     0      0     50m
+  Pod/api-0                                                             payments     1     2      1     0      0     60m
+  Namespace/payments                                                    -            0     0      0     1      0     40m
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ connected to kind-gatekeeper

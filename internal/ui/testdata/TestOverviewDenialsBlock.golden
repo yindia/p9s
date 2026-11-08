@@ -1,0 +1,24 @@
+ p9s │ ctx kind-demo │ ns all │ alpha v1.2.0 · beta 0.9.1 │ last audit 30s ago (alpha)                               RO
+─ Overview ─────────────────────────────────────────────────────────────────────────────────────────────────────────────
+▸ Health  ⏎ :health
+  ✗ 0 critical · ! 0 warning · ✓ 0 ok
+  All checks pass.
+
+  Top violating owners  ⏎ :v
+  OWNER                                                                                                POLICIES  OBJECTS
+  Namespace/payments                                                                                   1         1
+  Namespace/search                                                                                     1         1
+  StatefulSet/payments/api                                                                             1         1
+
+  Enforcement candidates (audit or warn)  ⏎ :pol /mode:audit,warn
+  3 in audit or warn mode, 1 with no current violations
+  ENGINE  NAME                                                                       KIND        ENFORCEMENT  VIOLATIONS
+  alpha   prefer-limits                                                              AlphaRule   warn         0
+  beta    no-latest                                                                  BetaPolicy  audit        1
+  alpha   observe-images                                                             AlphaRule   audit        -
+
+  Recent admission denials  ⏎ :events
+  2 blocked in recent Events (server-side dry-runs included)
+  TIME  ENGINE  POLICY           USER               TARGET
+  2m    alpha   must-have-owner  alice@example.com  Deployment/payments/checkout
+ connected to kind-demo

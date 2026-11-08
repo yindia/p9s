@@ -1,0 +1,24 @@
+ p9s │ ctx kind-demo │ ns all │ alpha v1.2.0 · beta 0.9.1 │ last audit 30s ago (alpha)                               RO
+─ Health › Webhook validate.alpha.example ──────────────────────────────────────────────────────────────────────────────
+ Impact
+ Endpoints could not be read (RBAC or still loading), so availability is unknown.
+
+ Summary
+ Config:          alpha-webhooks (validating)
+ Webhook:         validate.alpha.example
+ Engine:          alpha
+ Failure policy:  Ignore — on error or timeout the API server admits the request without this check (fail-open)
+ Timeout:         3s
+ Service:         alpha/alpha-webhook
+ Certificate:     -
+
+ Endpoints
+ (unknown: EndpointSlices not readable)
+
+ Namespace scope
+ namespaceSelector:
+   (all)
+ objectSelector:
+   (all)
+
+ j/k scroll  esc back  ? help

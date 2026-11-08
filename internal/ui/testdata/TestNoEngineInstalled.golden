@@ -1,0 +1,24 @@
+ p9s │ ctx kind-demo │ ns all │ no engines │ last audit -                                                            RO
+─ Policies [0] ─────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+  No supported policy engine detected in context "kind-demo". Looked for: gatekeeper. Use :ctx to switch context.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ connected to kind-demo

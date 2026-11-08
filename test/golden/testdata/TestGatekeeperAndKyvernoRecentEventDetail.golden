@@ -1,0 +1,24 @@
+ p9s │ ctx kind-gatekeeper │ ns all │ kyverno v1.19.2 · gatekeeper v3.17.1 │ last audit 60s ago (gatekeeper)         RO
+─ Violations · recent › Admission event: ns-must-have-owner ────────────────────────────────────────────────────────────
+ Summary
+ Engine:  gatekeeper
+ Policy:  gatekeeper:K8sRequiredLabels/ns-must-have-owner
+ Action:  enforce (engine: deny)
+ User:    alice@example.com
+ Target:  v1 Namespace/scratch
+ When:    2m ago
+ Count:   2
+
+ Message
+ you must provide labels: {"owner"}
+
+ Note
+ Events are kept for a limited time (kube-apiserver --event-ttl, 1h by default): this is recent history only. Server-
+ side dry-run requests are included (the engines do not mark them). Denials by generated ValidatingAdmissionPolicies
+ are not recorded as Events.
+
+
+
+
+
+ j/k scroll  esc back  ? help

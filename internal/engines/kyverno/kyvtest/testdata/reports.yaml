@@ -1,0 +1,99 @@
+apiVersion: wgpolicyk8s.io/v1alpha2
+kind: PolicyReport
+metadata:
+  name: 1f6c2a0e-api-0
+  namespace: payments
+  creationTimestamp: "2026-11-08T11:00:00Z"
+scope:
+  apiVersion: v1
+  kind: Pod
+  name: api-0
+  namespace: payments
+summary: {pass: 1, fail: 2, warn: 1, error: 0, skip: 0}
+results:
+  - policy: disallow-privileged-containers
+    source: KyvernoValidatingPolicy
+    result: fail
+    message: Privileged mode is disallowed.
+    properties: {cel.validationIndex: "0", process: background scan}
+    timestamp: {seconds: 1794139140, nanos: 0}
+  - policy: require-team-label
+    rule: check-team
+    source: kyverno
+    result: fail
+    message: "validation error: label 'team' is required. rule check-team failed at path /metadata/labels/team/"
+    timestamp: {seconds: 1794139140, nanos: 0}
+  - policy: team-quota
+    source: KyvernoValidatingPolicy
+    result: warn
+    message: team label is recommended
+    timestamp: {seconds: 1794139140, nanos: 0}
+  - policy: require-limits
+    source: KyvernoValidatingPolicy
+    result: pass
+    message: success
+    timestamp: {seconds: 1794139140, nanos: 0}
+---
+apiVersion: wgpolicyk8s.io/v1alpha2
+kind: PolicyReport
+metadata:
+  name: 9b1e77d4-coredns
+  namespace: kube-system
+  creationTimestamp: "2026-11-08T11:10:00Z"
+scope:
+  apiVersion: v1
+  kind: Pod
+  name: coredns-6f6b679f8f-x2v9q
+  namespace: kube-system
+summary: {pass: 1, fail: 2, warn: 0, error: 0, skip: 0}
+results:
+  - policy: kube-system/no-latest-tag
+    rule: autogen-tag-not-latest
+    source: kyverno
+    result: fail
+    message: "the ':latest' tag is not allowed"
+    timestamp: {seconds: 1794139080, nanos: 0}
+  - policy: disallow-privileged-containers
+    source: KyvernoValidatingPolicy
+    result: pass
+    message: success
+    timestamp: {seconds: 1794139080, nanos: 0}
+  - policy: deleted-policy
+    source: kyverno
+    result: fail
+    message: stale
+    timestamp: {seconds: 1794139080, nanos: 0}
+---
+apiVersion: wgpolicyk8s.io/v1alpha2
+kind: ClusterPolicyReport
+metadata:
+  name: 5c0de1aa-payments
+  creationTimestamp: "2026-11-08T11:20:00Z"
+scope:
+  apiVersion: v1
+  kind: Namespace
+  name: payments
+summary: {pass: 0, fail: 0, warn: 0, error: 1, skip: 0}
+results:
+  - policy: require-team-label
+    rule: check-team
+    source: kyverno
+    result: error
+    message: "failed to evaluate: variable substitution failed"
+    timestamp: {seconds: 1794139000, nanos: 0}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: kyverno-admission-controller
+  namespace: kyverno
+  labels:
+    app.kubernetes.io/part-of: kyverno
+spec:
+  template:
+    spec:
+      containers:
+        - name: kyverno
+          image: reg.kyverno.io/kyverno/kyverno:v1.19.2
+status:
+  readyReplicas: 1

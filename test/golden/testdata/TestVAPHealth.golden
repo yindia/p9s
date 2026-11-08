@@ -1,0 +1,24 @@
+ p9s │ ctx kind-gatekeeper │ ns all │ vap builtin │ last audit -                                                     RO
+─ Health ───────────────────────────────────────────────────────────────────────────────────────────────────────────────
+  OVERALL   ✗ 1 critical   ! 0 warning   ✓ 0 ok                                                        refreshed 0s ago
+
+─ Webhooks [0] ─────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+  Nothing to check.
+
+─ Controllers [0] ──────────────────────────────────────────────────────────────────────────────────────────────────────
+
+  Nothing to check.
+
+─ Audit [0] ────────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+  Nothing to check.
+
+─ Policies [1] ─────────────────────────────────────────────────────────────────────────────────────────────────────────
+  ENGINE  LOADED  NOT ENFORCED  COMPILE ERRORS  MISSING CRD  NOT READY  STATUS
+  vap     2/4     2             1               0            0          ✗ binds policy "deleted-policy", which does not…
+
+
+
+
+ connected to kind-gatekeeper

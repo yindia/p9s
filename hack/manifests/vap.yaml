@@ -1,0 +1,81 @@
+# Native ValidatingAdmissionPolicies for the vap engine's e2e tests. They
+# only match ConfigMaps in p9s-demo and LimitRanges, so nothing the cluster
+# runs is blocked.
+apiVersion: admissionregistration.k8s.io/v1
+kind: ValidatingAdmissionPolicy
+metadata:
+  name: p9s-configmap-owner
+spec:
+  failurePolicy: Fail
+  matchConstraints:
+    resourceRules:
+      - apiGroups: [""]
+        apiVersions: ["v1"]
+        operations: ["CREATE", "UPDATE"]
+        resources: ["configmaps"]
+  matchConditions:
+    - name: not-kube-root-ca
+      expression: "object.metadata.name != 'kube-root-ca.crt'"
+  validations:
+    - expression: "has(object.metadata.labels) && 'p9s.dev/owner' in object.metadata.labels"
+      message: "ConfigMaps in p9s-demo need a p9s.dev/owner label"
+---
+apiVersion: admissionregistration.k8s.io/v1
+kind: ValidatingAdmissionPolicyBinding
+metadata:
+  name: p9s-configmap-owner-demo
+spec:
+  policyName: p9s-configmap-owner
+  validationActions: [Deny]
+  matchResources:
+    namespaceSelector:
+      matchLabels: {kubernetes.io/metadata.name: p9s-demo}
+---
+# Never bound: :health shows it as not enforcing anything.
+apiVersion: admissionregistration.k8s.io/v1
+kind: ValidatingAdmissionPolicy
+metadata:
+  name: p9s-unbound
+spec:
+  matchConstraints:
+    resourceRules:
+      - apiGroups: [""]
+        apiVersions: ["v1"]
+        operations: ["CREATE"]
+        resources: ["limitranges"]
+  validations:
+    - expression: "true"
+---
+# Bound to a policy that does not exist.
+apiVersion: admissionregistration.k8s.io/v1
+kind: ValidatingAdmissionPolicyBinding
+metadata:
+  name: p9s-dangling
+spec:
+  policyName: p9s-deleted-policy
+  validationActions: [Deny]
+---
+# A param binding whose ConfigMap does not exist (LimitRanges only).
+apiVersion: admissionregistration.k8s.io/v1
+kind: ValidatingAdmissionPolicy
+metadata:
+  name: p9s-limitrange-max
+spec:
+  paramKind: {apiVersion: v1, kind: ConfigMap}
+  matchConstraints:
+    resourceRules:
+      - apiGroups: [""]
+        apiVersions: ["v1"]
+        operations: ["CREATE", "UPDATE"]
+        resources: ["limitranges"]
+  validations:
+    - expression: "size(object.spec.limits) <= int(params.data.max)"
+---
+apiVersion: admissionregistration.k8s.io/v1
+kind: ValidatingAdmissionPolicyBinding
+metadata:
+  name: p9s-limitrange-max-missing
+spec:
+  policyName: p9s-limitrange-max
+  validationActions: [Warn]
+  paramRef: {name: p9s-no-such-limits, namespace: default, parameterNotFoundAction: Deny}

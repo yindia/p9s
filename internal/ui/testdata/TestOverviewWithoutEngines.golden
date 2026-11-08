@@ -1,0 +1,24 @@
+ p9s │ ctx kind-demo │ ns all │ no engines │ last audit -                                                            RO
+─ Overview ─────────────────────────────────────────────────────────────────────────────────────────────────────────────
+▸ Health  ⏎ :health
+  ✗ 0 critical · ! 0 warning · ✓ 0 ok
+  All checks pass.
+
+  Top violating owners  ⏎ :v
+  No violations.
+
+  Enforcement candidates (audit or warn)  ⏎ :pol /mode:audit,warn
+  0 in audit or warn mode, 0 with no current violations
+  No policies in audit or warn mode.
+
+  Recent admission denials
+  No active engine records admission events.
+
+  Exemptions
+  Not available yet: the exemptions inventory arrives in a later release.
+
+
+
+
+
+ connected to kind-demo

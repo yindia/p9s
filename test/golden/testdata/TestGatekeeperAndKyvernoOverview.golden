@@ -1,0 +1,24 @@
+ p9s │ ctx kind-gatekeeper │ ns all │ kyverno v1.19.2 · gatekeeper v3.17.1 │ last audit 60s ago (gatekeeper)         RO
+─ Overview ─────────────────────────────────────────────────────────────────────────────────────────────────────────────
+▸ Health  ⏎ :health
+  ✗ 0 critical · ! 5 warning · ✓ 4 ok
+  PANEL        ENGINE      CHECK                     STATUS
+  Webhooks     gatekeeper  validation.gatekeeper.sh  ! cert expires in 7d
+  Controllers  gatekeeper  gatekeeper-audit          ! restarted 20m ago
+  Audit        kyverno     policy reports            ! 1 audit error
+  Policies     gatekeeper  2/3                       ! 1 policy not active
+  Policies     kyverno     5/6                       ! 1 policy not active
+
+  Top violating owners  ⏎ :v
+  OWNER                                                                                                POLICIES  OBJECTS
+  Deployment/kube-system/coredns                                                                       1         1
+  Deployment/payments/worker                                                                           1         1
+  Namespace/default                                                                                    1         1
+  Namespace/payments                                                                                   2         1
+  StatefulSet/payments/api                                                                             3         1
+
+  Enforcement candidates (audit or warn)  ⏎ :pol /mode:audit,warn
+  5 in audit or warn mode, 0 with no current violations
+  ENGINE      NAME                                                            KIND               ENFORCEMENT  VIOLATIONS
+  gatekeeper  pods-must-have-app                                              K8sRequiredLabels  audit        1
+ connected to kind-gatekeeper

@@ -1,0 +1,24 @@
+ p9s │ ctx kind-demo │ ns search │ alpha v1.2.0 · beta 0.9.1 │ last audit 30s ago (alpha)                            RO
+─ Overview ─────────────────────────────────────────────────────────────────────────────────────────────────────────────
+▸ Health (cluster-wide)  ⏎ :health
+  ✗ 0 critical · ! 0 warning · ✓ 0 ok
+  All checks pass.
+
+  Top violating owners  ⏎ :v
+  OWNER                                                                                                POLICIES  OBJECTS
+  Namespace/search                                                                                     1         1
+
+  Enforcement candidates (audit or warn)  ⏎ :pol /mode:audit,warn
+  2 in audit or warn mode, 1 with no current violations
+  ENGINE  NAME                                                                        KIND       ENFORCEMENT  VIOLATIONS
+  alpha   prefer-limits                                                               AlphaRule  warn         0
+  alpha   observe-images                                                              AlphaRule  audit        -
+
+  Recent admission denials
+  No active engine records admission events.
+
+  Exemptions
+  Not available yet: the exemptions inventory arrives in a later release.
+
+
+ namespace scope: search

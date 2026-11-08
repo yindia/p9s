@@ -1,0 +1,24 @@
+ p9s │ ctx kind-demo │ ns all │ alpha v1.2.0 · beta 0.9.1 │ last audit 30s ago (alpha)                               RO
+─ Violations › Pod/payments/api-0 ──────────────────────────────────────────────────────────────────────────────────────
+ apiVersion: v1
+ kind: Pod
+ metadata:
+   name: api-0
+   namespace: payments
+ spec:
+   containers:
+   - image: api:latest
+     name: api
+
+
+
+
+
+
+
+
+
+
+
+
+ j/k scroll  y yaml  e edit  esc back  ? help

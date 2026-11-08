@@ -1,0 +1,3 @@
+! beta: forbidden to list betareports.beta.example — data from it is missing
+ENGINE  NAME           KIND       NAMESPACE  ENFORCEMENT  VIOLATIONS↓  AUDIT AGE
+alpha   require-owner  AlphaRule  -          enforce      2            30s

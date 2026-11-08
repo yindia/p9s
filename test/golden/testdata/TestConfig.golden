@@ -1,0 +1,24 @@
+ p9s │ ctx kind-gatekeeper │ ns all │ gatekeeper v3.17.1 │ last audit 60s ago                                        RO
+─ Config [1] ───────────────────────────────────────────────────────────────────────────────────────────────────────────
+  NAMESPACE          NAME                                                                           SYNC  EXCLUDED  AGE
+▸ gatekeeper-system  config                                                                         2     1         7d3h
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ connected to kind-gatekeeper

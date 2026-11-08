@@ -1,0 +1,24 @@
+ p9s │ ctx kind-demo │ ns all │ alpha v1.2.0 · beta 0.9.1 │ last audit 30s ago (alpha)                               RO
+─ Violations › Impact: require-owner [2] ───────────────────────────────────────────────────────────────────────────────
+ alpha AlphaRule/require-owner · enforce (engine: block)
+ Already enforcing: 2 violations on 2 objects exist today. Matching creates and updates of them are rejected.
+ Owners whose requests may be rejected: 0 controller-managed (new pods, rollouts) · 2 bare (re-create, update)
+ Objects by namespace: (cluster) 2
+  NAMESPACE  OWNER               MANAGED  OBJECTS  MESSAGE
+▸ (cluster)  Namespace/payments  bare     1        label owner is required
+  (cluster)  Namespace/search    bare     1        label owner is required
+
+
+
+
+
+
+
+
+
+
+
+
+
+ » label owner is required
+ :cmd  /filter  enter open  g goto  c copy  esc back  ? help

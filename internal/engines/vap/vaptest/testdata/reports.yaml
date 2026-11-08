@@ -1,0 +1,20 @@
+# Kyverno's VAP reports (features.validatingAdmissionPolicyReports).
+apiVersion: wgpolicyk8s.io/v1alpha2
+kind: PolicyReport
+metadata:
+  name: rep-checkout
+  namespace: payments
+  creationTimestamp: "2026-11-08T11:00:00Z"
+scope: {apiVersion: apps/v1, kind: Deployment, name: checkout, namespace: payments}
+results:
+  - policy: require-team
+    source: ValidatingAdmissionPolicy
+    result: fail
+    message: "label team is required"
+  - policy: replica-limit
+    source: ValidatingAdmissionPolicy
+    result: pass
+  - policy: gatekeeper-k8srequiredlabels
+    source: ValidatingAdmissionPolicy
+    result: fail
+    message: "generated: counted by Gatekeeper, not here"

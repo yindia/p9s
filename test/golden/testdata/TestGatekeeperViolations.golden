@@ -1,0 +1,24 @@
+ p9s │ ctx kind-gatekeeper │ ns all │ gatekeeper v3.17.1 │ last audit 60s ago                                        RO
+─ Violations [3] ───────────────────────────────────────────────────────────────────────────────────────────────────────
+  ENGINE      OWNER                       POLICY              KIND               ACTION   OBJECTS↓  MESSAGE
+▸ gatekeeper  Deployment/payments/worker  pods-must-have-app  K8sRequiredLabels  audit    1         you must provide la…
+  gatekeeper  Namespace/default           ns-must-have-owner  K8sRequiredLabels  enforce  1         you must provide la…
+  gatekeeper  Namespace/payments          ns-must-have-owner  K8sRequiredLabels  enforce  1         you must provide la…
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ » you must provide labels: {"app"}
+ connected to kind-gatekeeper

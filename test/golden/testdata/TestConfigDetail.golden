@@ -1,0 +1,24 @@
+ p9s │ ctx kind-gatekeeper │ ns all │ gatekeeper v3.17.1 │ last audit 60s ago                                        RO
+─ Config › Config gatekeeper-system/config ─────────────────────────────────────────────────────────────────────────────
+ Sync (replicated into OPA)
+ syncOnly:
+ - group: ""
+   kind: Namespace
+   version: v1
+ - group: ""
+   kind: Pod
+   version: v1
+
+ Match (excluded namespaces/processes)
+ - excludedNamespaces:
+   - kube-system
+   - gatekeeper-system
+   processes:
+   - '*'
+
+ Validation
+ (default)
+
+ Readiness
+ (default)
+ j/k scroll  y yaml  e edit  esc back  ? help

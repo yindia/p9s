@@ -1,0 +1,35 @@
+apiVersion: admissionregistration.k8s.io/v1
+kind: ValidatingWebhookConfiguration
+metadata:
+  name: kyverno-resource-validating-webhook-cfg
+  labels: {webhook.kyverno.io/managed-by: kyverno}
+webhooks:
+  - name: validate.kyverno.svc-fail
+    failurePolicy: Fail
+    timeoutSeconds: 10
+    clientConfig:
+      service: {namespace: kyverno, name: kyverno-svc}
+      caBundle: LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCk1JSURCRENDQWV5Z0F3SUJBZ0lVVldpTG1LaS94Z1JYaW9EbHV6RCtQTkNTV0xrd0RRWUpLb1pJaHZjTkFRRUwKQlFBd0lqRWdNQjRHQTFVRUF3d1hhM2wyWlhKdWJ5MXpkbU11YTNsMlpYSnVieTV6ZG1Nd0hoY05Nall4TVRBNApNVEkxTlRRMldoY05Nell4TVRBMU1USTFOVFEyV2pBaU1TQXdIZ1lEVlFRRERCZHJlWFpsY201dkxYTjJZeTVyCmVYWmxjbTV2TG5OMll6Q0NBU0l3RFFZSktvWklodmNOQVFFQkJRQURnZ0VQQURDQ0FRb0NnZ0VCQU5FOWpZc0oKNlphNkVuWERxZWtsd3BHK2JNbHpCNU9PMHF0RFEyYnFFeTJmbFZjTFRad3lJa2ZhRkUxMFQ5cEQzdlp3TnJ1ZgppMnJvT3BpT255aEJsK3FDcVdZTlBMZCtqeFRiNGRLdlF6MUdxdmY1M2NWWmluQkJCVTRmZGJiT0kzNHBvUFR2CnRzelU0d21aVk4wTzdFWmxJREJsZ1VwU01YZGpPcm1ldzRwd1pRUnphcWtiejI2dEVQRUIyVkw3SzMxTU9QY3QKemRwMjV0N1RzS1gxZkl0alFFc0o4R3pKRDFiajhDaVMrOFowNkkwK1NQTkJPOUduNFd0eWxsOEpTRkhXL251bwpnK2tlMDB4L1ZaYVVpNWtNY0xjZCs1S1QrZFhIbnZ0NldRRnNoc0VVYS9UZTFkdHpJdlhjMkZwSE5TQStZeVNBCjR4VjUvdmlNdXZJR1VoVUNBd0VBQWFNeU1EQXdIUVlEVlIwT0JCWUVGQ20razhjZDRMbzExUnAwZmk3WFEvVnUKcjNaaE1BOEdBMVVkRXdFQi93UUZNQU1CQWY4d0RRWUpLb1pJaHZjTkFRRUxCUUFEZ2dFQkFMT1dSdzdpNnVFbgpTTHVIOWhCMVlVcVdBOTJnNnZPZkNDZzdhQU5nVzJHeU51b0dKVFhDb21BZ2xhUjNOTzV3UlpyVUw4YzdEcmZoCm1BalB3WmEwMVlpSzRtVjUyWldTUnhqWEV0VnNJa2w1a3p0N3hVU1dyVmg3TW9aMVp0eE1jc0dvNGF6d3A2Z24KQ3J5cmwrbXFkNHF0ekZ4WG1RNzl2MnVLQjFhbzNSbllhTDAzbmdneFI5dkIzRFpyVFNxTE5yZFM5UjFKMFVDeQpJcVg0NTdma2p6Y1ByWGxCRWJzRzVMOUJHZXNjc0tGUWdiZzNpa09EeDhZdEswQTZXR2Nra3JqOVp6bHdKRkkyCmR6Q0lBeGxub1RRaTFMRTBVVVl3RHdqbDN4V1I0bDhKcTA5RnA5NVF6bHVyMTk3MmFOVXdmZGdhYVZReUF6dWgKVW1LV2VPQmRlSHM9Ci0tLS0tRU5EIENFUlRJRklDQVRFLS0tLS0K
+    rules:
+      - {apiGroups: [""], apiVersions: [v1], operations: [CREATE, UPDATE], resources: [pods]}
+---
+apiVersion: discovery.k8s.io/v1
+kind: EndpointSlice
+metadata:
+  name: kyverno-svc-abcde
+  namespace: kyverno
+  labels: {kubernetes.io/service-name: kyverno-svc}
+addressType: IPv4
+endpoints:
+  - addresses: [10.0.1.5]
+    conditions: {ready: true}
+    targetRef: {kind: Pod, namespace: kyverno, name: kyverno-admission-controller-6c7b-a}
+---
+apiVersion: coordination.k8s.io/v1
+kind: Lease
+metadata:
+  name: kyverno-reports-controller
+  namespace: kyverno
+spec:
+  holderIdentity: kyverno-reports-controller-5d4b-x
+  renewTime: "2026-11-08T11:59:50.000000Z"

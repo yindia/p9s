@@ -1,0 +1,22 @@
+# A tenant who can read only the p9s-demo namespace (the built-in "view"
+# role, which Kyverno aggregates PolicyReport read access into). Used by
+# the namespace-only RBAC e2e tests.
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: p9s-tenant
+  namespace: p9s-demo
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: p9s-tenant-view
+  namespace: p9s-demo
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: view
+subjects:
+  - kind: ServiceAccount
+    name: p9s-tenant
+    namespace: p9s-demo

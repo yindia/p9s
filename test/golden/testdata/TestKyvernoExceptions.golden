@@ -1,0 +1,24 @@
+ p9s │ ctx kind-gatekeeper │ ns all │ kyverno v1.19.2 │ last audit 60s ago                                           RO
+─ PolicyExceptions [1] ─────────────────────────────────────────────────────────────────────────────────────────────────
+  NAME              NAMESPACE  EXEMPTS                                                                               AGE
+▸ allow-debug-pods  payments   require-team-label                                                                    26h
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ connected to kind-gatekeeper

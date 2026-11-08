@@ -1,0 +1,24 @@
+ p9s │ ctx kind-gatekeeper │ ns all │ kyverno v1.19.2 · gatekeeper v3.17.1 │ last audit 60s ago (gatekeeper)         RO
+─ Constraints › Impact: ns-must-have-owner [2] ─────────────────────────────────────────────────────────────────────────
+ gatekeeper K8sRequiredLabels/ns-must-have-owner · enforce (engine: deny)
+ Already enforcing: 3 violations exist today. Matching creates and updates of them are rejected.
+ Showing 2 of 3 (Gatekeeper lists at most --constraint-violations-limit): the groups below cover the listed 2 only.
+ Owners whose requests may be rejected: 0 controller-managed (new pods, rollouts) · 2 bare (re-create, update)
+ Objects by namespace: (cluster) 2
+  NAMESPACE  OWNER               MANAGED  OBJECTS  MESSAGE
+▸ (cluster)  Namespace/default   bare     1        you must provide labels: {"owner"}
+  (cluster)  Namespace/payments  bare     1        you must provide labels: {"owner"}
+
+
+
+
+
+
+
+
+
+
+
+
+ » you must provide labels: {"owner"}
+ :cmd  /filter  enter open  g goto  c copy  esc back  ? help

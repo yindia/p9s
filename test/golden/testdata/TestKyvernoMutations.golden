@@ -1,0 +1,24 @@
+ p9s │ ctx kind-gatekeeper │ ns all │ kyverno v1.19.2 │ last audit 60s ago                                           RO
+─ Mutations [2] ────────────────────────────────────────────────────────────────────────────────────────────────────────
+  ENGINE   NAME↑               KIND  NAMESPACE  LOCATION                                        APPLIES TO
+▸ kyverno  add-managed-by      MPol  -          1 mutation(s)                                   configmaps
+  kyverno  require-team-label  CPol  -          rule default-pull-policy (patchStrategicMerge)  Pod
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ connected to kind-gatekeeper

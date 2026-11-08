@@ -1,0 +1,88 @@
+# Shapes captured from Gatekeeper v3.23 on kind (2026-11-08).
+# A webhook denial.
+apiVersion: v1
+kind: Event
+metadata:
+  name: web-1.18e6141ae915dd5a
+  namespace: gatekeeper-system
+  creationTimestamp: "2026-11-08T11:58:00Z"
+  annotations:
+    constraint_action: deny
+    constraint_api_version: v1beta1
+    constraint_group: constraints.gatekeeper.sh
+    constraint_kind: K8sRequiredLabels
+    constraint_name: ns-must-have-owner
+    event_type: violation
+    process: admission
+    request_username: alice@example.com
+    resource_api_version: v1
+    resource_group: ""
+    resource_kind: Namespace
+    resource_name: scratch
+    resource_namespace: ""
+involvedObject: {kind: Namespace, name: scratch, namespace: gatekeeper-system}
+reason: FailedAdmission
+source: {component: gatekeeper-webhook}
+reportingComponent: gatekeeper-webhook
+type: Warning
+count: 2
+firstTimestamp: "2026-11-08T11:50:00Z"
+lastTimestamp: "2026-11-08T11:58:00Z"
+message: 'Admission webhook "validation.gatekeeper.sh" denied request, Resource Namespace: , Constraint: ns-must-have-owner, Message: you must provide labels: {"owner"}'
+---
+# A dry-run constraint recording a violation without blocking.
+apiVersion: v1
+kind: Event
+metadata:
+  name: web-2.18e6141ae915aaaa
+  namespace: gatekeeper-system
+  creationTimestamp: "2026-11-08T11:40:00Z"
+  annotations:
+    constraint_action: dryrun
+    constraint_kind: K8sRequiredLabels
+    constraint_name: pods-must-have-app
+    process: admission
+    request_username: system:serviceaccount:kube-system:replicaset-controller
+    resource_api_version: v1
+    resource_group: ""
+    resource_kind: Pod
+    resource_name: worker-7d9f
+    resource_namespace: payments
+involvedObject: {kind: Pod, name: worker-7d9f, namespace: gatekeeper-system}
+reason: DryrunViolation
+source: {component: gatekeeper-webhook}
+type: Warning
+count: 1
+lastTimestamp: "2026-11-08T11:40:00Z"
+message: 'Dryrun violation by admission webhook "validation.gatekeeper.sh", Resource Namespace: payments, Constraint: pods-must-have-app, Message: you must provide labels: {"app"}'
+---
+# An audit event: not an admission result.
+apiVersion: v1
+kind: Event
+metadata:
+  name: audit-1.18e6141ae915bbbb
+  namespace: gatekeeper-system
+  annotations:
+    constraint_action: deny
+    constraint_kind: K8sRequiredLabels
+    constraint_name: ns-must-have-owner
+    process: audit
+    resource_kind: Namespace
+    resource_name: default
+involvedObject: {kind: Namespace, name: default}
+reason: AuditViolation
+source: {component: gatekeeper-audit}
+type: Warning
+lastTimestamp: "2026-11-08T11:30:00Z"
+message: 'Resource Namespace: , Constraint: ns-must-have-owner, Message: you must provide labels: {"owner"}'
+---
+# Unrelated.
+apiVersion: v1
+kind: Event
+metadata: {name: sched.1, namespace: gatekeeper-system}
+involvedObject: {kind: Pod, name: gatekeeper-audit-7c9f-q, namespace: gatekeeper-system}
+reason: Scheduled
+source: {component: default-scheduler}
+type: Normal
+lastTimestamp: "2026-11-08T11:00:00Z"
+message: Successfully assigned

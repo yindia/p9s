@@ -1,0 +1,53 @@
+# Classic kyverno.io policies next to the chart's CEL ValidatingPolicies, so
+# e2e covers both APIs, a namespaced Policy and a mutate rule.
+apiVersion: kyverno.io/v1
+kind: ClusterPolicy
+metadata:
+  name: require-team-label
+spec:
+  background: true
+  rules:
+    - name: check-team
+      match:
+        any:
+          - resources:
+              kinds: [Pod]
+      validate:
+        failureAction: Audit
+        message: "label 'team' is required"
+        pattern:
+          metadata:
+            labels:
+              team: "?*"
+    - name: default-pull-policy
+      match:
+        any:
+          - resources:
+              kinds: [Pod]
+      mutate:
+        patchStrategicMerge:
+          spec:
+            containers:
+              - (name): "*"
+                imagePullPolicy: IfNotPresent
+---
+apiVersion: kyverno.io/v1
+kind: Policy
+metadata:
+  name: no-latest-tag
+  namespace: kube-system
+spec:
+  background: true
+  rules:
+    - name: tag-not-latest
+      match:
+        any:
+          - resources:
+              kinds: [Pod]
+      validate:
+        failureAction: Audit
+        message: "the ':latest' tag is not allowed"
+        pattern:
+          spec:
+            containers:
+              - image: "!*:latest"

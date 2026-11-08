@@ -1,0 +1,24 @@
+ p9s │ ctx kind-demo │ ns all │ alpha v1.2.0 · beta 0.9.1 │ last audit 30s ago (alpha)                               RO
+─ Help ─────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+ :mut [engine]     mutations across engines
+ :health [engine]  engine health issues
+ :ns [name|all]    scope every view to a namespace
+ :ctx              kubeconfig contexts
+
+ Keys
+ d           describe
+ y           YAML (Secret values are redacted)
+ e           open the YAML in $EDITOR (read-only: changes are discarded)
+ g           go to the source object
+ c           copy kind/namespace/name of the row's object
+ C           copy a kubectl get command for it
+ N V A S     sort by name, violations, age, severity (again to reverse)
+ o           :v grouped by owner ↔ flat list
+ t           :v grouped by owner ↔ by --group-label
+ [ ]         :v current tab (audit results) ↔ recent tab (admission events)
+ i           enforcement impact of the policy on this row
+
+ Engine views (also reached by drilling down)
+ :al/rules         fake engine rules
+ :bt/rules         fake engine rules
+ connected to kind-demo

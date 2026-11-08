@@ -1,0 +1,24 @@
+ p9s │ ctx kind-demo │ ns all │ alpha v1.2.0 · beta 0.9.1 │ last audit 30s ago (alpha)                               RO
+─ Policies › Impact: observe-images [0] ────────────────────────────────────────────────────────────────────────────────
+ alpha AlphaRule/observe-images · audit (engine: observe)
+ Impact unknown: the engine has no audit data for this policy.
+
+  No audit data for this policy (never audited, background scans off, or it does not validate): its impact is unknown.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ :cmd  /filter  esc back  ? help

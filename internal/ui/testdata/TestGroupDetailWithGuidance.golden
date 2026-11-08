@@ -1,0 +1,24 @@
+ p9s │ ctx kind-demo │ ns all │ alpha v1.2.0 · beta 0.9.1 │ last audit 30s ago (alpha)                               RO
+─ Violations › require-owner on Namespace/search ───────────────────────────────────────────────────────────────────────
+ Summary
+ Owner:             Namespace/search
+ Policy:            alpha:AlphaRule/require-owner
+ Action:            enforce (engine: block)
+ Affected objects:  1
+ Violations:        1
+
+ Objects
+ • Namespace/search
+   label owner is required
+
+ How to fix
+ Require an owner
+ Add an owner label naming the team that runs it, e.g. owner=payments.
+ (from annotation alpha.example/description)
+
+
+
+
+
+
+ j/k scroll  y yaml  e edit  esc back  ? help
