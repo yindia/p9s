@@ -44,11 +44,8 @@ jobs:
           check-latest: true
       - name: Build
         run: make build
-      - name: Test (unit, contract, golden, boundaries)
-        run: make test
-      - name: Test with the race detector
-        run: make test-race
-      - name: Coverage
+      # One run: make cover is go test -race with a coverage profile.
+      - name: Test (unit, contract, golden, boundaries; race, coverage)
         run: make cover
       - name: Goldens are up to date
         run: |
