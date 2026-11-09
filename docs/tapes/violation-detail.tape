@@ -22,7 +22,7 @@ Sleep 4.5s
 Type ":v"
 Enter
 Type "o"
-Type "/disallow-privilege-escalation"
+Type "/require-team-label"
 Enter
 Sleep 1.5s
 Type "d"

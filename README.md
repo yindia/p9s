@@ -8,7 +8,7 @@ Browse policies, violations, admission denials and engine health for
 side by side, from your kubeconfig. Nothing to install in the cluster, and
 read-only.
 
-![p9s tour: overview, policies, violations, engine views and the health dashboard](docs/image/tour.gif)
+![p9s end to end: a blocked request, its owner and fix, enforcement impact, health, and a report](docs/image/demo.gif)
 
 p9s answers the questions a platform or security team asks every day:
 
@@ -119,6 +119,8 @@ and what should I look at first" on one screen. `j`/`k` select a block,
 | Exemptions | not available yet | |
 
 The overview follows the `:ns` scope.
+
+![p9s tour: overview, policies, violations, engine views and the health dashboard](docs/image/tour.gif)
 
 ### Violations by owner and team
 
@@ -520,6 +522,7 @@ make e2e-up      # kind cluster: Gatekeeper + library, Kyverno + PSS, demo workl
 make e2e         # e2e-up, then the e2e tests
 make e2e-down
 make tapes       # render the GIFs in docs/image (vhs, ttyd, ffmpeg and make e2e-up)
+make tapes TAPES=docs/tapes/demo.tape   # just one
 ```
 
 The demo GIFs are recorded from `docs/tapes/*.tape` into `docs/image/`.

@@ -4,6 +4,7 @@ VERSION    ?= $(shell git describe --tags --always --dirty 2>/dev/null || echo d
 LDFLAGS    := -s -w -X github.com/yindia/p9s/cmd/p9s/app.Version=$(VERSION)
 CLUSTER    ?= p9s
 E2E_CONTEXT ?= kind-$(CLUSTER)
+TAPES      ?= docs/tapes/*.tape
 
 .PHONY: all build run test test-race cover golden lint fmt e2e-up e2e e2e-down tapes clean
 
@@ -46,13 +47,14 @@ e2e: e2e-up
 e2e-down:
 	kind delete cluster --name $(CLUSTER)
 
-## tapes: render the vhs demos (requires vhs, ttyd, ffmpeg and `make e2e-up`)
+## tapes: render the vhs demos (requires vhs, ttyd, ffmpeg and `make e2e-up`);
+## one tape: make tapes TAPES=docs/tapes/demo.tape
 # bin/ goes on PATH here: vhs applies a tape's `Env PATH` without
 # expanding $$PATH, which hides ttyd from vhs itself.
 tapes: build
 	@for tool in vhs ttyd ffmpeg; do command -v $$tool >/dev/null || { echo "tapes: $$tool not found (brew install vhs)"; exit 1; }; done
 	@kubectl config get-contexts kind-p9s >/dev/null 2>&1 || { echo "tapes: no kind-p9s context; run make e2e-up"; exit 1; }
-	@set -e; for t in docs/tapes/*.tape; do PATH="$(CURDIR)/bin:$$PATH" vhs "$$t"; done
+	@set -e; for t in $(TAPES); do PATH="$(CURDIR)/bin:$$PATH" vhs "$$t"; done
 
 clean:
 	rm -rf bin coverage.out

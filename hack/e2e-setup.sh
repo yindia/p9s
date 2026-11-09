@@ -139,7 +139,7 @@ if [ "$KYVERNO" = "1" ]; then
   report_results() {
     k get policyreports -n p9s-demo -o jsonpath='{range .items[*].results[*]}{.policy}={.result}{"\n"}{end}'
   }
-  kyverno_reported() { report_results | grep -x 'disallow-privilege-escalation=fail' >/dev/null; }
+  kyverno_reported() { report_results | grep -x 'require-team-label=fail' >/dev/null; }
   kyverno_dump() {
     k get policyreports -n p9s-demo
     report_results | sort | uniq -c

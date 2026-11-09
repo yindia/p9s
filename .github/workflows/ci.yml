@@ -121,18 +121,24 @@ jobs:
           restore-keys: |
             go-${{ runner.os }}-e2e-${{ hashFiles('go.sum') }}-
             go-${{ runner.os }}-e2e-
-      - uses: helm/kind-action@v1
-        with:
-          install_only: true
+      # kind from the Go module proxy (and the Go cache) rather than a
+      # release download: helm/kind-action's checksum step failed on CI.
+      - name: Install kind
+        run: go install sigs.k8s.io/kind@v0.31.0
       - uses: azure/setup-helm@v5
       - name: Cluster (Gatekeeper, Kyverno, VAPs, demo workloads)
         run: make e2e-up
       - name: e2e
+        id: e2e
         run: go test -tags e2e -count=1 -v ./test/e2e/...
         env:
           E2E_CONTEXT: kind-p9s
       - name: Save Go cache
-        if: always() && github.event_name == 'push' && github.ref == 'refs/heads/main'
+        # Only once the tests ran (pass or fail): a job that died during
+        # setup has an almost empty cache, which would shadow a full one.
+        if: >-
+          always() && (steps.e2e.outcome == 'success' || steps.e2e.outcome == 'failure')
+          && github.event_name == 'push' && github.ref == 'refs/heads/main'
         uses: actions/cache/save@v4
         with:
           path: |

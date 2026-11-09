@@ -4,6 +4,13 @@ apiVersion: kyverno.io/v1
 kind: ClusterPolicy
 metadata:
   name: require-team-label
+  # The violation-detail e2e tests and tapes read these as "how to fix".
+  annotations:
+    policies.kyverno.io/title: Require Team Label
+    policies.kyverno.io/description: >-
+      Every Pod needs a `team` label naming the team that owns it, so
+      violations and incidents reach the right people. Set it in the pod
+      template (spec.template.metadata.labels) of the owning workload.
 spec:
   background: true
   rules:
