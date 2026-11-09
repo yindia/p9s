@@ -15,6 +15,9 @@ const (
 	// to spare every cell is shown in full.
 	maxColWidth = 48
 	minColWidth = 6
+	// minNameWidth is what a trimmed policy name keeps: enough to tell
+	// require-team-label from require-run-as-nonroot.
+	minNameWidth = 20
 	// minMessageWidth is how far a message column shrinks; past that it is
 	// hidden, since the selected row's full message is under the table.
 	minMessageWidth = 24
@@ -74,7 +77,7 @@ func (t *tableScreen) columnWidths(width int) []int {
 			}
 		}
 	}
-	trimWidest(cols, w, width)
+	trimWidest(cols, w, stats, width)
 	giveBack(cols, w, stats, width-usedWidth(w))
 	return w
 }
@@ -150,27 +153,47 @@ func shrinkRole(cols []table.Column, w []int, width int, role engine.Role, floor
 	}
 }
 
+// trimFloor is the narrowest trimWidest normally takes a column to. Short
+// fixed-format cells (counts, ages, modes, severities, engine names) stay
+// whole: "kyver…" or "OBJEC…" saves a few columns and tells the reader
+// nothing. A policy name keeps enough to tell policies apart, and a column
+// with a MinWidth (OWNER) keeps it.
+func trimFloor(c table.Column, st colStats) int {
+	switch c.Role {
+	case engine.RoleCount, engine.RoleAge, engine.RoleMode, engine.RoleSeverity, engine.RoleEngine:
+		return st.natural
+	case engine.RoleName:
+		return max(min(st.natural, minNameWidth), minColWidth)
+	}
+	return max(minColWidth, c.MinWidth)
+}
+
 // trimWidest takes one column at a time from the widest column, so long
-// names give up space evenly; columns with a MinWidth (OWNER) go last and
-// never below it.
-func trimWidest(cols []table.Column, w []int, width int) {
-	for _, protected := range []bool{false, true} {
+// names give up space evenly: first down to each column's trimFloor, with
+// MinWidth columns (OWNER) last. On a terminal too narrow for those floors
+// every column gives way down to minColWidth.
+func trimWidest(cols []table.Column, w []int, stats []colStats, width int) {
+	pass := func(eligible func(i int) bool, floor func(i int) int) {
 		for usedWidth(w) > width {
 			widest := -1
 			for i := range w {
-				if w[i] == 0 || (cols[i].MinWidth > 0) != protected {
+				if w[i] == 0 || !eligible(i) || w[i] <= floor(i) {
 					continue
 				}
-				if w[i] > max(minColWidth, cols[i].MinWidth) && (widest < 0 || w[i] > w[widest]) {
+				if widest < 0 || w[i] > w[widest] {
 					widest = i
 				}
 			}
 			if widest < 0 {
-				break
+				return
 			}
 			w[widest]--
 		}
 	}
+	floor := func(i int) int { return trimFloor(cols[i], stats[i]) }
+	pass(func(i int) bool { return cols[i].MinWidth == 0 }, floor)
+	pass(func(i int) bool { return cols[i].MinWidth > 0 }, floor)
+	pass(func(int) bool { return true }, func(int) int { return minColWidth })
 }
 
 // giveBack spends spare width on cut columns, each time where it shows the

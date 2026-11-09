@@ -149,6 +149,9 @@ func (a *App) onInputKey(k tea.KeyMsg) tea.Cmd {
 		value, mode := a.input.Value(), a.mode
 		a.closeInput()
 		if mode == inputCommand {
+			// A message about the view being left (e.g. "flat list") must
+			// not follow the reader into the next; the command may set its own.
+			a.flash = ""
 			return a.runCommand(value)
 		}
 		return nil

@@ -1,0 +1,14 @@
+ p9s │ ctx kind-demo │ ns all │ alpha v1.2.0 · beta 0.9.1 │ last audit 30s ago (alpha)                               RO
+─ Violations [3] ───────────────────────────────────────────────────────────────────────────────────────────────────────
+! beta: forbidden to list 40 resources (kind00.beta.example, kind01.beta.example, +38 more) — data from them is missing
+  ENGINE  OWNER                     POLICY         KIND        ACTION   OBJECTS↓  MESSAGE
+▸ alpha   Namespace/payments        require-owner  AlphaRule   enforce  1         label owner is required
+  alpha   Namespace/search          require-owner  AlphaRule   enforce  1         label owner is required
+  beta    StatefulSet/payments/api  no-latest      BetaPolicy  audit    1         image tag latest is not allowed
+
+
+
+
+
+ » label owner is required
+ :cmd  /filter  enter open  d describe  y yaml  e edit  g goto  c copy  i impact  [ ] tab  ? help

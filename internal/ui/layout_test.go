@@ -54,6 +54,14 @@ func TestColumnWidths(t *testing.T) {
 				t.Errorf("policy cut while the message could go: %v", w)
 			}
 		}},
+		{"80 columns: the policy keeps a readable name, counts stay whole", 80, func(t *testing.T, w []int) {
+			if w[1] < minNameWidth {
+				t.Errorf("policy cut below %d while the owner is %d: %v", minNameWidth, w[0], w)
+			}
+			if w[3] < len("OBJECTS") {
+				t.Errorf("count column cut: %v", w)
+			}
+		}},
 		{"very narrow: kinds give way before owners", 110, func(t *testing.T, w []int) {
 			if w[2] > minKindWidth && w[0] < maxColWidth {
 				t.Errorf("owner cut while the kind is still wide: %v", w)

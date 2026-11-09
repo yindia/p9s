@@ -2,6 +2,8 @@ package query_test
 
 import (
 	"errors"
+	"fmt"
+	"slices"
 	"strings"
 	"testing"
 
@@ -160,5 +162,28 @@ func TestHealthSummaryNeverCountsUnknownAsOK(t *testing.T) {
 	}
 	if s.OK != 1 || s.Unknown != 2 || s.Warnings != 1 {
 		t.Errorf("summary = %+v; want 1 ok (ok), 2 unknown (loading, broken), 1 warning (alpha)", s)
+	}
+}
+
+func TestAccessNoticesGroupPerEngine(t *testing.T) {
+	var issues []model.AccessIssue
+	for i := range 37 {
+		issues = append(issues, model.AccessIssue{Engine: "gatekeeper", Verb: "list", Resource: fmt.Sprintf("k%02d.constraints.gatekeeper.sh", i)})
+	}
+	issues = append(issues,
+		model.AccessIssue{Engine: "kyverno", Verb: "list", Resource: "policyreports.wgpolicyk8s.io", OnlyNamespace: "p9s-demo"},
+		model.AccessIssue{Engine: "kyverno", Verb: "list", Resource: "clusterpolicies.kyverno.io"})
+	e := fake.New(fake.Options{Name: "gatekeeper", Installed: true, Data: fake.Data{Access: issues}})
+	got := query.AccessNotices(started(t, e))
+	want := []string{
+		"gatekeeper: forbidden to list 37 resources (k00.constraints.gatekeeper.sh, k01.constraints.gatekeeper.sh, +35 more) — data from them is missing",
+		"kyverno: no cluster-wide access to policyreports.wgpolicyk8s.io — showing namespace p9s-demo only",
+		"kyverno: forbidden to list clusterpolicies.kyverno.io — data from it is missing",
+	}
+	if !slices.Equal(got, want) {
+		t.Errorf("AccessNotices =\n%s\nwant\n%s", strings.Join(got, "\n"), strings.Join(want, "\n"))
+	}
+	if d := query.AccessNoticesDetailed(started(t, fake.New(fake.Options{Name: "gatekeeper", Installed: true, Data: fake.Data{Access: issues}}))); len(d) != 39 {
+		t.Errorf("AccessNoticesDetailed lists %d lines, want one per resource (39)", len(d))
 	}
 }

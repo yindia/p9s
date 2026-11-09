@@ -41,21 +41,30 @@ func (a *App) header(w int) string {
 		// Offline: say so first, ages are as of this time.
 		parts = append(parts, st.notice.Bold(true).Render("snapshot "+a.opts.SnapshotAt.UTC().Format("2006-01-02 15:04Z")))
 	}
-	parts = append(parts,
-		st.muted.Render("ns ")+a.namespaceLabel(),
-		a.engineSummary(h),
-		a.auditLabel(h),
-	)
+	ns := st.muted.Render("ns ") + a.namespaceLabel()
+	audit := a.auditLabel(h)
 	mode := st.ro.Render("RO")
 	if !a.backend.ReadOnly() {
 		mode = st.rw.Render("RW")
 	}
-	left := strings.Join(parts, sep)
-	gap := w - ansi.StringWidth(left) - ansi.StringWidth(mode) - 1
-	if gap < 1 {
+	modeW := ansi.StringWidth(mode) + 1
+	// On a narrow terminal the engine versions go first, then the engine
+	// list: the audit age and the RO/RW mode are what a reader must not miss.
+	var left string
+	for _, engines := range []string{a.engineSummary(h, true), a.engineSummary(h, false), ""} {
+		p := append(append([]string{}, parts...), ns)
+		if engines != "" {
+			p = append(p, engines)
+		}
+		left = strings.Join(append(p, audit), sep)
+		if gap := w - ansi.StringWidth(left) - modeW; gap >= 1 {
+			return left + strings.Repeat(" ", gap) + mode + " "
+		}
+	}
+	if w <= modeW+1 {
 		return fit(left, w)
 	}
-	return left + strings.Repeat(" ", gap) + mode + " "
+	return fit(left, w-modeW-1) + " " + mode + " "
 }
 
 func (a *App) namespaceLabel() string {
@@ -65,14 +74,17 @@ func (a *App) namespaceLabel() string {
 	return a.st.notice.Bold(true).Render(a.namespace)
 }
 
-func (a *App) engineSummary(h views.Header) string {
+func (a *App) engineSummary(h views.Header, versions bool) string {
 	st := a.st
 	var out []string
 	for _, e := range h.Engines {
-		if e.Failed {
+		switch {
+		case e.Failed:
 			out = append(out, st.errorText.Render(e.Name+" ✗"))
-		} else {
+		case versions:
 			out = append(out, st.engine.Render(e.Name)+" "+st.muted.Render(e.Version))
+		default:
+			out = append(out, st.engine.Render(e.Name))
 		}
 	}
 	if len(out) == 0 {

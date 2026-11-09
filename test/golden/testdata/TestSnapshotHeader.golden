@@ -1,4 +1,4 @@
- p9s │ ctx kind-gatekeeper │ snapshot 2026-11-08 12:00Z │ ns all │ kyverno v1.19.2 · gatekeeper v3.17.1 │ last audit 60…
+ p9s │ ctx kind-gatekeeper │ snapshot 2026-11-08 12:00Z │ ns all │ last audit 60s ago (gatekeeper)                   RO
 ─ Policies [9] ─────────────────────────────────────────────────────────────────────────────────────────────────────────
   ENGINE      NAME                            KIND               NAMESPACE    ENFORCEMENT  VIOLATIONS↓  AUDIT AGE
 ▸ gatekeeper  ns-must-have-owner              K8sRequiredLabels  -            enforce      3            60s

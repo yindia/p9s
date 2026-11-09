@@ -173,7 +173,7 @@ func ReportOf(env Env, meta ReportMeta, apiResources func() ([]model.APIResource
 			"Who can change policy: arrives with the RBAC phase.",
 			"Unprotected namespaces: needs the exemptions inventory.",
 		},
-		Notices: query.AccessNotices(es),
+		Notices: query.AccessNoticesDetailed(es),
 	}
 	for _, err := range []error{perr, verr} {
 		if err != nil {

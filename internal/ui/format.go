@@ -1,6 +1,7 @@
 package ui
 
 import (
+	"fmt"
 	"strings"
 
 	"github.com/charmbracelet/x/ansi"
@@ -80,4 +81,17 @@ func fit(s string, w int) string {
 		return ansi.Truncate(s, w, glyphEllipsis)
 	}
 	return s + strings.Repeat(" ", w-sw)
+}
+
+// limitNotices keeps notices to about a quarter of height (at least one
+// line), so a long list of RBAC gaps never hides the rows under it. The last
+// kept line says how many were left out; `p9s get <view> -o json` and the
+// report list them all.
+func limitNotices(ns []string, height int) []string {
+	keep := max(height/4, 1)
+	if len(ns) <= keep {
+		return ns
+	}
+	out := append([]string(nil), ns[:keep-1]...)
+	return append(out, fmt.Sprintf("+%d more notices (p9s get -o json and p9s report list them all)", len(ns)-keep+1))
 }

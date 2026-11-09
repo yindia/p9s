@@ -74,6 +74,17 @@ func (e *Engine) SetData(d Data) {
 	}
 }
 
+// SetAccess replaces only the RBAC denials, keeping the rest of the data.
+func (e *Engine) SetAccess(issues []model.AccessIssue) {
+	e.mu.Lock()
+	e.data.Access = issues
+	n := e.notify
+	e.mu.Unlock()
+	if n != nil {
+		n()
+	}
+}
+
 // SetSynced flips the sync state and notifies, like informers finishing.
 func (e *Engine) SetSynced(synced bool) {
 	e.mu.Lock()

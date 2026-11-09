@@ -55,7 +55,7 @@ func (o *overviewScreen) render(st styles, width, height int) []string {
 		}
 		// Notices and errors are drawn here, not by the table renderer, so
 		// they never eat into the block's rows (and show when it is empty).
-		for _, n := range b.Table.Notices {
+		for _, n := range limitNotices(b.Table.Notices, 8) {
 			lines = append(lines, fit(st.notice.Render("  ! "+n), width))
 		}
 		if b.Table.Error != "" {

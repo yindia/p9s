@@ -117,7 +117,7 @@ func (t *tableScreen) render(st styles, width, height int) []string {
 	for _, s := range t.tbl.Summary {
 		lines = append(lines, fit(" "+s, width))
 	}
-	for _, n := range t.tbl.Notices {
+	for _, n := range limitNotices(t.tbl.Notices, height) {
 		lines = append(lines, fit(st.notice.Render("! "+n), width))
 	}
 	if t.tbl.Error != "" {

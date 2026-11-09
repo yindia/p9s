@@ -2,6 +2,7 @@ package ui_test
 
 import (
 	"errors"
+	"fmt"
 	"strings"
 	"testing"
 	"time"
@@ -432,4 +433,41 @@ func TestOverviewHealthFromDashboard(t *testing.T) {
 
 func TestHealthRejectsArguments(t *testing.T) {
 	golden(t, healthBackend(), Type(":health gatekeeper\n"), WaitFor("takes no arguments"))
+}
+
+// A tenant can be denied dozens of resources; the notices must not push
+// the rows they can see off the screen.
+func TestManyAccessIssuesKeepRowsVisible(t *testing.T) {
+	b := twoEngines()
+	var access []model.AccessIssue
+	for i := range 40 {
+		access = append(access, model.AccessIssue{Engine: "beta", Verb: "list", Resource: fmt.Sprintf("kind%02d.beta.example", i)})
+	}
+	b.Engs[1].(*fake.Engine).SetAccess(access)
+	screen := RunSized(t, 120, 14, b, Options(fixtures.Now), Type(":v\n"), WaitFor("Violations"))
+	if !strings.Contains(screen, "forbidden to list 40 resources") || !strings.Contains(screen, "StatefulSet/payments/api") {
+		t.Fatalf("want one grouped notice and the violation rows:\n%s", screen)
+	}
+	RequireGolden(t, screen)
+}
+
+// On a narrow terminal the engine versions and list give way first; the
+// audit age and the RO/RW mode stay on the header line.
+func TestHeaderNarrowKeepsAuditAndMode(t *testing.T) {
+	for _, width := range []int{80, 70} {
+		screen := RunSized(t, width, 10, twoEngines(), Options(fixtures.Now), Type(":v\n"), WaitFor("Violations"))
+		head := strings.SplitN(screen, "\n", 2)[0]
+		if !strings.Contains(head, "last audit") || !strings.Contains(head, "RO") {
+			t.Errorf("width %d header lost the audit age or the mode: %q", width, head)
+		}
+	}
+}
+
+// A footer message belongs to the view it was set in.
+func TestFlashDoesNotFollowIntoNextView(t *testing.T) {
+	screen := Run(t, twoEngines(), Options(fixtures.Now), Type(":v\n"), WaitFor("Violations"), Type("o"), WaitFor("flat list"),
+		Type(":pol\n"), WaitFor("─ Policies"))
+	if strings.Contains(screen, "flat list") {
+		t.Errorf("the :v message followed into :pol:\n%s", screen)
+	}
 }

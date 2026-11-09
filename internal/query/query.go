@@ -225,8 +225,59 @@ func Synced(es []engine.Engine) bool {
 	return true
 }
 
-// AccessNotices describes the engines' RBAC denials.
+// maxNamedResources is how many resources a grouped access notice names
+// before it says "+N more".
+const maxNamedResources = 2
+
+// AccessNotices describes the engines' RBAC denials for a view: one line per
+// engine and kind of gap. A tenant can be denied dozens of Gatekeeper
+// constraint kinds; one line per resource would push the table they can see
+// off the screen. AccessNoticesDetailed lists every resource.
 func AccessNotices(es []engine.Engine) []string {
+	type group struct {
+		engine, verb, namespace string
+		resources               []string
+	}
+	var groups []*group
+	index := map[[3]string]*group{}
+	for _, e := range es {
+		for _, ai := range e.AccessIssues() {
+			key := [3]string{ai.Engine, ai.Verb, ai.OnlyNamespace}
+			g := index[key]
+			if g == nil {
+				g = &group{engine: ai.Engine, verb: ai.Verb, namespace: ai.OnlyNamespace}
+				index[key] = g
+				groups = append(groups, g)
+			}
+			g.resources = append(g.resources, ai.Resource)
+		}
+	}
+	out := make([]string, 0, len(groups))
+	for _, g := range groups {
+		names := nameSome(g.resources)
+		switch {
+		case g.namespace != "":
+			out = append(out, fmt.Sprintf("%s: no cluster-wide access to %s — showing namespace %s only", g.engine, names, g.namespace))
+		case len(g.resources) == 1:
+			out = append(out, fmt.Sprintf("%s: forbidden to %s %s — data from it is missing", g.engine, g.verb, names))
+		default:
+			out = append(out, fmt.Sprintf("%s: forbidden to %s %d resources (%s) — data from them is missing", g.engine, g.verb, len(g.resources), names))
+		}
+	}
+	return out
+}
+
+// nameSome joins up to maxNamedResources names and counts the rest.
+func nameSome(rs []string) string {
+	if len(rs) <= maxNamedResources+1 {
+		return strings.Join(rs, ", ")
+	}
+	return fmt.Sprintf("%s, +%d more", strings.Join(rs[:maxNamedResources], ", "), len(rs)-maxNamedResources)
+}
+
+// AccessNoticesDetailed describes every RBAC denial on its own line, for a
+// report that someone fixing the access will work through.
+func AccessNoticesDetailed(es []engine.Engine) []string {
 	var out []string
 	for _, e := range es {
 		for _, ai := range e.AccessIssues() {

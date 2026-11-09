@@ -21,4 +21,4 @@
 ─ Policies [2] ─────────────────────────────────────────────────────────────────────────────────────────────────────────
   ENGINE      LOADED  NOT ENFORCED  COMPILE ERRORS  MISSING CRD  NOT READY  STATUS
   gatekeeper  2/3     0             0               1            0          ! 1 policy not active
- connected to kind-gatekeeper
+ :cmd  tab panel  j/k row  enter detail  g goto  ? help

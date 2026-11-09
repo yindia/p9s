@@ -81,7 +81,7 @@ func (h *healthScreen) render(st styles, a *App, width, height int) []string {
 	}
 	// The overall line and notices stay pinned; only the panels scroll.
 	pinned := []string{fit(head, width)}
-	for _, n := range h.d.Notices {
+	for _, n := range limitNotices(h.d.Notices, height) {
 		pinned = append(pinned, fit(st.notice.Render("! "+n), width))
 	}
 	var lines []string

@@ -2,6 +2,7 @@ package ui
 
 import (
 	"context"
+	"slices"
 	"testing"
 	"time"
 
@@ -45,5 +46,21 @@ func TestFlashExpiresAfterTTL(t *testing.T) {
 	a.Update(tickMsg{})
 	if a.flash != "" {
 		t.Errorf("flash %q still shown %s after it was set", a.flash, flashTTL+time.Second)
+	}
+}
+
+func TestLimitNotices(t *testing.T) {
+	ns := []string{"a", "b", "c", "d", "e", "f"}
+	for _, tc := range []struct {
+		height int
+		want   []string
+	}{
+		{40, ns},
+		{12, []string{"a", "b", "+4 more notices (p9s get -o json and p9s report list them all)"}},
+		{3, []string{"+6 more notices (p9s get -o json and p9s report list them all)"}},
+	} {
+		if got := limitNotices(ns, tc.height); !slices.Equal(got, tc.want) {
+			t.Errorf("height %d: %q, want %q", tc.height, got, tc.want)
+		}
 	}
 }

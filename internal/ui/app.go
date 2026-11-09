@@ -249,6 +249,7 @@ func (a *App) pop() {
 		return
 	}
 	a.stack = a.stack[:len(a.stack)-1]
+	a.flash = "" // it was about the screen just left
 	a.refreshTop()
 }
 
