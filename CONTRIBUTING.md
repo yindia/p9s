@@ -8,8 +8,8 @@ code follows; this file covers the workflow.
 ## Setup
 
 - Go (the version in `go.mod`)
-- [golangci-lint](https://golangci-lint.run) v2.12.2, the version CI runs:
-  `go install github.com/golangci/golangci-lint/v2/cmd/golangci-lint@v2.12.2`
+- [golangci-lint](https://golangci-lint.run) v2.15.0, the version CI runs:
+  `go install github.com/golangci/golangci-lint/v2/cmd/golangci-lint@v2.15.0`
 - For e2e: Docker, [kind](https://kind.sigs.k8s.io) v0.31.0
   (`go install sigs.k8s.io/kind@v0.31.0`, as CI does), Helm 3, kubectl.
   `hack/e2e-setup.sh` pins the charts the tests are verified against
