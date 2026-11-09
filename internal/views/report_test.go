@@ -14,10 +14,7 @@ import (
 
 func fixtureReport(t *testing.T) views.Report {
 	t.Helper()
-	kinds := func() ([]model.APIResource, error) {
-		return []model.APIResource{{Kind: "Namespace", Resource: "namespaces"}, {Kind: "ConfigMap", Resource: "configmaps", Namespaced: true}}, nil
-	}
-	return views.ReportOf(env(t, ""), views.ReportMeta{Cluster: "kind", P9sVersion: "test", Generated: fixtures.Now}, kinds)
+	return views.ReportOf(env(t, ""), views.ReportMeta{Cluster: "kind", P9sVersion: "test", Generated: fixtures.Now})
 }
 
 func TestReportOfFixtures(t *testing.T) {
@@ -28,14 +25,15 @@ func TestReportOfFixtures(t *testing.T) {
 	if r.Summary.Violations != 3 || r.Summary.UnknownPolicies != 1 || r.Summary.PoliciesByMode["enforce"] != 1 {
 		t.Errorf("summary = %+v", r.Summary)
 	}
-	if len(r.PSS.Controls) == 0 || len(r.PSS.Uncategorised) != 4 {
-		t.Errorf("pss: %d controls, uncategorised %v", len(r.PSS.Controls), r.PSS.Uncategorised)
-	}
-	if len(r.Violations.ByNamespace) == 0 || len(r.Violations.BySeverity) != 2 || r.Violations.BySeverity[0].Name != "high" || r.Violations.BySeverity[1].Name != "unspecified" {
-		t.Errorf("violations = %+v", r.Violations)
-	}
+	// Violations are listed as the engines report them, each with its
+	// engine and action: no grouping or categories.
 	if len(r.Items) != 3 || len(r.Policies) != 4 || len(r.Omitted) == 0 {
 		t.Errorf("items %d policies %d omitted %v", len(r.Items), len(r.Policies), r.Omitted)
+	}
+	for _, it := range r.Items {
+		if it.Engine == "" || it.Action == "" || it.Target.Name == "" || it.Message == "" {
+			t.Errorf("violation without engine, action, target or message: %+v", it)
+		}
 	}
 }
 

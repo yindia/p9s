@@ -14,7 +14,15 @@ import (
 )
 
 // ReportSchemaVersion identifies the report JSON.
-const ReportSchemaVersion = "p9s/report/v1"
+const ReportSchemaVersion = "p9s/report/v2"
+
+// readableSchemas are report versions --since can compare against: v1 had
+// categorised sections (PSS coverage, breakdowns, unprotected kinds), but its
+// policy and violation lists, all a diff reads, are unchanged.
+var readableSchemas = map[string]bool{ReportSchemaVersion: true, "p9s/report/v1": true}
+
+// CanCompare reports whether a report of schema s can be read for --since.
+func CanCompare(s string) bool { return readableSchemas[s] }
 
 // ReportSet is what p9s report writes: one report per context.
 type ReportSet struct {
@@ -27,18 +35,16 @@ type ReportSet struct {
 type Report struct {
 	// Error is set when the context could not be reported on; the other
 	// sections are then empty.
-	Error       string            `json:"error,omitempty"`
-	Header      ReportHeader      `json:"header"`
-	Summary     ReportSummary     `json:"summary"`
-	PSS         ReportPSS         `json:"pss"`
-	Violations  ReportViolations  `json:"violations"`
-	Findings    []Finding         `json:"findings"`
-	Unprotected ReportUnprotected `json:"unprotected"`
-	Since       *ReportDiff       `json:"since,omitempty"`
-	Omitted     []string          `json:"omitted"`
-	Notices     []string          `json:"notices,omitempty"`
-	Policies    []ReportPolicy    `json:"policies"`
-	Items       []ReportViolation `json:"items"`
+	Error      string            `json:"error,omitempty"`
+	Header     ReportHeader      `json:"header"`
+	Summary    ReportSummary     `json:"summary"`
+	Violations ReportViolations  `json:"violations"`
+	Findings   []Finding         `json:"findings"`
+	Since      *ReportDiff       `json:"since,omitempty"`
+	Omitted    []string          `json:"omitted"`
+	Notices    []string          `json:"notices,omitempty"`
+	Policies   []ReportPolicy    `json:"policies"`
+	Items      []ReportViolation `json:"items"`
 }
 
 // ReportHeader identifies the report. BodySHA256 hashes the report's
@@ -69,46 +75,21 @@ type ReportSummary struct {
 	Health          query.Overall `json:"health"`
 }
 
-// ReportPSS is section 2.
-type ReportPSS struct {
-	Controls      []query.ControlCoverage `json:"controls"`
-	Uncategorised []model.PolicyKey       `json:"uncategorised"`
-}
-
-// ReportViolations is section 3.
+// ReportViolations is section 2. The violations themselves are Items, as
+// the engines report them: not grouped, graded or categorised.
 type ReportViolations struct {
-	BySeverity  []Count `json:"bySeverity"`
-	ByNamespace []Count `json:"byNamespace"`
-	ByOwner     []Count `json:"byOwner"`
 	// Truncated is set when an engine listed fewer violations than it
-	// counted: the breakdowns cover the listed ones only.
+	// counted (Gatekeeper's per-constraint cap): Items is then partial.
 	Truncated bool `json:"truncated"`
 }
 
-// Count is one bucket.
-type Count struct {
-	Name  string `json:"name"`
-	Count int    `json:"count"`
-}
-
-// Finding is one graded health check (section 5).
+// Finding is one failed health check (section 3).
 type Finding struct {
 	Panel    string `json:"panel"`
 	Engine   string `json:"engine"`
 	Check    string `json:"check"`
 	Status   string `json:"status"`
 	Severity string `json:"severity"` // "critical" or "warning"
-}
-
-// ReportUnprotected is section 7.
-type ReportUnprotected struct {
-	Approximate bool                    `json:"approximate"`
-	Kinds       []query.UnprotectedKind `json:"kinds"`
-	// UnknownMatch are policies whose match p9s could not read.
-	UnknownMatch []model.PolicyKey `json:"unknownMatch,omitempty"`
-	// AllKinds are policies that select every kind (no kind restriction).
-	AllKinds []model.PolicyKey `json:"allKinds,omitempty"`
-	Error    string            `json:"error,omitempty"`
 }
 
 // ReportPolicy and ReportViolation are the raw lists --since compares.
@@ -120,6 +101,8 @@ type ReportPolicy struct {
 // ReportViolation is one listed violation. ID is policy, rule and target:
 // stable while the violation persists even when its message changes.
 type ReportViolation struct {
+	Engine  string          `json:"engine"`
+	Action  string          `json:"action"`
 	Policy  model.PolicyKey `json:"policy"`
 	Rule    string          `json:"rule,omitempty"`
 	Target  model.ObjectRef `json:"target"`
@@ -131,7 +114,7 @@ func reportViolationID(v model.Violation) string {
 	return v.Policy.String() + "|" + v.Rule + "|" + v.Target.String()
 }
 
-// ReportDiff is section 8 (with --since).
+// ReportDiff is section 4 (with --since).
 type ReportDiff struct {
 	Previous           time.Time         `json:"previous"`
 	NewViolations      []ReportViolation `json:"newViolations"`
@@ -162,7 +145,7 @@ type ReportMeta struct {
 }
 
 // ReportOf builds one context's report.
-func ReportOf(env Env, meta ReportMeta, apiResources func() ([]model.APIResource, error)) Report {
+func ReportOf(env Env, meta ReportMeta) Report {
 	es := env.Engines()
 	ps, perr := query.Collect(query.Capable(es, engine.Filter{}, query.HasPolicies), engine.Engine.Policies)
 	vs, verr := query.ViolationsWithOwners(es, engine.Filter{}, env.lookup())
@@ -191,14 +174,15 @@ func ReportOf(env Env, meta ReportMeta, apiResources func() ([]model.APIResource
 	d := DashboardOf(env)
 	r.Summary.Health = d.Overall
 	r.Findings = findingsOf(d)
-	r.PSS.Controls, r.PSS.Uncategorised = query.PSSCoverage(ps)
-	r.Violations = breakdowns(ps, vs)
-	r.Unprotected = unprotectedOf(ps, apiResources)
 	for _, p := range ps {
 		r.Policies = append(r.Policies, ReportPolicy{Key: p.Key(), Mode: string(p.Enforcement.Mode)})
 	}
 	for _, v := range vs {
-		r.Items = append(r.Items, ReportViolation{Policy: v.Policy, Rule: v.Rule, Target: v.Target, Message: v.Message, ID: reportViolationID(v)})
+		r.Violations.Truncated = r.Violations.Truncated || v.Truncated
+		r.Items = append(r.Items, ReportViolation{
+			Engine: v.Engine, Action: v.Enforcement.Mode.Label(), Policy: v.Policy, Rule: v.Rule,
+			Target: v.Target, Message: v.Message, ID: reportViolationID(v),
+		})
 	}
 	sort.Slice(r.Items, func(i, j int) bool { return r.Items[i].ID < r.Items[j].ID })
 	return r
@@ -239,74 +223,6 @@ func findingsOf(d Dashboard) []Finding {
 		}
 	}
 	sort.SliceStable(out, func(i, j int) bool { return out[i].Severity == "critical" && out[j].Severity != "critical" })
-	return out
-}
-
-func breakdowns(ps []model.Policy, vs []model.Violation) ReportViolations {
-	sev := map[model.PolicyKey]string{}
-	for _, p := range ps {
-		sev[p.Key()] = p.Severity
-	}
-	bySev, byNS := map[string]int{}, map[string]int{}
-	var out ReportViolations
-	for _, v := range vs {
-		s := sev[v.Policy]
-		if s == "" {
-			s = "unspecified"
-		}
-		bySev[s]++
-		ns := v.Target.Namespace
-		if ns == "" || (v.Target.Kind == "Namespace" && v.Target.Group == "") {
-			ns = "(cluster)"
-		}
-		byNS[ns]++
-		out.Truncated = out.Truncated || v.Truncated
-	}
-	out.BySeverity = counts(bySev)
-	out.ByNamespace = counts(byNS)
-	for _, o := range query.TopOwners(query.GroupViolations(vs)) {
-		out.ByOwner = append(out.ByOwner, Count{Name: o.Key, Count: o.Objects})
-	}
-	if len(out.ByOwner) > reportTopOwners {
-		out.ByOwner = out.ByOwner[:reportTopOwners]
-	}
-	return out
-}
-
-// reportTopOwners bounds the owner breakdown.
-const reportTopOwners = 20
-
-func counts(m map[string]int) []Count {
-	out := make([]Count, 0, len(m))
-	for k, v := range m {
-		out = append(out, Count{Name: k, Count: v})
-	}
-	sort.Slice(out, func(i, j int) bool {
-		if out[i].Count != out[j].Count {
-			return out[i].Count > out[j].Count
-		}
-		return out[i].Name < out[j].Name
-	})
-	return out
-}
-
-func unprotectedOf(ps []model.Policy, apiResources func() ([]model.APIResource, error)) ReportUnprotected {
-	out := ReportUnprotected{Approximate: true}
-	if apiResources == nil {
-		out.Error = "the cluster's kinds are not available"
-		return out
-	}
-	kinds, err := apiResources()
-	if err != nil {
-		out.Error = err.Error()
-	}
-	var validating []model.Policy
-	for _, p := range ps {
-		if p.Enforcement.Mode != model.ModeMutate {
-			validating = append(validating, p)
-		}
-	}
-	out.Kinds, out.UnknownMatch, out.AllKinds = query.Unprotected(validating, kinds)
 	return out
 }
 

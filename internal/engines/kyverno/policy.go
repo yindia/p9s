@@ -39,7 +39,6 @@ func toPolicy(o *unstructured.Unstructured) model.Policy {
 	p.ViolationsKnown = p.Enforcement.Mode != model.ModeMutate && p.Enforcement.Mode != model.ModeUnknown
 	p.Guidance = guidance(o)
 	p.Severity = o.GetAnnotations()[annSeverity]
-	p.Matches, p.MatchesAll, p.MatchKnown = matchRules(o)
 	return p
 }
 
@@ -333,3 +332,6 @@ func orDefault(s, def string) string {
 	}
 	return s
 }
+
+// annSeverity is the policy metadata p9s reads severity from.
+const annSeverity = "policies.kyverno.io/severity"

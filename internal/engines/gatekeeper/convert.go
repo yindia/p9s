@@ -36,9 +36,8 @@ func (e *Engine) Policies() ([]model.Policy, error) {
 func toPolicy(c, tmpl *unstructured.Unstructured) model.Policy {
 	total := totalViolations(c)
 	audit := auditTime(c)
-	rules, all := matchRules(c)
 	return model.Policy{
-		Severity: c.GetAnnotations()[annSeverity], Matches: rules, MatchesAll: all, MatchKnown: true,
+		Severity:       c.GetAnnotations()[annSeverity],
 		Engine:         Name,
 		Kind:           c.GetKind(),
 		Name:           c.GetName(),
@@ -377,3 +376,7 @@ func podErrors(o *unstructured.Unstructured) []string {
 	sort.Strings(out)
 	return out
 }
+
+// annSeverity is not set by gatekeeper-library; users may annotate
+// constraints with it.
+const annSeverity = "severity"

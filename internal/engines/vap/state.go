@@ -100,8 +100,7 @@ func refOf(o *unstructured.Unstructured) model.ObjectRef {
 }
 
 func toPolicy(o *unstructured.Unstructured) model.Policy {
-	p := model.Policy{Engine: Name, Kind: kindPolicy, Name: o.GetName(), Raw: o, MatchKnown: true}
-	p.Matches, p.MatchesAll = enginekit.ResourceRules(enginekit.Slice(o.Object, "spec", "matchConstraints", "resourceRules"))
+	p := model.Policy{Engine: Name, Kind: kindPolicy, Name: o.GetName(), Raw: o}
 	var b strings.Builder
 	for i, v := range enginekit.Slice(o.Object, "spec", "validations") {
 		m, _ := v.(map[string]any)

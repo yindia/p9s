@@ -72,7 +72,9 @@ p9s --snapshot prod.json report
 watchers received from the API server (lists, watches, gets, RBAC denials
 and discovery). `--snapshot` replays it through the same engines, so every
 view, detail and filter works as it did. The header shows
-`snapshot <time>`, and ages are as of that time.
+`snapshot <time>`, and ages are as of that time. The namespace list is
+recorded too, so `:ns` works on a replay; a snapshot taken before it was
+lists the namespaces its violations name.
 
 The file (`p9s/snapshot/v1`, mode `0600`) never carries Secret or ConfigMap
 data, container env values, `managedFields` or kubectl's last-applied copy.
@@ -93,11 +95,12 @@ p9s report --all-contexts --since yesterday.json --fail-on critical
 | Section | Contents |
 |---|---|
 | Summary | policies by enforcement, violation totals (the engines' own counts; policies without audit data counted separately), health grades |
-| Pod Security Standards | each baseline and restricted control as enforced, audit only or missing, from policy metadata only (Kyverno PSS policies with their category annotation; gatekeeper-library PSP templates). Policy specs are not read: a policy maps to a control by its name, kind and category annotation, parameter-dependent templates carry a caveat, nothing is guessed, and the rest is "uncategorised" |
-| Violations | by severity (policy metadata), namespace and owner; capped Gatekeeper lists are flagged |
+| Violations | every violation as the engines report it: engine, policy, action, target and message. Nothing is grouped or categorised; a capped Gatekeeper list is flagged as partial |
 | Health findings | fail-open webhooks and every other critical or warning check |
-| Unprotected kinds | served kinds no validating policy selects (approximate) |
 | Changes (`--since`) | new, resolved and re-worded violations, added and removed policies, enforcement changes |
+
+JSON reports are `p9s/report/v2`; `--since` also reads `v1` reports, whose
+policy and violation lists are unchanged.
 
 The header carries the cluster, context, engines, time, p9s version and a
 `bodySHA256`. To verify a JSON report, set `header.bodySHA256` to `""`,

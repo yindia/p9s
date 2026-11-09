@@ -87,7 +87,8 @@ namespace, then owner.
 Audit results say what is wrong **now**. The recent tab of `:v` (`]`, or
 `:events`) says what was **blocked or flagged at admission**, from the
 Events the engines write: time, engine, policy, action, user, target and
-message. `[` returns to the audit results with their grouping.
+message. `[` returns to the audit results with their grouping. `i` on an
+event opens the enforcement impact of its policy.
 
 - **Gatekeeper** writes `FailedAdmission`, `WarningAdmission` and
   `DryrunViolation` Events, **only with `--emit-admission-events`** (Helm
@@ -182,12 +183,14 @@ messages there clear after 4 seconds.
 | `mode:audit` | the enforcement column (exact word; `mode:n/a` works) |
 | `ns:payments` | the NAMESPACE column, or rows whose object is in `payments` |
 | `kind:cpol` | the KIND column |
-| `sev:error` | the SEVERITY column |
+| `sev:high` | the SEVERITY column: on `:pol` and `:v` the policy's own severity (`critical`, `high`, `medium`, `low`, `info`, or `-` for none); on the health views the check's level (`error`, `warning`, `info`) |
 | `name:require` | the NAME or POLICY column |
 
 A comma means "any of": `mode:audit,warn`, `engine:gatekeeper,kyverno` (no
-spaces). A term for a column the view lacks matches nothing; unknown keys
-(`foo:bar`) are free text, so messages with colons still match.
+spaces). A term that cannot match (a key for a column the view lacks, or a
+mistyped `mode:` or `sev:` value such as `sev:hgih`) is flagged in the
+footer instead of silently showing no rows. Unknown keys (`foo:bar`) are
+free text, so messages with colons still match.
 
 ## Namespace scope
 
@@ -213,12 +216,19 @@ interval** (Gatekeeper's `--audit-interval`, Kyverno's
 While caches load, the header reads `syncing…` and counts that may still
 change are drawn dimmed with a `~` (`~12`).
 
+`RO` is always shown: p9s never writes to the cluster. On a narrow
+terminal the engine versions go first, then the engine names; the context,
+namespace, audit age and `RO` stay.
+
 ## Reading tables
 
 - **Enforcement** is one word: `enforce`, `warn`, `audit`, `mutate` or
   `n/a`. The engine's own term is in the detail: `enforce (engine: deny)`.
 - **`-` means not applicable or unknown** (a never-audited policy has no
   count). A dimmed `0` means none.
+- **SEVERITY** on `:pol` and `:v` is the policy's own severity from its
+  metadata (e.g. Kyverno's `policies.kyverno.io/severity`), `-` when it
+  declares none; `S` sorts critical, high, medium, low, info.
 - **Names first**; kinds follow, dimmed and shortened.
 - The active sort is marked in the header (`VIOLATIONS↓`), and the selected
   row's full message is under the table (`» …`).

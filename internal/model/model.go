@@ -127,31 +127,7 @@ type Policy struct {
 	// Severity is from policy metadata (e.g. policies.kyverno.io/severity);
 	// "" when the policy declares none.
 	Severity string
-	// Matches is what kinds the policy selects, as written in its spec;
-	// MatchesAll is set when it selects every kind. Both are empty when the
-	// engine could not tell (MatchKnown false).
-	Matches    []MatchRule
-	MatchesAll bool
-	MatchKnown bool
-	Raw        *unstructured.Unstructured
-}
-
-// MatchRule is one kind or resource a policy selects. Kind or Resource is
-// set (Kyverno names kinds, admission rules name resources); Group "*"
-// matches every group.
-type MatchRule struct {
-	Group    string `json:"group,omitempty"`
-	Kind     string `json:"kind,omitempty"`
-	Resource string `json:"resource,omitempty"`
-}
-
-// APIResource is one kind the API server serves.
-type APIResource struct {
-	Group      string `json:"group,omitempty"`
-	Version    string `json:"version"`
-	Kind       string `json:"kind"`
-	Resource   string `json:"resource"`
-	Namespaced bool   `json:"namespaced"`
+	Raw      *unstructured.Unstructured
 }
 
 // GuidanceItem is remediation text from policy metadata, e.g. a

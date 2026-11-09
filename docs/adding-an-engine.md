@@ -109,7 +109,6 @@ your engine's terms onto the model and keep its own in the detail.
 | `Sources` | policy code with a `Language` (`rego`, `cel`, `yaml`) for highlighting |
 | `Guidance` | how-to-fix text from the policy's own metadata, each item with where it came from. Never invent it |
 | `Severity` | from policy metadata, `""` when the policy declares none |
-| `Matches`, `MatchesAll`, `MatchKnown` | what kinds or resources the policy selects (for the report's unprotected kinds). `enginekit.ResourceRules` parses admission-style `resourceRules`. Leave `MatchKnown` false when you cannot tell |
 | `Raw` | the object, for `y` and `e` |
 
 **Violations**

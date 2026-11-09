@@ -199,7 +199,7 @@ func reportFor(cmd *cobra.Command, f *flags, rf *reportFlags, name string) (view
 		env.Now = func() time.Time { return at }
 		meta.Snapshot = at
 	}
-	return views.ReportOf(env, meta, sess.APIResources), nil
+	return views.ReportOf(env, meta), nil
 }
 
 // clusterOf is the kubeconfig cluster name of the session's context.
@@ -262,7 +262,7 @@ func readReportSet(path string) (*views.ReportSet, error) {
 	if err := json.Unmarshal(b, &set); err != nil {
 		return nil, fmt.Errorf("--since %s: not a p9s report JSON: %w", path, err)
 	}
-	if set.SchemaVersion != views.ReportSchemaVersion {
+	if !views.CanCompare(set.SchemaVersion) {
 		return nil, fmt.Errorf("--since %s: schema %q, want %q (write it with --format json)", path, set.SchemaVersion, views.ReportSchemaVersion)
 	}
 	return &set, nil

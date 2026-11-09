@@ -168,14 +168,6 @@ func testPolicies(t *testing.T, e engine.Engine) {
 	}
 	seen := map[model.PolicyKey]bool{}
 	for _, p := range ps {
-		for _, m := range p.Matches {
-			if m.Kind == "" && m.Resource == "" {
-				t.Errorf("policy %s: match rule %+v names no kind or resource", p.Key(), m)
-			}
-		}
-		if !p.MatchKnown && (len(p.Matches) > 0 || p.MatchesAll) {
-			t.Errorf("policy %s: match rules without MatchKnown", p.Key())
-		}
 		for _, g := range p.Guidance {
 			if strings.TrimSpace(g.Text) == "" || g.From == "" {
 				t.Errorf("policy %s: guidance %+v needs text and where it came from", p.Key(), g)

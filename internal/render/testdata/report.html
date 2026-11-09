@@ -51,7 +51,7 @@ hr { border: 0; border-top: 2px solid var(--line); margin: 56px 0; }
   <span>Generated</span><b>2026-11-09T10:00:00Z</b>
   
   <span>p9s</span><b>v1.0.0</b>
-  <span>Body SHA-256</span><code>cbbec8f753574522c52c532878e2835c4a5052a4481c9c042deb414c026e8058</code>
+  <span>Body SHA-256</span><code>514ec24d8613e16663c8e337ce225327817482abf5a4e547a07dd6bd1bb736bc</code>
 </div>
 <p class="notice">kyverno: forbidden to list clusterpolicies.kyverno.io | data from it is missing</p>
 
@@ -63,42 +63,19 @@ hr { border: 0; border-top: 2px solid var(--line); margin: 56px 0; }
   <div class="tile"><div class="n">0</div><div class="l">policies: audit 2, enforce 1</div></div>
 </div>
 
-<h2>2. Pod Security Standards coverage</h2>
-<p class="note">Mapped from policy metadata only. Namespace exclusions are not considered.</p>
-<div class="scroll"><table>
-<tr><th>Level</th><th>Control</th><th>Status</th><th>Caveats</th><th>Policies</th></tr>
-<tr><td>baseline</td><td>HostPath Volumes</td><td class="audit">audit only</td><td class="note"></td><td class="mono">kyverno:ValidatingPolicy/disallow-host-path</td></tr>
-<tr><td>restricted</td><td>Volume Types</td><td class="missing">missing</td><td class="note"></td><td class="mono">-</td></tr>
+<h2>2. Violations (2 listed)</h2>
+<p class="notice">Some engines list fewer violations than they count: this list is partial.</p>
+<div class="scroll"><table><tr><th>Engine</th><th>Policy</th><th>Action</th><th>Target</th><th>Message</th></tr>
+<tr><td>kyverno</td><td class="mono">kyverno:ValidatingPolicy/disallow-host-path</td><td>audit</td><td class="mono">Pod/payments/api-0</td><td>hostPath volumes are forbidden</td></tr>
+<tr><td>kyverno</td><td class="mono">kyverno:ValidatingPolicy/disallow-host-path</td><td>audit</td><td class="mono">Pod/payments/api-1</td><td>hostPath volumes are forbidden</td></tr>
 </table></div>
-<p class="note">Uncategorised (1): <span class="mono">kyverno:ClusterPolicy/require-team-label</span></p>
 
-<h2>3. Violations</h2>
-
-<div class="tiles">
-<div class="scroll"><table><tr><th>Severity</th><th>Count</th></tr>
-<tr><td class="mono">medium</td><td class="n">5</td></tr><tr><td class="mono">unspecified</td><td class="n">2</td></tr>
-</table></div><div class="scroll"><table><tr><th>Namespace</th><th>Count</th></tr>
-<tr><td class="mono">payments</td><td class="n">6</td></tr><tr><td class="mono">(cluster)</td><td class="n">1</td></tr>
-</table></div><div class="scroll"><table><tr><th>Owner (top 20, objects)</th><th>Count</th></tr>
-<tr><td class="mono">Deployment/payments/api</td><td class="n">4</td></tr>
-</table></div>
-</div>
-
-<h2>4. Fail-open and other health findings</h2>
+<h2>3. Fail-open and other health findings</h2>
 <div class="scroll"><table><tr><th>Severity</th><th>Panel</th><th>Engine</th><th>Check</th><th>Status</th></tr>
 <tr><td class="critical">critical</td><td>Webhooks</td><td>kyverno</td><td class="mono">validate.kyverno.svc-fail</td><td>✗ fail-open, no endpoints</td></tr>
 </table></div>
 
-<h2>5. Unprotected kinds <span class="note">(approximate)</span></h2>
-<p class="note">Served, user-created kinds no active validating policy selects by kind. Namespace selectors, exclusions and conditions are not read.</p>
-
-
-<div class="scroll"><table><tr><th>Kind</th><th>Group</th><th>Scope</th><th>Note</th></tr>
-<tr><td>ConfigMap</td><td class="mono">-</td><td>namespaced</td><td class="note"></td></tr>
-<tr><td>Deployment</td><td class="mono">apps</td><td>namespaced</td><td class="note">its Pods are checked by Pod policies</td></tr>
-</table></div>
-
-<h2>6. Changes since 2026-11-08T10:00:00Z</h2>
+<h2>4. Changes since 2026-11-08T10:00:00Z</h2>
 
 <div class="tiles">
   <div class="tile"><div class="n">1</div><div class="l">new violations</div></div>

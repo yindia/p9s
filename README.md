@@ -39,7 +39,7 @@ p9s answers the questions a platform or security team asks every day:
 - 🛠️ **How do I fix it?** A violation's detail carries the policy's own
   remediation text.
 - 📄 **Can I hand this to security?** `p9s report` writes Markdown, HTML or
-  JSON with Pod Security Standards coverage and health findings.
+  JSON with every violation and the health findings.
 
 And it stays out of the way:
 

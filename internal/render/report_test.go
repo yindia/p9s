@@ -25,16 +25,14 @@ func sample() views.ReportSet {
 			Engines: []views.ReportEngine{{Name: "kyverno", Version: "v1.19.2"}}},
 		Summary: views.ReportSummary{PoliciesByMode: map[string]int{"audit": 2, "enforce": 1}, Violations: 7, UnknownPolicies: 1,
 			Health: query.Overall{Critical: 1, Warning: 0, OK: 9}},
-		PSS: views.ReportPSS{Controls: []query.ControlCoverage{
-			{PSSControl: query.PSSControl{Level: query.PSSBaseline, Name: "HostPath Volumes"}, Status: query.CoverageAudit, Policies: []model.PolicyKey{k}},
-			{PSSControl: query.PSSControl{Level: query.PSSRestricted, Name: "Volume Types"}, Status: query.CoverageMissing},
-		}, Uncategorised: []model.PolicyKey{{Engine: "kyverno", Kind: "ClusterPolicy", Name: "require-team-label"}}},
-		Violations: views.ReportViolations{BySeverity: []views.Count{{Name: "medium", Count: 5}, {Name: "unspecified", Count: 2}},
-			ByNamespace: []views.Count{{Name: "payments", Count: 6}, {Name: "(cluster)", Count: 1}}, ByOwner: []views.Count{{Name: "Deployment/payments/api", Count: 4}}},
+		Violations: views.ReportViolations{Truncated: true},
+		Items: []views.ReportViolation{
+			{Engine: "kyverno", Action: "audit", Policy: k, Target: model.ObjectRef{Version: "v1", Kind: "Pod", Namespace: "payments", Name: "api-0"},
+				Message: "hostPath volumes are forbidden", ID: "a"},
+			{Engine: "kyverno", Action: "audit", Policy: k, Target: model.ObjectRef{Version: "v1", Kind: "Pod", Namespace: "payments", Name: "api-1"},
+				Message: "hostPath volumes are forbidden", ID: "b"},
+		},
 		Findings: []views.Finding{{Panel: "Webhooks", Engine: "kyverno", Check: "validate.kyverno.svc-fail", Status: "✗ fail-open, no endpoints", Severity: "critical"}},
-		Unprotected: views.ReportUnprotected{Approximate: true, Kinds: []query.UnprotectedKind{
-			{APIResource: model.APIResource{Kind: "ConfigMap", Namespaced: true}}, {APIResource: model.APIResource{Group: "apps", Kind: "Deployment", Namespaced: true}, ViaPods: true},
-		}},
 		Since: &views.ReportDiff{Previous: at.Add(-24 * time.Hour), Comparable: true,
 			NewViolations: []views.ReportViolation{{ID: "x"}}, EnforcementChanged: []views.ModeChange{{Policy: k, From: "audit", To: "enforce"}}},
 		Omitted: []string{"Who can change policy: arrives with the RBAC phase."},
@@ -82,7 +80,7 @@ func TestReportHTMLIsSelfContained(t *testing.T) {
 			t.Errorf("HTML must be self-contained, found %q", bad)
 		}
 	}
-	for _, want := range []string{"prod-tokyo-1", "HostPath Volumes", "fail-open", "ConfigMap", "its Pods are checked", "<td>audit</td><td>enforce</td>", "<style>"} {
+	for _, want := range []string{"prod-tokyo-1", "Pod/payments/api-0", "hostPath volumes are forbidden", "fail-open", "<td>audit</td><td>enforce</td>", "<style>"} {
 		if !strings.Contains(html, want) {
 			t.Errorf("HTML missing %q", want)
 		}

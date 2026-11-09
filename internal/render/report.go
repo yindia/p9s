@@ -59,24 +59,22 @@ func markdownReport(b *strings.Builder, r views.Report) {
 	}
 	b.WriteString("\n\n")
 
-	b.WriteString("## 2. Pod Security Standards coverage\n\n")
-	b.WriteString("Mapped from policy metadata only (Kyverno PSS policy names with their PSS category annotation; gatekeeper-library PSP template kinds). Namespace exclusions are not considered.\n\n")
-	b.WriteString("| Level | Control | Status | Caveats | Policies |\n|---|---|---|---|---|\n")
-	for _, c := range r.PSS.Controls {
-		fmt.Fprintf(b, "| %s | %s | %s | %s | %s |\n", c.Level, md(c.Name), c.Status, md(dash(strings.Join(c.Caveats, "; "))), md(keys(c.Policies)))
-	}
-	fmt.Fprintf(b, "\nUncategorised (%d): %s\n\n", len(r.PSS.Uncategorised), md(dash(keys(r.PSS.Uncategorised))))
-
 	v := r.Violations
-	b.WriteString("## 3. Violations\n\n")
+	fmt.Fprintf(b, "## 2. Violations (%d listed)\n\n", len(r.Items))
 	if v.Truncated {
-		b.WriteString("> Some engines list fewer violations than they count (Gatekeeper --constraint-violations-limit): these breakdowns cover the listed violations only.\n\n")
+		b.WriteString("> Some engines list fewer violations than they count (Gatekeeper --constraint-violations-limit): this list is partial.\n\n")
 	}
-	countTable(b, "Severity (policy metadata)", v.BySeverity)
-	countTable(b, "Namespace", v.ByNamespace)
-	countTable(b, "Owner (top 20, objects)", v.ByOwner)
+	if len(r.Items) == 0 {
+		b.WriteString("No violations.\n\n")
+	} else {
+		b.WriteString("| Engine | Policy | Action | Target | Message |\n|---|---|---|---|---|\n")
+		for _, it := range r.Items {
+			fmt.Fprintf(b, "| %s | %s | %s | %s | %s |\n", md(it.Engine), md(it.Policy.String()), md(dash(it.Action)), md(it.Target.String()), md(it.Message))
+		}
+		b.WriteString("\n")
+	}
 
-	b.WriteString("## 4. Fail-open and other health findings\n\n")
+	b.WriteString("## 3. Fail-open and other health findings\n\n")
 	if len(r.Findings) == 0 {
 		b.WriteString("No critical or warning findings.\n\n")
 	} else {
@@ -87,38 +85,8 @@ func markdownReport(b *strings.Builder, r views.Report) {
 		b.WriteString("\n")
 	}
 
-	u := r.Unprotected
-	b.WriteString("## 5. Unprotected kinds (approximate)\n\n")
-	b.WriteString("Served, user-created kinds no active validating policy selects by kind. Approximate: namespace selectors, exclusions and conditions are not read.\n\n")
-	if u.Error != "" {
-		fmt.Fprintf(b, "> %s\n\n", md(u.Error))
-	}
-	if len(u.AllKinds) > 0 {
-		fmt.Fprintf(b, "Not counted (no kind restriction, so they select every kind but usually check one): %s\n\n", md(keys(u.AllKinds)))
-	}
-	if len(u.Kinds) == 0 && u.Error == "" {
-		b.WriteString("Every served kind is selected by some policy.\n\n")
-	} else if len(u.Kinds) > 0 {
-		b.WriteString("| Kind | Group | Scope | Note |\n|---|---|---|---|\n")
-		for _, k := range u.Kinds {
-			scope := "cluster"
-			if k.Namespaced {
-				scope = "namespaced"
-			}
-			note := ""
-			if k.ViaPods {
-				note = "its Pods are checked by Pod policies"
-			}
-			fmt.Fprintf(b, "| %s | %s | %s | %s |\n", md(k.Kind), md(dash(k.Group)), scope, note)
-		}
-		b.WriteString("\n")
-	}
-	if len(u.UnknownMatch) > 0 {
-		fmt.Fprintf(b, "Policies whose match could not be read: %s\n\n", md(keys(u.UnknownMatch)))
-	}
-
 	if d := r.Since; d != nil {
-		fmt.Fprintf(b, "## 6. Changes since %s\n\n", d.Previous.Format(time.RFC3339))
+		fmt.Fprintf(b, "## 4. Changes since %s\n\n", d.Previous.Format(time.RFC3339))
 		if !d.Comparable {
 			b.WriteString("> One of the reports had capped violation lists: some new or resolved items may only have moved in or out of the cap.\n\n")
 		}
@@ -137,17 +105,6 @@ func markdownReport(b *strings.Builder, r views.Report) {
 	for _, o := range r.Omitted {
 		fmt.Fprintf(b, "- %s\n", md(o))
 	}
-}
-
-func countTable(b *strings.Builder, title string, cs []views.Count) {
-	fmt.Fprintf(b, "| %s | Count |\n|---|---|\n", title)
-	if len(cs) == 0 {
-		b.WriteString("| - | 0 |\n")
-	}
-	for _, c := range cs {
-		fmt.Fprintf(b, "| %s | %d |\n", md(c.Name), c.Count)
-	}
-	b.WriteString("\n")
 }
 
 func engines(h views.ReportHeader) string {
@@ -199,22 +156,7 @@ var mdEscaper = strings.NewReplacer(
 // HTML writes a report set as one self-contained page: inline CSS, no
 // scripts, no external assets.
 func HTML(w io.Writer, set views.ReportSet) error {
-	data := struct {
-		views.ReportSet
-		Tables [][]countTableData
-	}{ReportSet: set}
-	for _, r := range set.Reports {
-		v := r.Violations
-		data.Tables = append(data.Tables, []countTableData{
-			{"Severity", v.BySeverity}, {"Namespace", v.ByNamespace}, {"Owner (top 20, objects)", v.ByOwner},
-		})
-	}
-	return reportPage.Execute(w, data)
-}
-
-type countTableData struct {
-	Title string
-	Rows  []views.Count
+	return reportPage.Execute(w, set)
 }
 
 var reportPage = template.Must(template.New("report").Funcs(template.FuncMap{

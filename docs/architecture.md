@@ -27,7 +27,7 @@ renderers never reach into engines. An engine lives entirely in
   `enginekit.Sync`), normalise them into `model` types and report RBAC gaps
   as notices instead of errors.
 - **query** merges engines: violations by owner, enforcement impact,
-  Pod Security Standards coverage, unprotected kinds.
+  health.
 - **views** turns queries into screens and the report model; **table**
   materialises them into the `p9s/v1` tables that both the TUI and
   `p9s get -o json` print.

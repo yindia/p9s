@@ -67,36 +67,18 @@ hr { border: 0; border-top: 2px solid var(--line); margin: 56px 0; }
   <div class="tile"><div class="n">{{len $r.Policies}}</div><div class="l">policies: {{modes $r.Summary.PoliciesByMode}}</div></div>
 </div>
 
-<h2>2. Pod Security Standards coverage</h2>
-<p class="note">Mapped from policy metadata only. Namespace exclusions are not considered.</p>
-<div class="scroll"><table>
-<tr><th>Level</th><th>Control</th><th>Status</th><th>Caveats</th><th>Policies</th></tr>
-{{range $r.PSS.Controls}}<tr><td>{{.Level}}</td><td>{{.Name}}</td><td class="{{if eq .Status "enforced"}}enforced{{else if eq .Status "missing"}}missing{{else}}audit{{end}}">{{.Status}}</td><td class="note">{{range $j, $c := .Caveats}}{{if $j}}; {{end}}{{$c}}{{end}}</td><td class="mono">{{keys .Policies}}</td></tr>
-{{end}}</table></div>
-<p class="note">Uncategorised ({{len $r.PSS.Uncategorised}}): <span class="mono">{{keys $r.PSS.Uncategorised}}</span></p>
+<h2>2. Violations ({{len $r.Items}} listed)</h2>
+{{if $r.Violations.Truncated}}<p class="notice">Some engines list fewer violations than they count: this list is partial.</p>{{end}}
+{{if $r.Items}}<div class="scroll"><table><tr><th>Engine</th><th>Policy</th><th>Action</th><th>Target</th><th>Message</th></tr>
+{{range $r.Items}}<tr><td>{{.Engine}}</td><td class="mono">{{.Policy}}</td><td>{{dash .Action}}</td><td class="mono">{{.Target}}</td><td>{{.Message}}</td></tr>
+{{end}}</table></div>{{else}}<p>No violations.</p>{{end}}
 
-<h2>3. Violations</h2>
-{{if $r.Violations.Truncated}}<p class="notice">Some engines list fewer violations than they count: breakdowns cover the listed ones only.</p>{{end}}
-<div class="tiles">
-{{range $t := (index $.Tables $i)}}<div class="scroll"><table><tr><th>{{$t.Title}}</th><th>Count</th></tr>
-{{range $t.Rows}}<tr><td class="mono">{{.Name}}</td><td class="n">{{.Count}}</td></tr>{{else}}<tr><td>-</td><td class="n">0</td></tr>{{end}}
-</table></div>{{end}}
-</div>
-
-<h2>4. Fail-open and other health findings</h2>
+<h2>3. Fail-open and other health findings</h2>
 {{if $r.Findings}}<div class="scroll"><table><tr><th>Severity</th><th>Panel</th><th>Engine</th><th>Check</th><th>Status</th></tr>
 {{range $r.Findings}}<tr><td class="{{.Severity}}">{{.Severity}}</td><td>{{.Panel}}</td><td>{{.Engine}}</td><td class="mono">{{.Check}}</td><td>{{.Status}}</td></tr>
 {{end}}</table></div>{{else}}<p>No critical or warning findings.</p>{{end}}
 
-<h2>5. Unprotected kinds <span class="note">(approximate)</span></h2>
-<p class="note">Served, user-created kinds no active validating policy selects by kind. Namespace selectors, exclusions and conditions are not read.</p>
-{{with $r.Unprotected.Error}}<p class="notice">{{.}}</p>{{end}}
-{{if $r.Unprotected.AllKinds}}<p class="note">Not counted (no kind restriction, so they select every kind but usually check one): <span class="mono">{{keys $r.Unprotected.AllKinds}}</span></p>{{end}}
-{{if $r.Unprotected.Kinds}}<div class="scroll"><table><tr><th>Kind</th><th>Group</th><th>Scope</th><th>Note</th></tr>
-{{range $r.Unprotected.Kinds}}<tr><td>{{.Kind}}</td><td class="mono">{{dash .Group}}</td><td>{{if .Namespaced}}namespaced{{else}}cluster{{end}}</td><td class="note">{{if .ViaPods}}its Pods are checked by Pod policies{{end}}</td></tr>
-{{end}}</table></div>{{else if not $r.Unprotected.Error}}<p>Every served kind is selected by some policy.</p>{{end}}
-
-{{with $r.Since}}<h2>6. Changes since {{time .Previous}}</h2>
+{{with $r.Since}}<h2>4. Changes since {{time .Previous}}</h2>
 {{if not .Comparable}}<p class="notice">One of the reports had capped violation lists: some changes may only reflect the cap.</p>{{end}}
 <div class="tiles">
   <div class="tile"><div class="n">{{len .NewViolations}}</div><div class="l">new violations</div></div>
