@@ -115,10 +115,12 @@ k apply -f "$(dirname "$0")/manifests/vap.yaml" >/dev/null
 k apply -f "$(dirname "$0")/manifests/tenant.yaml" >/dev/null
 
 "$(dirname "$0")/demo-webhooks.sh" "$CTX"
+# Every workload is in place (and the demo pods restarted) from here on.
+SETTLED="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
 
 # The tests read what the engines report, so wait until each has reported
-# once: on a fresh cluster Gatekeeper's first audit and Kyverno's reports can
-# take several minutes after the pods are Ready (slower on CI runners).
+# on the cluster as it is now: on a fresh cluster Gatekeeper's audit and
+# Kyverno's reports can take minutes after the pods are Ready (slower on CI).
 wait_for() { # description, on-timeout command, check command...
   local what="$1" dump="$2"; shift 2
   for i in $(seq 1 120); do
@@ -130,10 +132,16 @@ wait_for() { # description, on-timeout command, check command...
   "$dump" >&2 || true
   return 1
 }
+# Every constraint audited after SETTLED: an earlier audit still lists pods
+# the restart deleted, whose owners can no longer be resolved.
 gatekeeper_audited() {
-  k get constraints -o jsonpath='{range .items[*]}{.status.auditTimestamp}{"\n"}{end}' | grep . >/dev/null
+  k get constraints -o jsonpath='{range .items[*]}{.status.auditTimestamp}{"\n"}{end}' \
+    | awk -v since="$SETTLED" '{ n++; if ($0 == "" || $0 < since) stale++ } END { exit !(n > 0 && stale == 0) }'
 }
-gatekeeper_dump() { k get constraints; }
+gatekeeper_dump() {
+  echo "settled at $SETTLED"
+  k get constraints -o custom-columns='KIND:.kind,NAME:.metadata.name,AUDITED:.status.auditTimestamp'
+}
 wait_for "Gatekeeper audit" gatekeeper_dump gatekeeper_audited
 if [ "$KYVERNO" = "1" ]; then
   report_results() {
