@@ -12,12 +12,6 @@ import (
 	"github.com/yindia/p9s/internal/views"
 )
 
-const (
-	colGap      = 2
-	maxColWidth = 48
-	minColWidth = 6
-)
-
 // tableScreen shows one materialised view: shared and engine-specific views
 // alike. It holds screen state only; rows come from table.Build.
 type tableScreen struct {
@@ -198,91 +192,27 @@ func (t *tableScreen) scrollInto(h int) {
 	t.offset = clampIndex(t.offset, len(t.visible)-h)
 }
 
-// columnWidths sizes columns to content, capped, and gives leftover width
-// to flex columns. The leading 2 columns hold the cursor glyph.
-func (t *tableScreen) columnWidths(width int) []int {
-	cols := t.tbl.Columns
-	w := make([]int, len(cols))
-	for i, c := range cols {
-		title := ansi.StringWidth(c.Title)
-		if i == t.tbl.Sort.Column {
-			title++ // room for the sort arrow
-		}
-		w[i] = max(title, c.MinWidth)
-	}
-	for _, r := range t.visible {
-		for i := range cols {
-			if i < len(r.Cells) {
-				w[i] = max(w[i], min(ansi.StringWidth(cellDisplay(r.Cells[i], t.tbl.Partial)), maxColWidth))
-			}
-		}
-	}
-	used := 2 + colGap*max(len(cols)-1, 0)
-	var flex []int
-	for i, c := range cols {
-		used += w[i]
-		if c.Flex {
-			flex = append(flex, i)
-		}
-	}
-	if len(flex) == 0 && len(cols) > 0 {
-		flex = []int{len(cols) - 1}
-	}
-	spare := width - used
-	if spare >= 0 {
-		for _, i := range flex {
-			w[i] += spare / len(flex)
-		}
-		return w
-	}
-	// Too narrow: repeatedly trim the widest column, so long kinds and long
-	// names give up space evenly instead of one column absorbing the cut.
-	// The message column gives way first: its full text is on the status
-	// line under the table anyway.
-	for i, c := range cols {
-		if c.Role == engine.RoleMessage && spare < 0 {
-			take := min(-spare, max(w[i]-minMessageWidth, 0))
-			w[i] -= take
-			spare += take
-		}
-	}
-	// Then columns without a minimum, widest first; columns with a MinWidth
-	// (e.g. OWNER) give way last, and never below it.
-	for _, protected := range []bool{false, true} {
-		for ; spare < 0; spare++ {
-			widest := -1
-			for i := range w {
-				if (cols[i].MinWidth > 0) != protected {
-					continue
-				}
-				if w[i] > max(minColWidth, cols[i].MinWidth) && (widest < 0 || w[i] > w[widest]) {
-					widest = i
-				}
-			}
-			if widest < 0 {
-				break
-			}
-			w[widest]--
-		}
-	}
-	return w
-}
-
 func (t *tableScreen) headerLine(st styles, widths []int) string {
-	parts := make([]string, len(widths))
+	parts := make([]string, 0, len(widths))
 	for i, c := range t.tbl.Columns {
+		if i >= len(widths) || widths[i] == 0 {
+			continue // hidden: see columnWidths
+		}
 		title := c.Title
 		if i == t.tbl.Sort.Column {
 			title += sortArrow(t.tbl.Sort.Desc)
 		}
-		parts[i] = fit(title, widths[i])
+		parts = append(parts, fit(title, widths[i]))
 	}
 	return st.colHeader.Render("  " + strings.Join(parts, strings.Repeat(" ", colGap)))
 }
 
 func (t *tableScreen) rowLine(st styles, r table.Row, widths []int, width int, selected bool) string {
-	parts := make([]string, len(widths))
+	parts := make([]string, 0, len(widths))
 	for i := range widths {
+		if widths[i] == 0 {
+			continue // hidden: see columnWidths
+		}
 		var c table.Cell
 		if i < len(r.Cells) {
 			c = r.Cells[i]
@@ -292,9 +222,9 @@ func (t *tableScreen) rowLine(st styles, r table.Row, widths []int, width int, s
 			role = t.tbl.Columns[i].Role
 		}
 		if selected {
-			parts[i] = fit(cellDisplay(c, t.tbl.Partial), widths[i])
+			parts = append(parts, fit(cellDisplay(c, t.tbl.Partial), widths[i]))
 		} else {
-			parts[i] = fit(cellStyled(st, c, role, t.tbl.Partial), widths[i])
+			parts = append(parts, fit(cellStyled(st, c, role, t.tbl.Partial), widths[i]))
 		}
 	}
 	gap := strings.Repeat(" ", colGap)
@@ -320,6 +250,3 @@ func sortArrow(desc bool) string {
 	}
 	return "↑"
 }
-
-// minMessageWidth is how far a message column shrinks before others do.
-const minMessageWidth = 24

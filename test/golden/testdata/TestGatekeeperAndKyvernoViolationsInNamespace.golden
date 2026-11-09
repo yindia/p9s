@@ -1,12 +1,12 @@
  p9s │ ctx kind-gatekeeper │ ns payments │ kyverno v1.19.2 · gatekeeper v3.17.1 │ last audit 60s ago (gatekeeper)    RO
 ─ Violations [6] ───────────────────────────────────────────────────────────────────────────────────────────────────────
-  ENGINE      OWNER                       POLICY               KIND               ACTION   OBJECTS↓  MESSAGE
-▸ gatekeeper  Deployment/payments/worker  pods-must-have-app   K8sRequiredLabels  audit    1         you must provide l…
-  gatekeeper  Namespace/payments          ns-must-have-owner   K8sRequiredLabels  enforce  1         you must provide l…
-  kyverno     Namespace/payments          require-team-label   CPol               audit    1         failed to evaluate…
-  kyverno     StatefulSet/payments/api    require-team-label   CPol               audit    1         validation error: …
-  kyverno     StatefulSet/payments/api    team-quota           NVPol              warn     1         team label is reco…
-  kyverno     StatefulSet/payments/api    disallow-privilege…  VPol               audit    1         Privileged mode is…
+  ENGINE      OWNER                       POLICY                          KIND               ACTION   OBJECTS↓
+▸ gatekeeper  Deployment/payments/worker  pods-must-have-app              K8sRequiredLabels  audit    1
+  gatekeeper  Namespace/payments          ns-must-have-owner              K8sRequiredLabels  enforce  1
+  kyverno     Namespace/payments          require-team-label              CPol               audit    1
+  kyverno     StatefulSet/payments/api    require-team-label              CPol               audit    1
+  kyverno     StatefulSet/payments/api    team-quota                      NVPol              warn     1
+  kyverno     StatefulSet/payments/api    disallow-privileged-containers  VPol               audit    1
 
 
 

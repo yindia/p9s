@@ -1,21 +1,21 @@
  p9s │ ctx kind-demo │ ns all │ alpha v1.2.0 · beta 0.9.1 │ last audit 30s ago (alpha)                               RO
 ─ Violations › Violation of no-latest ──────────────────────────────────────────────────────────────────────────────────
  Message
- image tag latest is not allowed
+   image tag latest is not allowed
 
  Target
- Object:   v1 Pod/payments/api-0
- Owner:    apps/v1 StatefulSet/payments/api
- Audited:  10s ago
+   Object:        v1 Pod/payments/api-0
+   Owner:         apps/v1 StatefulSet/payments/api
+   Audited:       10s ago
 
  Policy
- Name:         beta:BetaPolicy/payments/no-latest
- Engine:       beta
- Rule:         tag
- Enforcement:  audit (engine: Audit)
+   Name:          beta:BetaPolicy/payments/no-latest
+   Engine:        beta
+   Rule:          tag
+   Enforcement:   audit (engine: Audit)
 
  How to fix
- No guidance in the policy metadata.
+   No guidance in the policy metadata.
 
 
 

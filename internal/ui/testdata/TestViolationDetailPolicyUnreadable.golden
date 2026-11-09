@@ -1,24 +1,24 @@
  p9s │ ctx kind-demo │ ns all │ kyverno v1.19.2 │ last audit -                                                       RO
 ─ Violations › Violation of require-team-label ─────────────────────────────────────────────────────────────────────────
  Notice
- Policy kyverno:ClusterPolicy/require-team-label is not readable with your permissions: its enforcement and guidance
- are unavailable. The violation itself comes from a report you can read.
+   Policy kyverno:ClusterPolicy/require-team-label is not readable with your permissions: its enforcement and guidance
+   are unavailable. The violation itself comes from a report you can read.
 
  Message
- validation error: label 'team' is required.
+   validation error: label 'team' is required.
 
  Target
- Object:   v1 Pod/p9s-demo/web-0
- Owner:    -
- Audited:  0s ago
+   Object:        v1 Pod/p9s-demo/web-0
+   Owner:         -
+   Audited:       0s ago
 
  Policy
- Name:         kyverno:ClusterPolicy/require-team-label
- Engine:       kyverno
- Rule:         check-team
- Enforcement:  n/a (engine: fail)
+   Name:          kyverno:ClusterPolicy/require-team-label
+   Engine:        kyverno
+   Rule:          check-team
+   Enforcement:   n/a (engine: fail)
 
  How to fix
- Unavailable: the policy object is not available.
+   Unavailable: the policy object is not available.
 
  j/k scroll  esc back  ? help

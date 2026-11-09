@@ -1,10 +1,10 @@
  p9s │ ctx kind-gatekeeper │ ns all │ vap builtin │ last audit -                                                     RO
 ─ Policies [4] ─────────────────────────────────────────────────────────────────────────────────────────────────────────
-  ENGINE  NAME                                                      KIND  NAMESPACE  ENFORCEMENT  VIOLATIONS↓  AUDIT AGE
-▸ vap     require-team                                              VAP   -          enforce      1            -
-  vap     replica-limit                                             VAP   -          warn         0            -
-  vap     copied-from-kyverno                                       VAP   -          n/a          -            -
-  vap     unbound-policy                                            VAP   -          n/a          -            -
+  ENGINE  NAME                 KIND  NAMESPACE  ENFORCEMENT  VIOLATIONS↓  AUDIT AGE
+▸ vap     require-team         VAP   -          enforce      1            -
+  vap     replica-limit        VAP   -          warn         0            -
+  vap     copied-from-kyverno  VAP   -          n/a          -            -
+  vap     unbound-policy       VAP   -          n/a          -            -
 
 
 

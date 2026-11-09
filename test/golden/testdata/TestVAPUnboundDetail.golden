@@ -2,23 +2,23 @@
 ─ ValidatingAdmissionPolicies › ValidatingAdmissionPolicy unbound-policy ───────────────────────────────────────────────
 
  Match constraints
- resourceRules:
- - apiGroups:
-   - ""
-   apiVersions:
-   - v1
-   operations:
-   - CREATE
-   resources:
-   - configmaps
+   resourceRules:
+   - apiGroups:
+     - ""
+     apiVersions:
+     - v1
+     operations:
+     - CREATE
+     resources:
+     - configmaps
 
  Validations (CEL)
- object.data.size() < 10
+   object.data.size() < 10
 
  Type-checking warnings
- - fieldRef: spec.validations[0].expression
-   warning: 'no such key: size'
+   - fieldRef: spec.validations[0].expression
+     warning: 'no such key: size'
 
  Bindings
- Not bound: no binding references this policy, so it enforces nothing.
+   Not bound: no binding references this policy, so it enforces nothing.
  j/k scroll  y yaml  e edit  esc back  ? help

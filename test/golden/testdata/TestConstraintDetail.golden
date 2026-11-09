@@ -1,24 +1,24 @@
  p9s │ ctx kind-gatekeeper │ ns all │ gatekeeper v3.17.1 │ last audit 60s ago                                        RO
 ─ Constraints › K8sRequiredLabels ns-must-have-owner ───────────────────────────────────────────────────────────────────
  Summary
- Kind:              K8sRequiredLabels
- Name:              ns-must-have-owner
- Enforcement:       enforce (engine: deny)
- Total violations:  3
- Reported:          2
- Last audit:        2026-11-08 11:59:00Z
+   Kind:              K8sRequiredLabels
+   Name:              ns-must-have-owner
+   Enforcement:       enforce (engine: deny)
+   Total violations:  3
+   Reported:          2
+   Last audit:        2026-11-08 11:59:00Z
 
  Match
- kinds:
- - apiGroups:
-   - ""
    kinds:
-   - Namespace
+   - apiGroups:
+     - ""
+     kinds:
+     - Namespace
 
  Parameters
- labels:
- - owner
+   labels:
+   - owner
 
  Violations (showing 2 of 3; Gatekeeper reports a limited list)
- • [deny] Namespace/payments
+   • [deny] Namespace/payments
  j/k scroll  y yaml  e edit  esc back  ? help

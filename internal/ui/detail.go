@@ -31,25 +31,34 @@ func newYAMLScreen(title string, obj *unstructured.Unstructured) *detailScreen {
 
 func (d *detailScreen) title() string { return d.heading }
 
+// detailIndent is how far a section's body sits under its title.
+const detailIndent = "  "
+
 func (d *detailScreen) build(st styles, hl highlighter, width int) []string {
 	var out []string
 	for i, s := range d.detail.Sections {
 		if i > 0 {
 			out = append(out, "")
 		}
+		// A titled section's body sits one step in, under its title.
+		indent := ""
 		if s.Title != "" {
 			out = append(out, st.sectionTitle.Render(s.Title))
+			indent = detailIndent
 		}
 		body := hl.highlight(s.Body, s.Language)
+		wrapAt := max(width-2-len(indent), 1)
 		for _, l := range strings.Split(body, "\n") {
 			// Prose wraps at words; code keeps its spacing and wraps hard.
 			var wrapped string
 			if s.Language == "" {
-				wrapped = ansi.Wrap(l, max(width-2, 1), "")
+				wrapped = ansi.Wrap(l, wrapAt, "")
 			} else {
-				wrapped = ansi.Hardwrap(l, max(width-2, 1), true)
+				wrapped = ansi.Hardwrap(l, wrapAt, true)
 			}
-			out = append(out, strings.Split(wrapped, "\n")...)
+			for _, w := range strings.Split(wrapped, "\n") {
+				out = append(out, indent+w)
+			}
 		}
 	}
 	for i, l := range out {

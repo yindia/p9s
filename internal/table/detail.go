@@ -53,9 +53,13 @@ func Dash(s string) string {
 	return s
 }
 
+// kvLabelWidth is the minimum label width, so the sections of one detail
+// (Target, Policy, …) line their values up in the same column.
+const kvLabelWidth = 12
+
 // KV renders aligned "key: value" lines from alternating pairs.
 func KV(pairs ...string) string {
-	width := 0
+	width := kvLabelWidth
 	for i := 0; i < len(pairs); i += 2 {
 		width = max(width, len(pairs[i]))
 	}

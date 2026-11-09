@@ -1,15 +1,15 @@
  p9s │ ctx kind-gatekeeper │ ns all │ kyverno v1.19.2 · gatekeeper v3.17.1 │ last audit 60s ago (gatekeeper)         RO
 ─ Health › Audit — kyverno ─────────────────────────────────────────────────────────────────────────────────────────────
  Summary
- Source:    policy reports
- Interval:  1h
- Leader:    kyverno-reports-controller-5d4b-x via Lease kyverno/kyverno-reports-controller, renewed 10s ago
+   Source:        policy reports
+   Interval:      1h
+   Leader:        kyverno-reports-controller-5d4b-x via Lease kyverno/kyverno-reports-controller, renewed 10s ago
 
  Audit issues
- • [error] evaluation Namespace/payments
-   require-team-label: failed to evaluate: variable substitution failed
- • [info] reports -
-   1 report results reference policy "deleted-policy", which is not visible (deleted or forbidden)
+   • [error] evaluation Namespace/payments
+     require-team-label: failed to evaluate: variable substitution failed
+   • [info] reports -
+     1 report results reference policy "deleted-policy", which is not visible (deleted or forbidden)
 
 
 

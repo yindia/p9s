@@ -1,8 +1,8 @@
  p9s │ ctx kind-demo │ ns payments │ alpha v1.2.0 · beta 0.9.1 │ last audit 30s ago (alpha)                          RO
 ─ Violations · recent [1] ──────────────────────────────────────────────────────────────────────────────────────────────
 ! beta: beta admission events are off.
-  TIME↑  ENGINE  POLICY           KIND            ACTION   USER               TARGET                 MESSAGE
-▸ 2m     alpha   must-have-owner  RequiredLabels  enforce  alice@example.com  Deployment/payments/…  missing label owner
+  TIME↑  ENGINE  POLICY           KIND            ACTION   USER               TARGET
+▸ 2m     alpha   must-have-owner  RequiredLabels  enforce  alice@example.com  Deployment/payments/checkout
 
 
 
