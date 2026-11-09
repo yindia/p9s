@@ -34,7 +34,8 @@ p9s answers the questions a platform or security team asks every day:
 - 💥 **What would break if this policy enforced?** The objects a policy would
   reject today, by namespace and owner.
 - 🚫 **What was just blocked?** Recent admission denials, with the user who
-  made the request.
+  made the request where the engine records it (Gatekeeper does; Kyverno's
+  Events do not).
 - 🛠️ **How do I fix it?** A violation's detail carries the policy's own
   remediation text.
 - 📄 **Can I hand this to security?** `p9s report` writes Markdown, HTML or
@@ -58,7 +59,7 @@ And it stays out of the way:
 | 👥 **Violations by owner** | A Deployment with 30 violating Pods is one row; group by the owners' `team` label instead with `--group-label team`. |
 | 🛠️ **How to fix** | A violation's detail carries the policy's own remediation text from Kyverno and gatekeeper-library metadata. |
 | 💥 **Enforcement impact** | What moving a policy from audit to enforce would reject today, by namespace and owner. |
-| 🚫 **Recent denials** | What was blocked or flagged at admission, with the requesting user, from the engines' Events. |
+| 🚫 **Recent denials** | What was blocked or flagged at admission, from the engines' Events, with the requesting user where the engine records it. |
 | 🧩 **Engine views** | Constraint templates with highlighted Rego and CEL, constraints, Kyverno policies and reports, VAPs and their bindings. |
 | ⌨️ **Scriptable** | Every view prints as a table or JSON with `p9s get`; `p9s report` writes Markdown, HTML or JSON and can gate CI. |
 | 📸 **Offline** | `p9s snapshot` records a cluster; `--snapshot` replays it through the same views anywhere. |
@@ -103,7 +104,7 @@ checksum):
 
 ```sh
 curl -sSfL https://raw.githubusercontent.com/yindia/p9s/main/install.sh | sh -s -- -b /usr/local/bin
-# a specific release: ... | sh -s -- -b /usr/local/bin v0.1.0
+# a specific release: ... | sh -s -- -b /usr/local/bin vX.Y.Z
 ```
 
 **🐹 Go**:

@@ -6,7 +6,9 @@ set -euo pipefail
 
 CLUSTER="${CLUSTER:-p9s}"
 KYVERNO="${KYVERNO:-1}"                         # also install Kyverno + kyverno-policies
-GATEKEEPER_VERSION="${GATEKEEPER_VERSION:-}"   # empty = latest chart
+# Chart versions the e2e tests are verified against; override to try others.
+GATEKEEPER_VERSION="${GATEKEEPER_VERSION:-3.23.1}"
+KYVERNO_CHART_VERSION="${KYVERNO_CHART_VERSION:-3.9.2}"   # Kyverno v1.19.2
 LIBRARY_REF="${LIBRARY_REF:-master}"
 WORK="${WORK:-$(mktemp -d)}"
 CTX="kind-${CLUSTER}"
@@ -84,6 +86,7 @@ if [ "$KYVERNO" = "1" ]; then
     | k label --local -f - owner=kyverno.agilebank.demo -o yaml | k apply -f - >/dev/null
   helm repo add kyverno https://kyverno.github.io/kyverno/ --force-update >/dev/null
   helm upgrade --install kyverno kyverno/kyverno --kube-context "$CTX" -n kyverno \
+    --version "$KYVERNO_CHART_VERSION" \
     --set admissionController.replicas=1 --set backgroundController.replicas=1 \
     --set cleanupController.replicas=1 --set reportsController.replicas=1 \
     `# Gatekeeper >=3.22 generates VAP bindings with names longer than 63 bytes;` \
@@ -95,6 +98,7 @@ if [ "$KYVERNO" = "1" ]; then
   # accepts connections (seen on GitHub runners): retry until it answers.
   for i in 1 2 3 4 5 6; do
     if helm upgrade --install kyverno-policies kyverno/kyverno-policies --kube-context "$CTX" -n kyverno \
+      --version "$KYVERNO_CHART_VERSION" \
       --set podSecurityStandard=restricted --set validationFailureAction=Audit --wait --timeout 3m; then
       break
     fi

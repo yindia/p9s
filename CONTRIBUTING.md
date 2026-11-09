@@ -8,8 +8,13 @@ code follows; this file covers the workflow.
 ## Setup
 
 - Go (the version in `go.mod`)
-- [golangci-lint](https://golangci-lint.run) v2
-- For e2e: Docker, [kind](https://kind.sigs.k8s.io), Helm, kubectl
+- [golangci-lint](https://golangci-lint.run) v2.12.2, the version CI runs:
+  `go install github.com/golangci/golangci-lint/v2/cmd/golangci-lint@v2.12.2`
+- For e2e: Docker, [kind](https://kind.sigs.k8s.io) v0.31.0
+  (`go install sigs.k8s.io/kind@v0.31.0`, as CI does), Helm 3, kubectl.
+  `hack/e2e-setup.sh` pins the charts the tests are verified against
+  (Gatekeeper 3.23.1, Kyverno chart 3.9.2 / Kyverno v1.19.2); set
+  `GATEKEEPER_VERSION` or `KYVERNO_CHART_VERSION` to try others.
 - For the demo GIFs: [vhs](https://github.com/charmbracelet/vhs), ttyd, ffmpeg
 
 ```sh

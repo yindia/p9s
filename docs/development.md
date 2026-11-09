@@ -19,7 +19,7 @@ make tapes TAPES=docs/tapes/demo.tape   # just one
 
 The demo GIFs are recorded from `docs/tapes/*.tape` into `docs/image/`.
 
-**Releasing**: push a tag (`git tag v0.1.0 && git push origin v0.1.0`).
+**Releasing**: push a tag (`git tag vX.Y.Z && git push origin vX.Y.Z`).
 The `release` workflow runs the tests, then GoReleaser builds macOS, Linux
 and Windows binaries for amd64 and arm64, publishes the release with
 `checksums.txt`, and commits the updated Homebrew formula to

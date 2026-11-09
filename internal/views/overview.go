@@ -64,7 +64,7 @@ func OverviewOf(env Env) Overview {
 		candidatesBlock(env, f, synced),
 		denialsBlock(env, f),
 		{ID: BlockExemptions, Title: "Exemptions",
-			Placeholder: "Not available yet: the exemptions inventory arrives in a later release."},
+			Placeholder: "Kyverno PolicyExceptions: :kyv/polex. A cross-engine inventory comes later."},
 	}}
 }
 

@@ -19,7 +19,7 @@ and what should I look at first" on one screen. `j`/`k` select a block,
 | Top violating owners | the owners (Deployments, CronJobs, …, or `--group-label` values) with most affected objects | `:v` |
 | Enforcement candidates | policies in audit or warn mode, fewest violations first: those with none can enforce without blocking anything that exists today | `:pol /mode:audit,warn` |
 | Recent admission denials | the latest requests a policy blocked | `:events` |
-| Exemptions | not available yet | |
+| Exemptions | where to find Kyverno PolicyExceptions (`:kyv/polex`); a cross-engine inventory arrives later | |
 
 The overview follows the `:ns` scope.
 
@@ -32,8 +32,8 @@ The overview follows the `:ns` scope.
 `OBJECTS 30`:
 
 ```
-  ENGINE      OWNER                         POLICY                      KIND          ACTION   OBJECTS↓  MESSAGE
-▸ gatekeeper  Deployment/p9s-demo/checkout  container-must-have-limits  K8sContainer… enforce  3         container <web> has no resource limits
+  ENGINE      OWNER                         POLICY                      KIND          ACTION   SEVERITY  OBJECTS↓  MESSAGE
+▸ gatekeeper  Deployment/p9s-demo/checkout  container-must-have-limits  K8sContainer… enforce  -         3         container <web> has no resource limits
 ```
 
 - Owners come from controller ownerReferences: Pod → ReplicaSet →
@@ -162,7 +162,7 @@ one line.
 | `g` | go to the object behind the row |
 | `c` / `C` | copy `kind/namespace/name`, or a `kubectl get … -o yaml` command (OSC 52, works over SSH) |
 | `i` | enforcement impact of the row's policy |
-| `N` `V` `A` `S` | sort by name, violations, age, severity; again to reverse |
+| `N` `V` `A` `S` | sort by name, count (violations on `:pol` and `:v`, the view's own count elsewhere), age, severity; again to reverse |
 | `o` / `t` | `:v`: owner groups ↔ flat list / ↔ `--group-label` groups |
 | `[` `]` | `:v`: audit results ↔ recent admission events |
 | `G` | `:vap/pol`: show or hide generated policies (there `end` jumps to the last row) |

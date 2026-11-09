@@ -24,7 +24,7 @@ var navigationHelp = [][2]string{
 var keysHelp = [][2]string{
 	{"d", "describe"},
 	{"y", "YAML (Secret values are redacted)"},
-	{"e", "open the YAML in $EDITOR (read-only: changes are discarded)"},
+	{"e", "open the YAML in $VISUAL or $EDITOR (changes are discarded)"},
 	{"g", "go to the source object"},
 	{"c", "copy kind/namespace/name of the row's object"},
 	{"C", "copy a kubectl get command for it"},

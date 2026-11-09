@@ -19,4 +19,4 @@ alpha   observe-images  AlphaRule   audit        -
 No active engine records admission events.
 
 == Exemptions
-Not available yet: the exemptions inventory arrives in a later release.
+Kyverno PolicyExceptions: :kyv/polex. A cross-engine inventory comes later.
