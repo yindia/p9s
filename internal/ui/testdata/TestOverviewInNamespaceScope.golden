@@ -5,14 +5,14 @@
   All checks pass.
 
   Top violating owners  ⏎ :v
-  OWNER                                                                                                POLICIES  OBJECTS
-  Namespace/search                                                                                     1         1
+  OWNER             POLICIES  OBJECTS
+  Namespace/search  1         1
 
   Enforcement candidates (audit or warn)  ⏎ :pol /mode:audit,warn
   2 in audit or warn mode, 1 with no current violations
-  ENGINE  NAME                                                                        KIND       ENFORCEMENT  VIOLATIONS
-  alpha   prefer-limits                                                               AlphaRule  warn         0
-  alpha   observe-images                                                              AlphaRule  audit        -
+  ENGINE  NAME            KIND       ENFORCEMENT  VIOLATIONS
+  alpha   prefer-limits   AlphaRule  warn         0
+  alpha   observe-images  AlphaRule  audit        -
 
   Recent admission denials
   No active engine records admission events.

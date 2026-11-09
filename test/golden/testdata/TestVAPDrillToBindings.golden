@@ -1,9 +1,9 @@
  p9s │ ctx kind-gatekeeper │ ns all │ vap builtin │ last audit -                                                     RO
 ─ ValidatingAdmissionPolicies › ValidatingAdmissionPolicyBindings [3] (replica-limit) ──────────────────────────────────
-  NAME↑                        POLICY         ACTIONS  PARAM                   MATCH                                AGE
-▸ replica-limit-default        replica-limit  Warn     default/replica-limits  the policy's matchConstraints        6d1h
-  replica-limit-missing        replica-limit  Warn     default/no-such-limits  the policy's matchConstraints        6d1h
-  replica-limit-per-namespace  replica-limit  Warn     replica-limits          the policy's matchConstraints        6d1h
+  NAME↑                        POLICY         ACTIONS  PARAM                   MATCH                          AGE
+▸ replica-limit-default        replica-limit  Warn     default/replica-limits  the policy's matchConstraints  6d1h
+  replica-limit-missing        replica-limit  Warn     default/no-such-limits  the policy's matchConstraints  6d1h
+  replica-limit-per-namespace  replica-limit  Warn     replica-limits          the policy's matchConstraints  6d1h
 
 
 

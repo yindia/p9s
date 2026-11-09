@@ -1,9 +1,9 @@
  p9s │ ctx kind-gatekeeper │ ns all │ gatekeeper v3.17.1 │ last audit 60s ago                                        RO
 ─ Constraints [3] ──────────────────────────────────────────────────────────────────────────────────────────────────────
-  NAME                                                            KIND               ENFORCEMENT  VIOLATIONS↓  AUDIT AGE
-▸ ns-must-have-owner                                              K8sRequiredLabels  enforce      3            60s
-  pods-must-have-app                                              K8sRequiredLabels  audit        1            90s
-  max-ten-replicas                                                K8sReplicaLimits   warn         -            -
+  NAME                KIND               ENFORCEMENT  VIOLATIONS↓  AUDIT AGE
+▸ ns-must-have-owner  K8sRequiredLabels  enforce      3            60s
+  pods-must-have-app  K8sRequiredLabels  audit        1            90s
+  max-ten-replicas    K8sReplicaLimits   warn         -            -
 
 
 

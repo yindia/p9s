@@ -1,7 +1,7 @@
  p9s │ ctx kind-gatekeeper │ ns all │ kyverno v1.19.2 │ last audit 60s ago                                           RO
 ─ ClusterPolicies [1] ──────────────────────────────────────────────────────────────────────────────────────────────────
-  NAME                                                ACTION  READY  RULES                 BACKGROUND  VIOLATIONS↓  AGE
-▸ require-team-label                                  audit   ✓      1 validate, 1 mutate  ✓           2            3d2h
+  NAME                ACTION  READY  RULES                 BACKGROUND  VIOLATIONS↓  AGE
+▸ require-team-label  audit   ✓      1 validate, 1 mutate  ✓           2            3d2h
 
 
 

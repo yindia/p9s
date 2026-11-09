@@ -1,24 +1,24 @@
  p9s │ ctx kind-gatekeeper │ ns all │ kyverno v1.19.2 │ last audit 60s ago                                           RO
 ─ ClusterPolicies › ClusterPolicy require-team-label ───────────────────────────────────────────────────────────────────
  Summary
- Kind:         ClusterPolicy
- Namespace:    -
- Name:         require-team-label
- Enforcement:  audit (engine: Audit)
- Violations:   2
- Title:        -
- Category:     -
- Severity:     -
+   Kind:         ClusterPolicy
+   Namespace:    -
+   Name:         require-team-label
+   Enforcement:  audit (engine: Audit)
+   Violations:   2
+   Title:        -
+   Category:     -
+   Severity:     -
 
  YAML — rule check-team
- match:
-   any:
-   - resources:
-       kinds:
-       - Pod
- validate:
-   failureAction: Audit
-   message: label 'team' is required
-   pattern:
-     metadata:
+   match:
+     any:
+     - resources:
+         kinds:
+         - Pod
+   validate:
+     failureAction: Audit
+     message: label 'team' is required
+     pattern:
+       metadata:
  j/k scroll  y yaml  e edit  esc back  ? help

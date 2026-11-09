@@ -1,16 +1,16 @@
  p9s │ ctx kind-demo │ ns all │ alpha v1.2.0 · beta 0.9.1 │ last audit 30s ago (alpha)                               RO
 ─ Policies › AlphaRule require-owner ───────────────────────────────────────────────────────────────────────────────────
  Summary
- Engine:       alpha
- Kind:         AlphaRule
- Namespace:    -
- Name:         require-owner
- Enforcement:  enforce (engine: block)
- Violations:   2
- Last audit:   2026-11-08 11:59:30Z (30s ago)
+   Engine:        alpha
+   Kind:          AlphaRule
+   Namespace:     -
+   Name:          require-owner
+   Enforcement:   enforce (engine: block)
+   Violations:    2
+   Last audit:    2026-11-08 11:59:30Z (30s ago)
 
  YAML — AlphaRule require-owner
- rule: require-owner
+   rule: require-owner
 
 
 

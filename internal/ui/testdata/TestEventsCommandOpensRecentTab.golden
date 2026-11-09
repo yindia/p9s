@@ -1,10 +1,10 @@
  p9s │ ctx kind-demo │ ns all │ alpha v1.2.0 · beta 0.9.1 │ last audit 30s ago (alpha)                               RO
 ─ Violations · recent [3] ──────────────────────────────────────────────────────────────────────────────────────────────
 ! beta: beta admission events are off.
-  TIME↑  ENGINE  POLICY           KIND            ACTION   USER               TARGET                 MESSAGE
-▸ 2m     alpha   must-have-owner  RequiredLabels  enforce  alice@example.com  Deployment/payments/…  missing label owner
-  10m    beta    disallow-latest  ClusterPolicy   warn     -                  Deployment/search/in…  image tag latest
-  40m    alpha   must-have-owner  RequiredLabels  enforce  ci-bot             Deployment/default/w…  missing label owner
+  TIME↑  ENGINE  POLICY           KIND          ACTION   USER               TARGET                   MESSAGE
+▸ 2m     alpha   must-have-owner  RequiredLab…  enforce  alice@example.com  Deployment/payments/ch…  missing label owner
+  10m    beta    disallow-latest  ClusterPoli…  warn     -                  Deployment/search/inde…  image tag latest
+  40m    alpha   must-have-owner  RequiredLab…  enforce  ci-bot             Deployment/default/web   missing label owner
 
 
 

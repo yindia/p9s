@@ -198,8 +198,12 @@ func (t *tableScreen) scrollInto(h int) {
 	t.offset = clampIndex(t.offset, len(t.visible)-h)
 }
 
-// columnWidths sizes columns to content, capped, and gives leftover width
-// to flex columns. The leading 2 columns hold the cursor glyph.
+// columnWidths sizes columns to content, capped. The leading 2 columns hold
+// the cursor glyph.
+//
+// Leftover width goes only to flex message columns, which have more text to
+// show; every other column keeps its content width, so a count stays next
+// to the name it belongs to instead of being pushed to the right edge.
 func (t *tableScreen) columnWidths(width int) []int {
 	cols := t.tbl.Columns
 	w := make([]int, len(cols))
@@ -218,34 +222,37 @@ func (t *tableScreen) columnWidths(width int) []int {
 		}
 	}
 	used := 2 + colGap*max(len(cols)-1, 0)
-	var flex []int
+	var grow []int
 	for i, c := range cols {
 		used += w[i]
-		if c.Flex {
-			flex = append(flex, i)
+		if c.Flex && c.Role == engine.RoleMessage {
+			grow = append(grow, i)
 		}
-	}
-	if len(flex) == 0 && len(cols) > 0 {
-		flex = []int{len(cols) - 1}
 	}
 	spare := width - used
 	if spare >= 0 {
-		for _, i := range flex {
-			w[i] += spare / len(flex)
+		for _, i := range grow {
+			w[i] += spare / len(grow)
 		}
 		return w
 	}
-	// Too narrow: repeatedly trim the widest column, so long kinds and long
-	// names give up space evenly instead of one column absorbing the cut.
-	// The message column gives way first: its full text is on the status
-	// line under the table anyway.
-	for i, c := range cols {
-		if c.Role == engine.RoleMessage && spare < 0 {
-			take := min(-spare, max(w[i]-minMessageWidth, 0))
-			w[i] -= take
-			spare += take
+	// Too narrow. The message gives way first (its full text is on the
+	// status line under the table), then kinds (a short prefix still tells
+	// them apart, and the detail spells them out), before names and owners.
+	for _, cut := range []struct {
+		role  engine.Role
+		floor int
+	}{{engine.RoleMessage, minMessageWidth}, {engine.RoleKind, minKindWidth}} {
+		for i, c := range cols {
+			if c.Role == cut.role && spare < 0 {
+				take := min(-spare, max(w[i]-max(cut.floor, c.MinWidth), 0))
+				w[i] -= take
+				spare += take
+			}
 		}
 	}
+	// Then repeatedly trim the widest remaining column, so long names give
+	// up space evenly instead of one column absorbing the cut.
 	// Then columns without a minimum, widest first; columns with a MinWidth
 	// (e.g. OWNER) give way last, and never below it.
 	for _, protected := range []bool{false, true} {
@@ -322,4 +329,8 @@ func sortArrow(desc bool) string {
 }
 
 // minMessageWidth is how far a message column shrinks before others do.
-const minMessageWidth = 24
+const (
+	minMessageWidth = 24
+	// minKindWidth keeps "K8sContainer…"-style prefixes readable.
+	minKindWidth = 12
+)

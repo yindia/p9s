@@ -1,40 +1,40 @@
  p9s │ ctx kind-demo │ ns all │ alpha v1.2.0 · beta 0.9.1 │ last audit 30s ago …
 ─ Help ─────────────────────────────────────────────────────────────────────────
  Navigation
- j k ↑ ↓     move
- pgup pgdn   page
- home end G  first / last
- enter       drill down (or describe when there is nothing to drill into)
- esc         clear filter, else back
- :           command mode (tab completes)
- /           filter: free text, or engine: mode: ns: kind: sev: name: terms
- 0           all namespaces (clear the :ns scope)
- ?           this help
- ctrl+c :q   quit
+   j k ↑ ↓     move
+   pgup pgdn   page
+   home end G  first / last
+   enter       drill down (or describe when there is nothing to drill into)
+   esc         clear filter, else back
+   :           command mode (tab completes)
+   /           filter: free text, or engine: mode: ns: kind: sev: name: terms
+   0           all namespaces (clear the :ns scope)
+   ?           this help
+   ctrl+c :q   quit
 
  Views
- :overview         start view: health, top violators, enforcement candidates
- :pol [engine]     policies across engines
- :v [engine]       violations across engines ([ ] switch current / recent)
- :events           recent admission events (the recent tab of :v)
- :impact <policy>  what enforcing a policy would block (i on a policy row)
- :mut [engine]     mutations across engines
- :health [engine]  engine health issues
- :ns [name|all]    scope every view to a namespace
- :ctx              kubeconfig contexts
+   :overview         start view: health, top violators, enforcement candidates
+   :pol [engine]     policies across engines
+   :v [engine]       violations across engines ([ ] switch current / recent)
+   :events           recent admission events (the recent tab of :v)
+   :impact <policy>  what enforcing a policy would block (i on a policy row)
+   :mut [engine]     mutations across engines
+   :health [engine]  engine health issues
+   :ns [name|all]    scope every view to a namespace
+   :ctx              kubeconfig contexts
 
  Keys
- d           describe
- y           YAML (Secret values are redacted)
- e           open the YAML in $EDITOR (read-only: changes are discarded)
- g           go to the source object
- c           copy kind/namespace/name of the row's object
- C           copy a kubectl get command for it
- N V A S     sort by name, violations, age, severity (again to reverse)
- o           :v grouped by owner ↔ flat list
- t           :v grouped by owner ↔ by --group-label
- [ ]         :v current tab (audit results) ↔ recent tab (admission events)
- i           enforcement impact of the policy on this row
+   d           describe
+   y           YAML (Secret values are redacted)
+   e           open the YAML in $EDITOR (read-only: changes are discarded)
+   g           go to the source object
+   c           copy kind/namespace/name of the row's object
+   C           copy a kubectl get command for it
+   N V A S     sort by name, violations, age, severity (again to reverse)
+   o           :v grouped by owner ↔ flat list
+   t           :v grouped by owner ↔ by --group-label
+   [ ]         :v current tab (audit results) ↔ recent tab (admission events)
+   i           enforcement impact of the policy on this row
 
  Engine views (also reached by drilling down)
  connected to kind-demo

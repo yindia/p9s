@@ -1,10 +1,10 @@
  p9s │ ctx kind-demo │ ns all │ alpha v1.2.0 · beta 0.9.1 │ last audit 30s ago (alpha)                               RO
 ─ Policies › Namespaces [4] ────────────────────────────────────────────────────────────────────────────────────────────
-  SCOPE  NAME                                                                                                 VIOLATIONS
-▸ *      all                                                                                                  3
-         default                                                                                              0
-         payments                                                                                             2
-         search                                                                                               1
+  SCOPE  NAME      VIOLATIONS
+▸ *      all       3
+         default   0
+         payments  2
+         search    1
 
 
 

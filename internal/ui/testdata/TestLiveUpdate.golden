@@ -1,7 +1,7 @@
  p9s │ ctx kind-demo │ ns all │ alpha v1.2.0 │ last audit 30s ago                                                    RO
 ─ Policies [1] ─────────────────────────────────────────────────────────────────────────────────────────────────────────
-  ENGINE  NAME                                                 KIND       NAMESPACE  ENFORCEMENT  VIOLATIONS↓  AUDIT AGE
-▸ alpha   require-owner                                        AlphaRule  -          enforce      2            30s
+  ENGINE  NAME           KIND       NAMESPACE  ENFORCEMENT  VIOLATIONS↓  AUDIT AGE
+▸ alpha   require-owner  AlphaRule  -          enforce      2            30s
 
 
 

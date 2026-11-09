@@ -3,16 +3,16 @@
   OVERALL   ✗ 0 critical   ! 2 warning   ✓ 2 ok                                                        refreshed 0s ago
 
 ─ Webhooks [1] ─────────────────────────────────────────────────────────────────────────────────────────────────────────
-  ENGINE   WEBHOOK                                                            FAILURE  TIMEOUT  ENDPOINTS  CERT   STATUS
-▸ kyverno  validate.kyverno.svc-fail                                          Fail     10s      1/1        3650d  ✓
+  ENGINE   WEBHOOK                    FAILURE  TIMEOUT  ENDPOINTS  CERT   STATUS
+▸ kyverno  validate.kyverno.svc-fail  Fail     10s      1/1        3650d  ✓
 
 ─ Controllers [1] ──────────────────────────────────────────────────────────────────────────────────────────────────────
-  ENGINE   DEPLOYMENT                                                      READY  RESTARTS  LAST REASON  IMAGE    STATUS
-  kyverno  kyverno-admission-controller                                    1/1    0         -            v1.19.2  ✓
+  ENGINE   DEPLOYMENT                    READY  RESTARTS  LAST REASON  IMAGE    STATUS
+  kyverno  kyverno-admission-controller  1/1    0         -            v1.19.2  ✓
 
 ─ Audit [1] ────────────────────────────────────────────────────────────────────────────────────────────────────────────
-  ENGINE   SOURCE          INTERVAL  LAST RUN  LEADER                                                    STATUS
-  kyverno  policy reports  1h        1m ago    kyverno-reports-controller-5d4b-x                         ! 1 audit error
+  ENGINE   SOURCE          INTERVAL  LAST RUN  LEADER                             STATUS
+  kyverno  policy reports  1h        1m ago    kyverno-reports-controller-5d4b-x  ! 1 audit error
 
 ─ Policies [1] ─────────────────────────────────────────────────────────────────────────────────────────────────────────
   ENGINE   LOADED  NOT ENFORCED  COMPILE ERRORS  MISSING CRD  NOT READY  STATUS

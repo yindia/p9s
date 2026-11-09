@@ -173,8 +173,13 @@ func TestDetailAndHelpers(t *testing.T) {
 	if table.Dash("") != "-" || table.Dash("x") != "x" || table.OneLine("a\n  b") != "a b" {
 		t.Error("Dash/OneLine")
 	}
-	if got := table.KV("A", "1", "Long", "2"); got != "A:     1\nLong:  2" {
+	// Short labels pad to a shared width, so sections line up with each other.
+	if got := table.KV("A", "1", "Long", "2"); got != "A:             1\nLong:          2" {
 		t.Errorf("KV = %q", got)
+	}
+	// A label past that width widens its own section.
+	if got := table.KV("Failure policy", "Ignore", "A", "1"); got != "Failure policy:  Ignore\nA:               1" {
+		t.Errorf("KV with a long label = %q", got)
 	}
 }
 
