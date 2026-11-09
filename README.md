@@ -1,57 +1,76 @@
+<div align="center">
+
 # p9s
 
-[![ci](https://github.com/yindia/p9s/actions/workflows/ci.yml/badge.svg)](https://github.com/yindia/p9s/actions/workflows/ci.yml)
+**A terminal UI for Kubernetes policy engines** — in the spirit of [k9s](https://k9scli.io).
 
-**A terminal UI for Kubernetes policy engines**, in the spirit of k9s.
 Browse policies, violations, admission denials and engine health for
 **OPA Gatekeeper**, **Kyverno** and native **ValidatingAdmissionPolicies**,
-side by side, from your kubeconfig. Nothing to install in the cluster, and
-read-only.
+side by side, straight from your kubeconfig.
+
+[![ci](https://github.com/yindia/p9s/actions/workflows/ci.yml/badge.svg)](https://github.com/yindia/p9s/actions/workflows/ci.yml)
+[![release](https://img.shields.io/github/v/release/yindia/p9s?sort=semver)](https://github.com/yindia/p9s/releases)
+[![go version](https://img.shields.io/github/go-mod/go-version/yindia/p9s)](go.mod)
+[![go report](https://goreportcard.com/badge/github.com/yindia/p9s)](https://goreportcard.com/report/github.com/yindia/p9s)
+
+[Install](#-install) · [Quick start](#-quick-start) · [Features](#%EF%B8%8F-the-tui) · [CLI](#%EF%B8%8F-command-line) · [Contributing](#-contributing)
 
 ![p9s end to end: a blocked request, its owner and fix, enforcement impact, health, and a report](docs/image/demo.gif)
 
+</div>
+
+## ✨ Why p9s
+
 p9s answers the questions a platform or security team asks every day:
 
-- **Is the policy layer working?** Fail-open webhooks with no endpoints,
+- 🩺 **Is the policy layer working?** Fail-open webhooks with no endpoints,
   expiring certificates, crash-looping controllers, stale audits, policies
   that never loaded.
-- **What is violating what, and whose is it?** Violations grouped by the
+- 👥 **What is violating what, and whose is it?** Violations grouped by the
   Deployment or CronJob that owns them, or by team label.
-- **What would break if this policy enforced?** The objects a policy would
+- 💥 **What would break if this policy enforced?** The objects a policy would
   reject today, by namespace and owner.
-- **What was just blocked?** Recent admission denials, with the user who
+- 🚫 **What was just blocked?** Recent admission denials, with the user who
   made the request.
-- **How do I fix it?** A violation's detail carries the policy's own
+- 🛠️ **How do I fix it?** A violation's detail carries the policy's own
   remediation text.
-- **Can I hand this to security?** `p9s report` writes Markdown, HTML or
+- 📄 **Can I hand this to security?** `p9s report` writes Markdown, HTML or
   JSON with Pod Security Standards coverage and health findings.
 
-## Contents
+And it stays out of the way:
 
-- [Install](#install)
-- [Quick start](#quick-start)
-- [Engines](#engines)
-- [The TUI](#the-tui): [overview](#overview), [violations by owner](#violations-by-owner-and-team),
+- 🔒 **Read-only.** Nothing to install in the cluster; p9s never creates,
+  changes or deletes anything.
+- ⚡ **Live.** Informers, not polling, with trimmed caches.
+- 🔐 **RBAC-aware.** Works with whatever you may read, down to a single
+  namespace, and says what it could not see.
+- 📸 **Offline.** Record a snapshot and browse it anywhere, or run the same
+  views as `p9s get` in scripts and CI.
+
+## 📚 Contents
+
+- [Install](#-install) · [Quick start](#-quick-start) · [Engines](#-engines)
+- [The TUI](#%EF%B8%8F-the-tui): [overview](#overview), [violations by owner](#violations-by-owner-and-team),
   [violation detail](#violation-detail-and-how-to-fix), [enforcement impact](#enforcement-impact),
   [admission events](#recent-admission-events), [health](#health-dashboard),
   [engine views](#engine-views)
-- [Navigating](#navigating): [commands](#commands), [keys](#keys), [filtering](#filtering),
+- [Navigating](#-navigating): [commands](#commands), [keys](#keys), [filtering](#filtering),
   [namespace scope](#namespace-scope), [header](#header), [reading tables](#reading-tables)
-- [Command line](#command-line): [`get`](#p9s-get), [`snapshot`](#p9s-snapshot), [`report`](#p9s-report),
+- [Command line](#%EF%B8%8F-command-line): [`get`](#p9s-get), [`snapshot`](#p9s-snapshot), [`report`](#p9s-report),
   [config file](#config-file), [flags](#flags)
-- [Access and RBAC](#access-and-rbac)
-- [Development](#development)
+- [Access and RBAC](#-access-and-rbac) · [Development](#%EF%B8%8F-development) ·
+  [Contributing](#-contributing) · [Security](#-security)
 
-## Install
+## 📦 Install
 
-**Homebrew** (the formula lives in this repository):
+**🍺 Homebrew** (the formula lives in this repository):
 
 ```sh
 brew tap yindia/p9s https://github.com/yindia/p9s
 brew install p9s
 ```
 
-**Install script** (macOS, Linux and Windows on amd64/arm64; verifies the
+**📜 Install script** (macOS, Linux and Windows on amd64/arm64; verifies the
 release checksum):
 
 ```sh
@@ -59,7 +78,7 @@ curl -sSfL https://raw.githubusercontent.com/yindia/p9s/main/install.sh | sh -s 
 # a specific release: ... | sh -s -- -b /usr/local/bin v0.1.0
 ```
 
-**Go**:
+**🐹 Go**:
 
 ```sh
 go install github.com/yindia/p9s/cmd/p9s@latest
@@ -69,7 +88,7 @@ go install github.com/yindia/p9s/cmd/p9s@latest
 platform are also attached to each
 [release](https://github.com/yindia/p9s/releases).
 
-## Quick start
+## 🚀 Quick start
 
 ```sh
 p9s                          # current context, every engine it finds
@@ -81,12 +100,12 @@ p9s get pol                  # the policies table, printed and done
 p9s report -o report.md      # a security report
 ```
 
-No cluster handy? `make e2e-up` builds a kind cluster with Gatekeeper and
-the gatekeeper-library, Kyverno with the restricted Pod Security policies,
-some demo workloads and native VAPs, which is what every screenshot here
-shows.
+> [!TIP]
+> No cluster handy? `make e2e-up` builds a kind cluster with Gatekeeper and
+> the gatekeeper-library, Kyverno with the restricted Pod Security policies,
+> some demo workloads and native VAPs: what every recording here shows.
 
-## Engines
+## 🧩 Engines
 
 Engines are detected through discovery when p9s starts and on every context
 switch. Several can be active at once: the shared views merge them with an
@@ -102,7 +121,7 @@ All data comes from informers. Nothing polls, and caches drop
 `managedFields` and kubectl's last-applied copy. A new engine implements
 one interface; see [docs/adding-an-engine.md](docs/adding-an-engine.md).
 
-## The TUI
+## 🖥️ The TUI
 
 ### Overview
 
@@ -275,7 +294,7 @@ in `:health`. Mutations appear in `:mut`.
   the background, never on a read), type-checking warnings, unbound
   policies.
 
-## Navigating
+## 🧭 Navigating
 
 ### Commands
 
@@ -373,7 +392,7 @@ change are drawn dimmed with a `~` (`~12`).
 - The active sort is marked in the header (`VIOLATIONS↓`), and the selected
   row's full message is under the table (`» …`).
 
-## Command line
+## ⌨️ Command line
 
 ### `p9s get`
 
@@ -492,7 +511,7 @@ Unknown keys and bad values are errors that name the key and line.
 p9s is read-only: it never creates, changes or deletes anything in a
 cluster.
 
-## Access and RBAC
+## 🔐 Access and RBAC
 
 p9s works with whatever your identity may read and says what it could not:
 
@@ -511,7 +530,7 @@ p9s works with whatever your identity may read and says what it could not:
 - A cluster without any engine shows an empty state that says so; an
   unreachable context opens `:ctx` with the error.
 
-## Development
+## 🛠️ Development
 
 ```sh
 make test        # unit, contract and golden tests
@@ -545,45 +564,40 @@ longer than 63 bytes, which break Kyverno's VAP reports, so
 
 ### Architecture
 
-```
-kube → session → engines → model
-                         → query   cross-engine collecting, counting and grading
-                         → views   shared views, command resolution, overview, health, report
-                         → table   materialised, JSON-serialisable tables (p9s/v1)
-                              ├─ internal/ui       Bubble Tea renderer: screens and keys only
-                              └─ internal/render   text, JSON, Markdown and HTML for the CLI
-```
+Layers, the import rules that enforce them, and the repository layout are
+in [docs/architecture.md](docs/architecture.md). Adding an engine:
+[docs/adding-an-engine.md](docs/adding-an-engine.md).
 
-`internal/boundary_test.go` enforces the layering: `query`, `views` and
-`table` import no terminal code, and the renderers never reach into
-engines.
+## 🤝 Contributing
 
-```
-cmd/p9s/                     cobra commands: TUI, get, snapshot, report
-internal/model/              engine-neutral types
-internal/engine/             Engine interface, views, registry
-internal/engine/enginetest/  the contract every engine passes
-internal/engines/enginekit/  shared plumbing: RBAC probes, sync, cache transform, fake cluster
-internal/engines/gatekeeper/ Gatekeeper (+ gktest fixtures)
-internal/engines/kyverno/    Kyverno (+ kyvtest fixtures)
-internal/engines/vap/        ValidatingAdmissionPolicies (+ vaptest fixtures)
-internal/owners/             owner resolution from metadata-only informers
-internal/platform/           webhooks, controllers and leases for :health
-internal/events/             admission Events for the recent tab
-internal/query/              cross-engine logic
-internal/views/              shared views, dashboards and the report model
-internal/table/              materialised tables and details
-internal/render/             CLI renderers
-internal/snapshot/           recording and replaying a cluster
-internal/config/             the config file
-internal/kube/               kubeconfig and clients
-internal/session/            connection, detection, lifecycle, sync
-internal/ui/                 the TUI
-test/golden/                 real engines rendered through the UI
-test/e2e/                    tests against the kind cluster
-docs/tapes/                  vhs scripts for docs/image
-```
+Issues and pull requests are welcome. Start with
+[CONTRIBUTING.md](CONTRIBUTING.md) for setup, the checks CI runs and commit
+conventions (signed off, DCO). [AGENTS.md](AGENTS.md) holds the rules the
+code follows, for people and coding agents alike.
 
-Adding an engine: [docs/adding-an-engine.md](docs/adding-an-engine.md).
-Contributing: [CONTRIBUTING.md](CONTRIBUTING.md); rules for coding agents:
-[AGENTS.md](AGENTS.md).
+- 🐛 Found a bug? [Open an issue](https://github.com/yindia/p9s/issues/new?template=bug_report.md)
+  (a `p9s snapshot` of the cluster helps; Secret values are never recorded).
+- 💡 Want a view, an engine or a question answered?
+  [Request a feature](https://github.com/yindia/p9s/issues/new?template=feature_request.md).
+
+## 🔒 Security
+
+Please report vulnerabilities privately through
+[GitHub security advisories](https://github.com/yindia/p9s/security/advisories/new),
+not in a public issue. See [SECURITY.md](SECURITY.md).
+
+## 🙏 Acknowledgements
+
+- [k9s](https://k9scli.io), whose keys and feel p9s follows.
+- [Bubble Tea](https://github.com/charmbracelet/bubbletea),
+  [Lip Gloss](https://github.com/charmbracelet/lipgloss) and
+  [VHS](https://github.com/charmbracelet/vhs) from Charm.
+- [OPA Gatekeeper](https://open-policy-agent.github.io/gatekeeper/) with the
+  [gatekeeper-library](https://github.com/open-policy-agent/gatekeeper-library),
+  and [Kyverno](https://kyverno.io) with its policies, which the e2e cluster runs.
+
+<div align="center">
+
+If p9s saves you a `kubectl get constraints -o yaml`, a ⭐ helps others find it.
+
+</div>
