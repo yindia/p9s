@@ -2,10 +2,10 @@
 ─ Violations · recent [3] ──────────────────────────────────────────────────────────────────────────────────────────────
 ! cannot list events in alpha-system (alpha) — those admission events are missing
 ! beta: beta admission events are off.
-  TIME↑  ENGINE  POLICY           KIND          ACTION   USER               TARGET                   MESSAGE
-▸ 2m     alpha   must-have-owner  RequiredLab…  enforce  alice@example.com  Deployment/payments/ch…  missing label owner
-  10m    beta    disallow-latest  ClusterPoli…  warn     -                  Deployment/search/inde…  image tag latest
-  40m    alpha   must-have-owner  RequiredLab…  enforce  ci-bot             Deployment/default/web   missing label owner
+  TIME↑  ENGINE  POLICY           KIND            ACTION   USER               TARGET
+▸ 2m     alpha   must-have-owner  RequiredLabels  enforce  alice@example.com  Deployment/payments/checkout
+  10m    beta    disallow-latest  ClusterPolicy   warn     -                  Deployment/search/indexer
+  40m    alpha   must-have-owner  RequiredLabels  enforce  ci-bot             Deployment/default/web
 
 
 
