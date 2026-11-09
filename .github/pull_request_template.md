@@ -12,5 +12,5 @@
 
 - [ ] Still read-only; RBAC gaps surface as notices
 - [ ] No number shown that the engine cannot provide
-- [ ] README tables / tapes updated for visible changes
+- [ ] Docs (`docs/tui.md`, `docs/cli.md`, `docs/engines.md`) and tapes updated for visible changes
 - [ ] Commits signed off (`git commit -s`)

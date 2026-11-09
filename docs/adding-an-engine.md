@@ -328,4 +328,4 @@ _ "github.com/yindia/p9s/internal/engines/vap"
 - [ ] views: prefixed commands, roles, `DefaultSort`, `Row.Policy` on policy rows
 - [ ] markers verified on a real cluster and recorded in fixtures
 - [ ] contract suite, fixtures, unit tests, goldens, e2e
-- [ ] README: the engine in the Engines table and its views under Engine views
+- [ ] Docs: the engine in the README's Supported engines table, and its detection and views in [engines.md](engines.md)

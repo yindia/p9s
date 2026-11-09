@@ -47,8 +47,8 @@ your current kubeconfig context. Tear it down with `make e2e-down`.
   Missing RBAC is shown as a notice, never as an error that stops the UI.
 - **Informers, not polling.** New data sources go through
   `enginekit.Access` and `enginekit.Sync`.
-- **Docs.** Update the README tables (commands, keys, engines) when you
-  change them, and the matching tape in `docs/tapes/` for a visible change.
+- **Docs.** Update [docs/tui.md](docs/tui.md) (commands, keys), [docs/cli.md](docs/cli.md)
+  and [docs/engines.md](docs/engines.md) when you change them, and the matching tape in `docs/tapes/` for a visible change.
   A new engine follows [docs/adding-an-engine.md](docs/adding-an-engine.md).
 
 For anything larger than a fix, open an issue first with a short plan:
