@@ -5,20 +5,20 @@
 class P9s < Formula
   desc "Terminal UI for Kubernetes policy engines: Gatekeeper, Kyverno and ValidatingAdmissionPolicies"
   homepage "https://github.com/yindia/p9s"
-  version "0.0.2"
+  version "0.0.3"
 
   on_macos do
     if Hardware::CPU.intel?
-      url "https://github.com/yindia/p9s/releases/download/v0.0.2/p9s_0.0.2_darwin_amd64.tar.gz"
-      sha256 "4efa380662879eaa0bbb30eab3f3f8aff31dba77bdef2a38d83df9ca6d1ecf66"
+      url "https://github.com/yindia/p9s/releases/download/v0.0.3/p9s_0.0.3_darwin_amd64.tar.gz"
+      sha256 "bdd944d2d1e4a2c52d2df23dedbe4c7177b875584ee38264b407702701a6cd75"
 
       define_method(:install) do
         bin.install "p9s"
       end
     end
     if Hardware::CPU.arm?
-      url "https://github.com/yindia/p9s/releases/download/v0.0.2/p9s_0.0.2_darwin_arm64.tar.gz"
-      sha256 "3c4d528cddf0604b357350f9a940e067e2742accd202239048274465f799bfcc"
+      url "https://github.com/yindia/p9s/releases/download/v0.0.3/p9s_0.0.3_darwin_arm64.tar.gz"
+      sha256 "32eff5f19234c25f5d9013f204255d4de1797513e89949f6ac26cc0cc7faebd4"
 
       define_method(:install) do
         bin.install "p9s"
@@ -28,15 +28,15 @@ class P9s < Formula
 
   on_linux do
     if Hardware::CPU.intel? && Hardware::CPU.is_64_bit?
-      url "https://github.com/yindia/p9s/releases/download/v0.0.2/p9s_0.0.2_linux_amd64.tar.gz"
-      sha256 "4472dffaacb781ffd702060aededdd802be9de6b0dd0ffb9882462defcb2e2f7"
+      url "https://github.com/yindia/p9s/releases/download/v0.0.3/p9s_0.0.3_linux_amd64.tar.gz"
+      sha256 "0f57449c1f432b2638e30784403c7f1272b4b97fedeec16dba8afb50f4dce4e0"
       define_method(:install) do
         bin.install "p9s"
       end
     end
     if Hardware::CPU.arm? && Hardware::CPU.is_64_bit?
-      url "https://github.com/yindia/p9s/releases/download/v0.0.2/p9s_0.0.2_linux_arm64.tar.gz"
-      sha256 "6a894f48ce440a8b6dbbf855d8e4339f8e8250b0c1a2442c8d8da0c363d82db0"
+      url "https://github.com/yindia/p9s/releases/download/v0.0.3/p9s_0.0.3_linux_arm64.tar.gz"
+      sha256 "836fc7463041926c577fd1402ba55f59eec4a83dfa967d576302dc43d648e33e"
       define_method(:install) do
         bin.install "p9s"
       end
