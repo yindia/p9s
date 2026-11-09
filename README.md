@@ -15,7 +15,7 @@ side by side, straight from your kubeconfig.
 
 [Install](#-install) · [Quick start](#-quick-start) · [Features](#-features) · [Docs](#-documentation) · [Contributing](#-contributing)
 
-https://github.com/user-attachments/assets/ae210c0c-c1b6-4dce-8591-bb18db81797b
+https://github.com/user-attachments/assets/96d9b013-fa98-4ef6-a4f3-1548747e9b1e
 
 A blocked deploy traced to its Gatekeeper policy, fix and impact, then every view, RBAC, snapshots and the CI gate ([full quality](docs/image/p9s-demo.mp4)).
 Prefer the terminal recording? [Here it is](docs/image/demo.gif).
