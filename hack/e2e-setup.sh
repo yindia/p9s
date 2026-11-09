@@ -101,6 +101,11 @@ if [ "$KYVERNO" = "1" ]; then
     sleep 15
   done
   k apply -f "$(dirname "$0")/manifests/kyverno-classic.yaml" 2>&1 | grep -v "deprecated" || true
+  # The demo workloads predate Kyverno, so it never admitted them and their
+  # reports wait on a background scan (none within minutes on a fresh
+  # cluster). Re-admit them: Audit-mode policies report at admission.
+  k -n p9s-demo rollout restart deployment >/dev/null
+  k -n p9s-demo rollout status deployment --timeout 3m
 fi
 
 # Native ValidatingAdmissionPolicies for the vap engine.
