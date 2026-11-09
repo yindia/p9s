@@ -88,10 +88,24 @@ if [ "$KYVERNO" = "1" ]; then
     `# Kyverno turns those into report labels and every report write fails.` \
     --set features.validatingAdmissionPolicyReports.enabled=false \
     --wait --timeout 6m
-  # The standard Pod Security Standards policies, in Audit mode.
-  helm upgrade --install kyverno-policies kyverno/kyverno-policies --kube-context "$CTX" -n kyverno \
-    --set podSecurityStandard=restricted --set validationFailureAction=Audit --wait --timeout 3m
+  # The standard Pod Security Standards policies, in Audit mode. --wait above
+  # returns when the pods are Ready, which can be before the policy webhook
+  # accepts connections (seen on GitHub runners): retry until it answers.
+  for i in 1 2 3 4 5 6; do
+    if helm upgrade --install kyverno-policies kyverno/kyverno-policies --kube-context "$CTX" -n kyverno \
+      --set podSecurityStandard=restricted --set validationFailureAction=Audit --wait --timeout 3m; then
+      break
+    fi
+    [ "$i" = 6 ] && { echo "kyverno-policies: webhook never became reachable" >&2; exit 1; }
+    echo "kyverno-policies: webhook not ready, retrying in 15s ($i/6)"
+    sleep 15
+  done
   k apply -f "$(dirname "$0")/manifests/kyverno-classic.yaml" 2>&1 | grep -v "deprecated" || true
+  # The demo workloads predate Kyverno, so it never admitted them and their
+  # reports wait on a background scan (none within minutes on a fresh
+  # cluster). Re-admit them: Audit-mode policies report at admission.
+  k -n p9s-demo rollout restart deployment >/dev/null
+  k -n p9s-demo rollout status deployment --timeout 3m
 fi
 
 # Native ValidatingAdmissionPolicies for the vap engine.
@@ -101,5 +115,38 @@ k apply -f "$(dirname "$0")/manifests/vap.yaml" >/dev/null
 k apply -f "$(dirname "$0")/manifests/tenant.yaml" >/dev/null
 
 "$(dirname "$0")/demo-webhooks.sh" "$CTX"
+
+# The tests read what the engines report, so wait until each has reported
+# once: on a fresh cluster Gatekeeper's first audit and Kyverno's reports can
+# take several minutes after the pods are Ready (slower on CI runners).
+wait_for() { # description, on-timeout command, check command...
+  local what="$1" dump="$2"; shift 2
+  for i in $(seq 1 120); do
+    if "$@" >/dev/null 2>&1; then echo "ready: $what ($((i * 5))s)"; return 0; fi
+    [ $((i % 12)) = 0 ] && echo "waiting for $what ($((i * 5))s)"
+    sleep 5
+  done
+  echo "timed out waiting for $what" >&2
+  "$dump" >&2 || true
+  return 1
+}
+gatekeeper_audited() {
+  k get constraints -o jsonpath='{range .items[*]}{.status.auditTimestamp}{"\n"}{end}' | grep . >/dev/null
+}
+gatekeeper_dump() { k get constraints; }
+wait_for "Gatekeeper audit" gatekeeper_dump gatekeeper_audited
+if [ "$KYVERNO" = "1" ]; then
+  report_results() {
+    k get policyreports -n p9s-demo -o jsonpath='{range .items[*].results[*]}{.policy}={.result}{"\n"}{end}'
+  }
+  kyverno_reported() { report_results | grep -x 'disallow-privilege-escalation=fail' >/dev/null; }
+  kyverno_dump() {
+    k get policyreports -n p9s-demo
+    report_results | sort | uniq -c
+    k get validatingpolicies
+    k -n kyverno logs deploy/kyverno-reports-controller --tail=50
+  }
+  wait_for "Kyverno reports in p9s-demo" kyverno_dump kyverno_reported
+fi
 
 echo "done. context: $CTX"
