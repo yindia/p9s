@@ -30,6 +30,7 @@ Show
 # 1. Is the policy layer working, and what should I look at first?
 Type "p9s --context kind-p9s"
 Enter
+Wait+Screen@60s /Enforcement candidates/
 Sleep 5s
 
 # 2. What was just blocked, and by which policy?
@@ -49,7 +50,7 @@ Sleep 1s
 
 # 4. How do I fix it? The detail carries the policy's own remediation.
 Type "o"
-Type "/disallow-privilege-escalation"
+Type "/require-team-label"
 Enter
 Sleep 1.5s
 Type "d"
@@ -77,7 +78,7 @@ Sleep 1s
 # 7. The same tables outside the TUI, for scripts and CI.
 Ctrl+C
 Sleep 1s
-Type "p9s --context kind-p9s get v -n p9s-demo | head -8"
+Type "p9s --context kind-p9s get health | head -16"
 Enter
 Sleep 5s
 
