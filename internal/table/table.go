@@ -8,6 +8,7 @@ package table
 import (
 	"fmt"
 	"math"
+	"slices"
 	"sort"
 	"strings"
 	"time"
@@ -221,7 +222,11 @@ func BuildCell(c engine.Cell, now time.Time) Cell {
 		}
 		return Cell{Kind: KindBool, Text: text, Bool: &b, SortKey: key}
 	case engine.CellSeverity:
-		return Cell{Kind: KindSeverity, Text: c.Text, Severity: c.Severity, SortKey: fmt.Sprint(severityRank[c.Severity])}
+		rank, ok := policySeverityRank[strings.ToLower(c.Text)]
+		if !ok {
+			rank = severityRank[c.Severity]
+		}
+		return Cell{Kind: KindSeverity, Text: c.Text, Severity: c.Severity, SortKey: fmt.Sprint(rank)}
 	default:
 		return Cell{Kind: KindText, Text: c.Text, Full: c.Full, SortKey: strings.ToLower(c.Text)}
 	}
@@ -230,6 +235,10 @@ func BuildCell(c engine.Cell, now time.Time) Cell {
 var modeRank = map[model.EnforcementMode]int{
 	model.ModeUnknown: 0, model.ModeMutate: 1, model.ModeAudit: 2, model.ModeWarn: 3, model.ModeEnforce: 4,
 }
+
+// policySeverityRank orders a policy's own severity (see
+// engine.PolicySeverityCell); health severities use severityRank.
+var policySeverityRank = map[string]int{"info": 0, "low": 1, "medium": 2, "high": 3, "critical": 4}
 
 var severityRank = map[model.Severity]int{
 	model.SeverityInfo: 0, model.SeverityWarning: 1, model.SeverityError: 2,
@@ -260,6 +269,55 @@ func ParseFilter(q string) []Term {
 			}
 		}
 		out = append(out, Term{Value: f})
+	}
+	return out
+}
+
+// filterValues are the values a mode: or sev: term can match; anything else
+// is a typo that would silently match nothing.
+var filterValues = map[engine.Role][]string{
+	engine.RoleMode:     {"audit", "warn", "enforce", "mutate", "n/a"},
+	engine.RoleSeverity: {"critical", "high", "medium", "low", "info", "warning", "error", "-"},
+}
+
+// CheckFilter reports what in a filter query cannot work on this table:
+// problems are key:value terms for a column the view lacks (ns: also
+// matches row targets, so it is always allowed) and mode:/sev: values no
+// row can have. notes are key:value-looking terms with an unknown key: they
+// stay free text (messages contain colons), but are likely typos.
+func (t Table) CheckFilter(q string) (problems, notes []string) {
+	for _, f := range strings.Fields(strings.ToLower(q)) {
+		k, v, ok := strings.Cut(f, ":")
+		if !ok || v == "" {
+			continue
+		}
+		role, known := filterKeys[k]
+		if !known {
+			notes = append(notes, fmt.Sprintf("%q is not a filter key (%s); matched as free text", k+":", strings.Join(t.FilterKeys(), ", ")))
+			continue
+		}
+		if role != engine.RoleNamespace && t.ColumnFor(role) < 0 {
+			problems = append(problems, fmt.Sprintf("this view has no column for %s: (filter keys here: %s)", k, strings.Join(t.FilterKeys(), ", ")))
+			continue
+		}
+		if allowed, ok := filterValues[role]; ok {
+			for _, one := range strings.Split(v, ",") {
+				if one != "" && !slices.Contains(allowed, one) {
+					problems = append(problems, fmt.Sprintf("%s:%s matches nothing (values: %s)", k, one, strings.Join(allowed, ", ")))
+				}
+			}
+		}
+	}
+	return problems, notes
+}
+
+// FilterKeys lists the key: terms that work on this table, in a stable order.
+func (t Table) FilterKeys() []string {
+	out := []string{"ns:"}
+	for _, k := range []string{"engine", "mode", "kind", "sev", "name"} {
+		if t.ColumnFor(filterKeys[k]) >= 0 {
+			out = append(out, k+":")
+		}
 	}
 	return out
 }
@@ -322,6 +380,11 @@ func (t Table) matches(r Row, term Term) bool {
 		return false
 	}
 	c := r.Cells[col]
+	if term.Role == engine.RoleSeverity && !strings.EqualFold(c.Text, term.Value) {
+		// Health cells read "✗ fail-open, …": match their level instead.
+		_, policySev := policySeverityRank[strings.ToLower(c.Text)]
+		return !policySev && c.Severity != "" && strings.EqualFold(string(c.Severity), term.Value)
+	}
 	if term.Role == engine.RoleMode || term.Role == engine.RoleSeverity || term.Role == engine.RoleNamespace {
 		return strings.EqualFold(c.Text, term.Value) // exact: "audit" must not match "n/a"
 	}

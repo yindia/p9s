@@ -55,6 +55,9 @@ func resolveSettings(cmd *cobra.Command, f *flags) (settings, error) {
 		return fl != nil && fl.Changed
 	}
 	if !changed("command") && fs.StartView != "" {
+		if err := views.CheckStartView(fs.StartView); err != nil {
+			return settings{}, fmt.Errorf("config %s: startView: %w", path, err)
+		}
 		st.command = fs.StartView
 	}
 	if !changed("group-label") && fs.GroupLabel != "" {
@@ -75,6 +78,9 @@ func resolveSettings(cmd *cobra.Command, f *flags) (settings, error) {
 		raw[view] = s
 	}
 	sorts, err := views.ParseSorts(raw)
+	if err == nil {
+		err = sorts.Check()
+	}
 	if err != nil {
 		return settings{}, fmt.Errorf("config %s: %w", path, err)
 	}

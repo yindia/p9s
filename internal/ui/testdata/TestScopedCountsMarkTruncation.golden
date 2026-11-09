@@ -1,9 +1,9 @@
  p9s │ ctx kind-demo │ ns payments │ alpha v1.2.0 │ last audit 30s ago                                               RO
 ─ Policies [3] ─────────────────────────────────────────────────────────────────────────────────────────────────────────
-  ENGINE  NAME            KIND       NAMESPACE  ENFORCEMENT  VIOLATIONS↓  AUDIT AGE
-▸ alpha   require-owner   AlphaRule  -          enforce      1+           30s
-  alpha   prefer-limits   AlphaRule  -          warn         0            90s
-  alpha   observe-images  AlphaRule  -          audit        -            -
+  ENGINE  NAME            KIND       NAMESPACE  ENFORCEMENT  SEVERITY  VIOLATIONS↓  AUDIT AGE
+▸ alpha   require-owner   AlphaRule  -          enforce      high      1+           30s
+  alpha   prefer-limits   AlphaRule  -          warn         -         0            90s
+  alpha   observe-images  AlphaRule  -          audit        -         -            -
 
 
 

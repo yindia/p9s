@@ -1,10 +1,10 @@
  p9s │ ctx kind-demo │ ns all │ alpha · beta │ last audit 30s ago (alpha)    RO
 ─ Violations [3] ───────────────────────────────────────────────────────────────
 ! beta: forbidden to list betareports.beta.example — data from it is missing
-  ENGINE  OWNER                     POLICY         KIND        ACTION   OBJECTS↓
-▸ alpha   Namespace/payments        require-owner  AlphaRule   enforce  1
-  alpha   Namespace/search          require-owner  AlphaRule   enforce  1
-  beta    StatefulSet/payments/api  no-latest      BetaPolicy  audit    1
+  ENGINE  OWNER               POLICY         KIND    ACTION   SEVERITY  OBJECTS↓
+▸ alpha   Namespace/payments  require-owner  Alpha…  enforce  high      1
+  alpha   Namespace/search    require-owner  Alpha…  enforce  high      1
+  beta    StatefulSet/payme…  no-latest      BetaP…  audit    -         1
 
 
 

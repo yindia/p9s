@@ -68,3 +68,77 @@ func (s Sorts) WithSort(spec Spec) Spec {
 	}
 	return spec
 }
+
+// Check reports configured sorts a shared view has no column for, e.g.
+// sort.v: severity on a version without that column. Engine views (gk/c)
+// are known only once their engine loads; Ignored covers those at runtime.
+func (s Sorts) Check() error {
+	cmds := make([]string, 0, len(s))
+	for c := range s {
+		cmds = append(cmds, c)
+	}
+	sort.Strings(cmds)
+	var errs []error
+	for _, c := range cmds {
+		if _, shared := Shared(c); !shared || c == CmdHealth || c == CmdOverview {
+			continue
+		}
+		cols := SharedSpec(Env{}, c).View.Columns
+		if hasRole(cols, s[c].Role) {
+			continue
+		}
+		var keys []string
+		for _, col := range cols {
+			if k := sortKeyFor(col.Role); k != "" && !contains(keys, k) {
+				keys = append(keys, k)
+			}
+		}
+		errs = append(errs, fmt.Errorf("sort.%s: the view has no %s column (sortable here: %s)", c, sortKeyFor(s[c].Role), strings.Join(keys, ", ")))
+	}
+	return errors.Join(errs...)
+}
+
+// Ignored returns the configured sort for spec's command when the view has
+// no column for it, so callers can say so instead of silently dropping it.
+func (s Sorts) Ignored(spec Spec) (engine.Sort, bool) {
+	so, ok := s[spec.Command()]
+	if !ok || hasRole(spec.View.Columns, so.Role) {
+		return engine.Sort{}, false
+	}
+	return so, true
+}
+
+func hasRole(cols []engine.Column, r engine.Role) bool {
+	for _, c := range cols {
+		if c.Role == r {
+			return true
+		}
+	}
+	return false
+}
+
+// sortKeyFor is the config spelling of a sortable role.
+func sortKeyFor(r engine.Role) string {
+	switch r {
+	case engine.RoleName, engine.RoleAge, engine.RoleSeverity:
+		return string(r)
+	case engine.RoleCount:
+		return "violations"
+	}
+	return ""
+}
+
+// CheckStartView reports a start view (config startView or -c) that cannot
+// open: a shared view or alias, impact <policy>, or an engine view such as
+// gk/c (checked when its engine loads).
+func CheckStartView(command string) error {
+	fields := strings.Fields(strings.TrimPrefix(strings.TrimSpace(command), ":"))
+	if len(fields) == 0 {
+		return nil
+	}
+	name := strings.ToLower(fields[0])
+	if _, ok := Shared(name); ok || name == CmdImpact || strings.Contains(name, "/") {
+		return nil
+	}
+	return fmt.Errorf("%q is not a view (e.g. overview, pol, v, events, mut, health, ns, or an engine view like gk/c)", fields[0])
+}

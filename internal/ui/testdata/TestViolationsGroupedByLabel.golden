@@ -1,10 +1,10 @@
  p9s │ ctx kind-demo │ ns all │ alpha v1.2.0 · beta 0.9.1 │ last audit 30s ago (alpha)                               RO
 ─ Violations [3] ───────────────────────────────────────────────────────────────────────────────────────────────────────
 ! beta: forbidden to list betareports.beta.example — data from it is missing
-  ENGINE  TEAM       POLICY         KIND        ACTION   OBJECTS↓  MESSAGE
-▸ beta    checkout   no-latest      BetaPolicy  audit    1         image tag latest is not allowed
-  alpha   discovery  require-owner  AlphaRule   enforce  1         label owner is required
-  alpha   payments   require-owner  AlphaRule   enforce  1         label owner is required
+  ENGINE  TEAM       POLICY         KIND        ACTION   SEVERITY  OBJECTS↓  MESSAGE
+▸ beta    checkout   no-latest      BetaPolicy  audit    -         1         image tag latest is not allowed
+  alpha   discovery  require-owner  AlphaRule   enforce  high      1         label owner is required
+  alpha   payments   require-owner  AlphaRule   enforce  high      1         label owner is required
 
 
 

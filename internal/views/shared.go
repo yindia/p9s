@@ -14,7 +14,7 @@ import (
 var engineColumn = engine.Column{Title: "ENGINE", Role: engine.RoleEngine}
 
 // policyCountColumn is the VIOLATIONS column of :pol.
-const policyCountColumn = 5
+const policyCountColumn = 6
 
 func policiesView(env Env) engine.View {
 	return engine.View{
@@ -22,7 +22,7 @@ func policiesView(env Env) engine.View {
 		Columns: []engine.Column{
 			engineColumn, {Title: "NAME", Role: engine.RoleName, Flex: true}, {Title: "KIND", Role: engine.RoleKind},
 			{Title: "NAMESPACE", Role: engine.RoleNamespace}, {Title: "ENFORCEMENT", Role: engine.RoleMode},
-			{Title: "VIOLATIONS", Role: engine.RoleCount}, {Title: "AUDIT AGE", Role: engine.RoleAge},
+			{Title: "SEVERITY", Role: engine.RoleSeverity}, {Title: "VIOLATIONS", Role: engine.RoleCount}, {Title: "AUDIT AGE", Role: engine.RoleAge},
 		},
 		DefaultSort: engine.Sort{Role: engine.RoleCount, Desc: true},
 		Rows: func(f engine.Filter) ([]engine.Row, error) {
@@ -48,7 +48,7 @@ func policyRow(env Env, es []engine.Engine, p model.Policy) engine.Row {
 		ID: key.String(),
 		Cells: []engine.Cell{
 			engine.TextCell(p.Engine), engine.TextCell(p.Name), engine.AliasCell(query.ShortKind(es, p.Engine, p.Kind), p.Kind),
-			engine.TextCell(table.Dash(p.Namespace)), engine.ModeCell(p.Enforcement),
+			engine.TextCell(table.Dash(p.Namespace)), engine.ModeCell(p.Enforcement), engine.PolicySeverityCell(p.Severity),
 			engine.KnownCount(p.ViolationCount, p.ViolationsKnown), engine.AgeCell(p.LastAudit),
 		},
 		Object: p.Raw,
@@ -108,7 +108,7 @@ func violationRow(env Env, es []engine.Engine, pols map[model.PolicyKey]model.Po
 		ID: query.ViolationID(v),
 		Cells: []engine.Cell{
 			engine.TextCell(v.Engine), engine.TextCell(v.Policy.Name), engine.AliasCell(query.ShortKind(es, v.Engine, v.Policy.Kind), v.Policy.Kind),
-			engine.ModeCell(v.Enforcement), engine.TextCell(v.Target.String()),
+			engine.ModeCell(v.Enforcement), engine.PolicySeverityCell(p.Severity), engine.TextCell(v.Target.String()),
 			engine.TextCell(table.OneLine(v.Message)),
 		},
 		Ref:    &target,

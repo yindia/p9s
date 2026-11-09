@@ -1,9 +1,9 @@
  p9s │ ctx kind-gatekeeper │ ns all │ gatekeeper v3.17.1 │ last audit 60s ago                                        RO
 ─ Violations [3] ───────────────────────────────────────────────────────────────────────────────────────────────────────
-  ENGINE      OWNER                       POLICY              KIND               ACTION   OBJECTS↓
-▸ gatekeeper  Deployment/payments/worker  pods-must-have-app  K8sRequiredLabels  audit    1
-  gatekeeper  Namespace/default           ns-must-have-owner  K8sRequiredLabels  enforce  1
-  gatekeeper  Namespace/payments          ns-must-have-owner  K8sRequiredLabels  enforce  1
+  ENGINE      OWNER                       POLICY              KIND               ACTION   SEVERITY  OBJECTS↓
+▸ gatekeeper  Deployment/payments/worker  pods-must-have-app  K8sRequiredLabels  audit    -         1
+  gatekeeper  Namespace/default           ns-must-have-owner  K8sRequiredLabels  enforce  -         1
+  gatekeeper  Namespace/payments          ns-must-have-owner  K8sRequiredLabels  enforce  -         1
 
 
 

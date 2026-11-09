@@ -334,3 +334,75 @@ func TestFilterOrValues(t *testing.T) {
 		}
 	}
 }
+
+// A policy's own severity filters exactly (sev:high) and sorts by weight,
+// not alphabetically; a policy without one shows "-" and sorts lowest.
+func TestPolicySeverityFilterAndSort(t *testing.T) {
+	mk := func(id, sev string) engine.Row {
+		return engine.Row{ID: id, Cells: []engine.Cell{engine.TextCell(id), engine.PolicySeverityCell(sev)}}
+	}
+	v := engine.View{Command: "pol", Title: "P", Columns: []engine.Column{
+		{Title: "NAME", Role: engine.RoleName}, {Title: "SEVERITY", Role: engine.RoleSeverity},
+	}, Rows: func(engine.Filter) ([]engine.Row, error) {
+		return []engine.Row{mk("a", "medium"), mk("b", "critical"), mk("c", ""), mk("d", "high"), mk("e", "low")}, nil
+	}}
+	tbl := table.Build(table.Source{View: v}, engine.Filter{}, now)
+	ids := func(rs []table.Row) string {
+		var out []string
+		for _, r := range rs {
+			out = append(out, r.ID)
+		}
+		return strings.Join(out, ",")
+	}
+	if got := ids(tbl.Match("sev:high")); got != "d" {
+		t.Errorf("sev:high = %q, want d", got)
+	}
+	if got := ids(tbl.Match("sev:high,critical")); got != "b,d" {
+		t.Errorf("sev:high,critical = %q, want b,d", got)
+	}
+	if c := tbl.Rows[2].Cells[1]; c.Text != "-" {
+		t.Errorf("no severity shows %q, want -", c.Text)
+	}
+	rank := map[string]string{}
+	for _, r := range tbl.Rows {
+		rank[r.ID] = r.Cells[1].SortKey
+	}
+	if rank["b"] <= rank["d"] || rank["d"] <= rank["a"] || rank["a"] <= rank["e"] || rank["e"] < rank["c"] {
+		t.Errorf("sort keys do not order critical > high > medium > low >= none: %v", rank)
+	}
+}
+
+func TestCheckFilter(t *testing.T) {
+	tbl := table.Build(table.Source{View: view(nil, nil)}, engine.Filter{}, now) // NAME MODE N AGE OK SEV
+	for _, tc := range []struct {
+		q               string
+		problems, notes int
+	}{
+		{"mode:audit sev:warning name:x ns:a", 0, 0},
+		{"mode:audti", 1, 0},
+		{"sev:high,hgih", 1, 0},
+		{"engine:kyverno", 1, 0}, // no ENGINE column
+		{"foo:bar", 0, 1},        // free text, but probably a typo
+		{"plain text", 0, 0},
+	} {
+		p, n := tbl.CheckFilter(tc.q)
+		if len(p) != tc.problems || len(n) != tc.notes {
+			t.Errorf("CheckFilter(%q) = %q, %q; want %d problems, %d notes", tc.q, p, n, tc.problems, tc.notes)
+		}
+	}
+}
+
+// sev: on a health STATUS cell ("✗ fail-open, …") matches its level.
+func TestSeverityFilterMatchesHealthLevel(t *testing.T) {
+	v := engine.View{Command: "h", Title: "H", Columns: []engine.Column{{Title: "CHECK", Role: engine.RoleName}, {Title: "STATUS", Role: engine.RoleSeverity}},
+		Rows: func(engine.Filter) ([]engine.Row, error) {
+			return []engine.Row{
+				{ID: "a", Cells: []engine.Cell{engine.TextCell("a"), {Kind: engine.CellSeverity, Severity: model.SeverityError, Text: "✗ fail-open"}}},
+				{ID: "b", Cells: []engine.Cell{engine.TextCell("b"), {Kind: engine.CellSeverity, Severity: model.SeverityInfo, Text: "✓"}}},
+			}, nil
+		}}
+	tbl := table.Build(table.Source{View: v}, engine.Filter{}, now)
+	if got := tbl.Match("sev:error"); len(got) != 1 || got[0].ID != "a" {
+		t.Errorf("sev:error = %v, want a", got)
+	}
+}

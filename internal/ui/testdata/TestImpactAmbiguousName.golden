@@ -1,8 +1,8 @@
  p9s │ ctx kind-demo │ ns all │ alpha v1 · beta v2 │ last audit 0s ago (alpha)                                       RO
 ─ Policies [2] ─────────────────────────────────────────────────────────────────────────────────────────────────────────
-  ENGINE  NAME       KIND        NAMESPACE  ENFORCEMENT  VIOLATIONS↓  AUDIT AGE
-▸ alpha   need-team  AlphaRule   -          warn         40           0s
-  beta    need-team  BetaPolicy  -          n/a          0            0s
+  ENGINE  NAME       KIND        NAMESPACE  ENFORCEMENT  SEVERITY  VIOLATIONS↓  AUDIT AGE
+▸ alpha   need-team  AlphaRule   -          warn         -         40           0s
+  beta    need-team  BetaPolicy  -          n/a          -         0            0s
 
 
 

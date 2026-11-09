@@ -42,10 +42,10 @@ func Alpha() *fake.Engine {
 		Name: "alpha", Prefix: "al", Installed: true, Version: "v1.2.0", Caps: AllCaps,
 		Data: fake.Data{
 			Policies: []model.Policy{
-				withGuidance(pol("require-owner", model.ModeEnforce, "block", 2, 30*time.Second), model.GuidanceItem{
+				withSeverity(withGuidance(pol("require-owner", model.ModeEnforce, "block", 2, 30*time.Second), model.GuidanceItem{
 					From: "annotation alpha.example/description", Title: "Require an owner",
 					Text: "Add an owner label naming the team that runs it, e.g. owner=payments.",
-				}),
+				}), "high"),
 				pol("prefer-limits", model.ModeWarn, "warn", 0, 90*time.Second),
 				pol("observe-images", model.ModeAudit, "observe", 0, 0),
 			},
@@ -85,5 +85,10 @@ func Beta() *fake.Engine {
 
 func withGuidance(p model.Policy, g ...model.GuidanceItem) model.Policy {
 	p.Guidance = g
+	return p
+}
+
+func withSeverity(p model.Policy, s string) model.Policy {
+	p.Severity = s
 	return p
 }

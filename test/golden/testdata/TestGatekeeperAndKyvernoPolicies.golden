@@ -1,15 +1,15 @@
  p9s │ ctx kind-gatekeeper │ ns all │ kyverno v1.19.2 · gatekeeper v3.17.1 │ last audit 60s ago (gatekeeper)         RO
 ─ Policies [9] ─────────────────────────────────────────────────────────────────────────────────────────────────────────
-  ENGINE      NAME                            KIND               NAMESPACE    ENFORCEMENT  VIOLATIONS↓  AUDIT AGE
-▸ gatekeeper  ns-must-have-owner              K8sRequiredLabels  -            enforce      3            60s
-  kyverno     require-team-label              CPol               -            audit        2            60s
-  gatekeeper  pods-must-have-app              K8sRequiredLabels  -            audit        1            90s
-  kyverno     team-quota                      NVPol              payments     warn         1            60s
-  kyverno     no-latest-tag                   Pol                kube-system  enforce      1            2m
-  kyverno     disallow-privileged-containers  VPol               -            audit        1            60s
-  kyverno     require-limits                  VPol               -            enforce      0            60s
-  gatekeeper  max-ten-replicas                K8sReplicaLimits   -            warn         -            -
-  kyverno     add-managed-by                  MPol               -            mutate       -            -
+  ENGINE      NAME                            KIND            NAMESPACE    ENFORCEMENT  SEVERITY  VIOLATIONS↓  AUDIT AGE
+▸ gatekeeper  ns-must-have-owner              K8sRequiredLa…  -            enforce      -         3            60s
+  kyverno     require-team-label              CPol            -            audit        -         2            60s
+  gatekeeper  pods-must-have-app              K8sRequiredLa…  -            audit        -         1            90s
+  kyverno     team-quota                      NVPol           payments     warn         -         1            60s
+  kyverno     no-latest-tag                   Pol             kube-system  enforce      -         1            2m
+  kyverno     disallow-privileged-containers  VPol            -            audit        medium    1            60s
+  kyverno     require-limits                  VPol            -            enforce      -         0            60s
+  gatekeeper  max-ten-replicas                K8sReplicaLim…  -            warn         -         -            -
+  kyverno     add-managed-by                  MPol            -            mutate       -         -            -
 
 
 

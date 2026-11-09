@@ -2,10 +2,10 @@
 ─ Violations [3] ───────────────────────────────────────────────────────────────────────────────────────────────────────
 ! beta: forbidden to list betareports.beta.example — data from it is missing
 ! owners: cannot list replicasets.apps cluster-wide — violations group under the deepest owner p9s can see
-  ENGINE  OWNER                     POLICY         KIND        ACTION   OBJECTS↓  MESSAGE
-▸ alpha   Namespace/payments        require-owner  AlphaRule   enforce  1         label owner is required
-  alpha   Namespace/search          require-owner  AlphaRule   enforce  1         label owner is required
-  beta    StatefulSet/payments/api  no-latest      BetaPolicy  audit    1         image tag latest is not allowed
+  ENGINE  OWNER                     POLICY         KIND        ACTION   SEVERITY  OBJECTS↓  MESSAGE
+▸ alpha   Namespace/payments        require-owner  AlphaRule   enforce  high      1         label owner is required
+  alpha   Namespace/search          require-owner  AlphaRule   enforce  high      1         label owner is required
+  beta    StatefulSet/payments/api  no-latest      BetaPolicy  audit    -         1         image tag latest is not all…
 
 
 

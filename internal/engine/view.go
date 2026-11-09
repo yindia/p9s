@@ -2,6 +2,7 @@ package engine
 
 import (
 	"strconv"
+	"strings"
 	"time"
 
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
@@ -144,6 +145,23 @@ func ModeCell(e model.Enforcement) Cell {
 // SeverityCell returns a health severity, styled by its meaning.
 func SeverityCell(s model.Severity) Cell {
 	return Cell{Kind: CellSeverity, Severity: s, Text: string(s)}
+}
+
+// PolicySeverityCell is a policy's own severity from its metadata
+// (critical, high, medium, low, info), coloured like a health severity of
+// the same weight; "-" when the policy declares none.
+func PolicySeverityCell(s string) Cell {
+	if s == "" {
+		return Cell{Kind: CellSeverity, Text: "-"}
+	}
+	sev := model.SeverityInfo
+	switch strings.ToLower(s) {
+	case "critical", "high":
+		sev = model.SeverityError
+	case "medium":
+		sev = model.SeverityWarning
+	}
+	return Cell{Kind: CellSeverity, Severity: sev, Text: s}
 }
 
 // BoolCell returns a cell rendered as a yes/no indicator.

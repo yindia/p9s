@@ -106,7 +106,7 @@ func flatViolationsView(env Env) engine.View {
 		Command: CmdViolationsFlat, Title: "Violations",
 		Columns: []engine.Column{
 			engineColumn, {Title: "POLICY", Role: engine.RoleName}, {Title: "KIND", Role: engine.RoleKind},
-			{Title: "ACTION", Role: engine.RoleMode}, {Title: "TARGET", Role: engine.RoleTarget},
+			{Title: "ACTION", Role: engine.RoleMode}, {Title: "SEVERITY", Role: engine.RoleSeverity}, {Title: "TARGET", Role: engine.RoleTarget},
 			{Title: "MESSAGE", Role: engine.RoleMessage, Flex: true},
 		},
 		// Rows arrive ordered by policy key, so a stable sort by name keeps
@@ -138,7 +138,7 @@ func groupedViolationsView(env Env, g Grouping) engine.View {
 		Command: CmdViolations, Title: "Violations",
 		Columns: []engine.Column{
 			engineColumn, first, {Title: "POLICY", Role: engine.RoleName}, {Title: "KIND", Role: engine.RoleKind},
-			{Title: "ACTION", Role: engine.RoleMode}, {Title: "OBJECTS", Role: engine.RoleCount},
+			{Title: "ACTION", Role: engine.RoleMode}, {Title: "SEVERITY", Role: engine.RoleSeverity}, {Title: "OBJECTS", Role: engine.RoleCount},
 			{Title: "MESSAGE", Role: engine.RoleMessage, Flex: true},
 		},
 		DefaultSort: engine.Sort{Role: engine.RoleCount, Desc: true},
@@ -171,7 +171,7 @@ func groupRow(env Env, es []engine.Engine, pols map[model.PolicyKey]model.Policy
 		Cells: []engine.Cell{
 			engine.TextCell(key.Engine), first, engine.TextCell(key.Name),
 			engine.AliasCell(query.ShortKind(es, key.Engine, key.Kind), key.Kind),
-			engine.ModeCell(gr.Enforcement), engine.CountCell(gr.Objects),
+			engine.ModeCell(gr.Enforcement), engine.PolicySeverityCell(pols[key].Severity), engine.CountCell(gr.Objects),
 			engine.TextCell(table.OneLine(gr.FirstMessage())),
 		},
 		Drill:  &engine.Target{Command: CmdViolationsFlat, Filter: drill},

@@ -31,7 +31,7 @@ func TestReportOfFixtures(t *testing.T) {
 	if len(r.PSS.Controls) == 0 || len(r.PSS.Uncategorised) != 4 {
 		t.Errorf("pss: %d controls, uncategorised %v", len(r.PSS.Controls), r.PSS.Uncategorised)
 	}
-	if len(r.Violations.ByNamespace) == 0 || r.Violations.BySeverity[0].Name != "unspecified" {
+	if len(r.Violations.ByNamespace) == 0 || len(r.Violations.BySeverity) != 2 || r.Violations.BySeverity[0].Name != "high" || r.Violations.BySeverity[1].Name != "unspecified" {
 		t.Errorf("violations = %+v", r.Violations)
 	}
 	if len(r.Items) != 3 || len(r.Policies) != 4 || len(r.Omitted) == 0 {

@@ -127,7 +127,7 @@ func TestGetUnknownView(t *testing.T) {
 func TestFlagsOverrideConfigFile(t *testing.T) {
 	dir := t.TempDir()
 	cfg := filepath.Join(dir, "config.yaml")
-	_ = os.WriteFile(cfg, []byte("startView: v\ngroupLabel: team\nengines: kyverno\nsyncTimeout: 5s\nsort:\n  v: age\n"), 0o600)
+	_ = os.WriteFile(cfg, []byte("startView: v\ngroupLabel: team\nengines: kyverno\nsyncTimeout: 5s\nsort:\n  v: severity\n"), 0o600)
 	kc := filepath.Join(dir, "kubeconfig")
 	_ = os.WriteFile(kc, []byte("apiVersion: v1\nkind: Config\ncurrent-context: \"\"\n"), 0o600)
 	f := &flags{}
@@ -142,7 +142,7 @@ func TestFlagsOverrideConfigFile(t *testing.T) {
 	if st.command != "v" || st.groupLabel != "owner" || st.engines != "kyverno" || st.syncTimeout != 5*time.Second {
 		t.Errorf("settings = %+v: file fills unset flags, --group-label wins", st)
 	}
-	if s, ok := st.sorts["v"]; !ok || s.Role != engine.RoleAge {
+	if s, ok := st.sorts["v"]; !ok || s.Role != engine.RoleSeverity {
 		t.Errorf("sorts = %+v", st.sorts)
 	}
 }
@@ -362,5 +362,36 @@ contexts:
 	}
 	if st, _ := os.Stat(out); st.Mode().Perm() != 0o600 {
 		t.Errorf("mode %v: want 0600 even over an existing 0644 file", st.Mode().Perm())
+	}
+}
+
+// Bad config values are errors, not silently ignored (docs/cli.md).
+func TestConfigStartViewAndSortColumnsAreChecked(t *testing.T) {
+	if _, err := settingsFor(t, "startView: nosuchview\n"); err == nil || !strings.Contains(err.Error(), `startView: "nosuchview" is not a view`) {
+		t.Errorf("startView typo: err = %v", err)
+	}
+	for _, ok := range []string{"startView: v\n", "startView: impact require-team-label\n", "startView: gk/c\n"} {
+		if _, err := settingsFor(t, ok); err != nil {
+			t.Errorf("%q: %v", ok, err)
+		}
+	}
+	if _, err := settingsFor(t, "sort:\n  mut: violations\n"); err == nil || !strings.Contains(err.Error(), "sort.mut: the view has no violations column") {
+		t.Errorf("sort on a missing column: err = %v", err)
+	}
+	if _, err := settingsFor(t, "sort:\n  v: severity\n  pol: severity\n"); err != nil {
+		t.Errorf(":v and :pol have a SEVERITY column: %v", err)
+	}
+}
+
+// A filter typo fails instead of printing "No rows match" with exit 0.
+func TestGetFilterTypoIsAnError(t *testing.T) {
+	var b, e bytes.Buffer
+	err := printView(&b, fixtureEnv(t, ""), nil, "pol", "", &getFlags{output: "table", filter: "mode:audti", stderr: &e})
+	if err == nil || !strings.Contains(err.Error(), "mode:audti matches nothing") {
+		t.Errorf("mode typo: err = %v", err)
+	}
+	err = printView(&b, fixtureEnv(t, ""), nil, "pol", "", &getFlags{output: "table", filter: "foo:bar", stderr: &e})
+	if err != nil || !strings.Contains(e.String(), `"foo:" is not a filter key`) {
+		t.Errorf("unknown key: err = %v, stderr %q", err, e.String())
 	}
 }

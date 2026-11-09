@@ -1,7 +1,7 @@
  p9s │ ctx kind-demo │ ns search │ alpha v1 · beta v2 │ last audit 0s ago (alpha)                                    RO
 ─ Impact: need-team › Violations [1] (alpha:AlphaRule:need-team on Pod/payments/bare) ──────────────────────────────────
-  ENGINE  POLICY↑    KIND       ACTION  TARGET             MESSAGE
-▸ alpha   need-team  AlphaRule  n/a     Pod/payments/bare  label team is required
+  ENGINE  POLICY↑    KIND       ACTION  SEVERITY  TARGET             MESSAGE
+▸ alpha   need-team  AlphaRule  n/a     -         Pod/payments/bare  label team is required
 
 
 

@@ -1,11 +1,11 @@
  p9s │ ctx kind-gatekeeper │ ns all │ kyverno v1.19.2 │ last audit 60s ago                                           RO
 ─ Violations [5] ───────────────────────────────────────────────────────────────────────────────────────────────────────
-  ENGINE   OWNER                                     POLICY                          KIND   ACTION   OBJECTS↓
-▸ kyverno  Namespace/payments                        require-team-label              CPol   audit    1
-  kyverno  Pod/kube-system/coredns-6f6b679f8f-x2v9q  no-latest-tag                   Pol    enforce  1
-  kyverno  Pod/payments/api-0                        require-team-label              CPol   audit    1
-  kyverno  Pod/payments/api-0                        team-quota                      NVPol  warn     1
-  kyverno  Pod/payments/api-0                        disallow-privileged-containers  VPol   audit    1
+  ENGINE   OWNER                                     POLICY                          KIND   ACTION   SEVERITY  OBJECTS↓
+▸ kyverno  Namespace/payments                        require-team-label              CPol   audit    -         1
+  kyverno  Pod/kube-system/coredns-6f6b679f8f-x2v9q  no-latest-tag                   Pol    enforce  -         1
+  kyverno  Pod/payments/api-0                        require-team-label              CPol   audit    -         1
+  kyverno  Pod/payments/api-0                        team-quota                      NVPol  warn     -         1
+  kyverno  Pod/payments/api-0                        disallow-privileged-containers  VPol   audit    medium    1
 
 
 

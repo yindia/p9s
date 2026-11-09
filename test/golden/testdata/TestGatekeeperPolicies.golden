@@ -1,9 +1,9 @@
  p9s │ ctx kind-gatekeeper │ ns all │ gatekeeper v3.17.1 │ last audit 60s ago                                        RO
 ─ Policies [3] ─────────────────────────────────────────────────────────────────────────────────────────────────────────
-  ENGINE      NAME                KIND               NAMESPACE  ENFORCEMENT  VIOLATIONS↓  AUDIT AGE
-▸ gatekeeper  ns-must-have-owner  K8sRequiredLabels  -          enforce      3            60s
-  gatekeeper  pods-must-have-app  K8sRequiredLabels  -          audit        1            90s
-  gatekeeper  max-ten-replicas    K8sReplicaLimits   -          warn         -            -
+  ENGINE      NAME                KIND               NAMESPACE  ENFORCEMENT  SEVERITY  VIOLATIONS↓  AUDIT AGE
+▸ gatekeeper  ns-must-have-owner  K8sRequiredLabels  -          enforce      -         3            60s
+  gatekeeper  pods-must-have-app  K8sRequiredLabels  -          audit        -         1            90s
+  gatekeeper  max-ten-replicas    K8sReplicaLimits   -          warn         -         -            -
 
 
 

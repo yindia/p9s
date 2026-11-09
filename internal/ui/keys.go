@@ -154,6 +154,13 @@ func (a *App) onInputKey(k tea.KeyMsg) tea.Cmd {
 			a.flash = ""
 			return a.runCommand(value)
 		}
+		if t, ok := a.top().(*tableScreen); ok && mode == inputFilter {
+			// "No rows match" alone hides a typo such as sev:hgih.
+			problems, _ := t.tbl.CheckFilter(value)
+			if len(problems) > 0 {
+				a.setFlash(problems[0], true)
+			}
+		}
 		return nil
 	case tea.KeyTab:
 		if a.mode == inputCommand {

@@ -471,3 +471,11 @@ func TestFlashDoesNotFollowIntoNextView(t *testing.T) {
 		t.Errorf("the :v message followed into :pol:\n%s", screen)
 	}
 }
+
+func TestFilterTypoIsFlagged(t *testing.T) {
+	screen := Run(t, twoEngines(), Options(fixtures.Now), WaitFor("connected to"),
+		Type("/sev:hgih\n"), WaitFor("matches nothing"))
+	if !strings.Contains(screen, "sev:hgih matches nothing") {
+		t.Errorf("want the typo flagged:\n%s", screen)
+	}
+}

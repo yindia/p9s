@@ -1,8 +1,8 @@
  p9s │ ctx kind-demo │ ns all │ alpha v1.2.0 · beta 0.9.1 │ last audit 30s ago (alpha)                               RO
 ─ Policies › Violations [2] (alpha:AlphaRule:require-owner) ────────────────────────────────────────────────────────────
-  ENGINE  OWNER                     POLICY         KIND       ACTION   OBJECTS↓  MESSAGE
-▸ alpha   Namespace/payments        require-owner  AlphaRule  enforce  1         label owner is required
-  alpha   Namespace/search          require-owner  AlphaRule  enforce  1         label owner is required
+  ENGINE  OWNER                     POLICY         KIND       ACTION   SEVERITY  OBJECTS↓  MESSAGE
+▸ alpha   Namespace/payments        require-owner  AlphaRule  enforce  high      1         label owner is required
+  alpha   Namespace/search          require-owner  AlphaRule  enforce  high      1         label owner is required
 
 
 

@@ -23,6 +23,8 @@ type getFlags struct {
 	namespace   string
 	filter      string
 	syncTimeout time.Duration
+	// stderr gets notes about the filter (likely typos); results go to w.
+	stderr io.Writer
 }
 
 func newGetCommand(f *flags) *cobra.Command {
@@ -39,7 +41,10 @@ Examples:
   p9s get impact require-team-label -o json
   p9s get health -o json`,
 		Args: cobra.MinimumNArgs(1),
-		RunE: func(c *cobra.Command, args []string) error { return runGet(c, f, g, args, c.OutOrStdout()) },
+		RunE: func(c *cobra.Command, args []string) error {
+			g.stderr = c.ErrOrStderr()
+			return runGet(c, f, g, args, c.OutOrStdout())
+		},
 	}
 	fl := cmd.Flags()
 	fl.StringVarP(&g.output, "output", "o", "table", "output format: table or json")
@@ -113,7 +118,23 @@ func printView(w io.Writer, env views.Env, sorts views.Sorts, name, rest string,
 		// The TUI's hint points at its help key; here the help is --help.
 		return fmt.Errorf("%s", strings.Replace(err.Error(), "(press ? for help)", "(see p9s get --help)", 1))
 	}
+	if so, ignored := sorts.Ignored(spec); ignored && g.stderr != nil {
+		fmt.Fprintf(g.stderr, "note: config sort.%s: %s has no %s column; using the view's default sort\n", spec.Command(), spec.View.Title, so.Role)
+	}
 	tbl := table.Build(sorts.WithSort(spec).Source, f, env.Now())
+	if g.filter != "" {
+		// A typo here would print "No rows match" and exit 0: a CI step
+		// reading that as "clean" is worse than a failed step.
+		problems, notes := tbl.CheckFilter(g.filter)
+		if len(problems) > 0 {
+			return fmt.Errorf("--filter %q: %s", g.filter, strings.Join(problems, "; "))
+		}
+		for _, n := range notes {
+			if g.stderr != nil {
+				fmt.Fprintf(g.stderr, "note: --filter: %s\n", n)
+			}
+		}
+	}
 	if q := strings.TrimSpace(f.Text + " " + g.filter); q != "" {
 		tbl.Rows = tbl.Match(q)
 		if len(tbl.Rows) == 0 && tbl.Empty == "" {

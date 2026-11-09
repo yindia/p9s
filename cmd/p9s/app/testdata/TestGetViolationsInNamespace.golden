@@ -1,4 +1,4 @@
 ! beta: forbidden to list betareports.beta.example — data from it is missing
-ENGINE  OWNER               POLICY         KIND        ACTION   OBJECTS↓  MESSAGE
-alpha   Namespace/payments  require-owner  AlphaRule   enforce  1         label owner is required
-beta    Pod/payments/api-0  no-latest      BetaPolicy  audit    1         image tag latest is not allowed
+ENGINE  OWNER               POLICY         KIND        ACTION   SEVERITY  OBJECTS↓  MESSAGE
+alpha   Namespace/payments  require-owner  AlphaRule   enforce  high      1         label owner is required
+beta    Pod/payments/api-0  no-latest      BetaPolicy  audit    -         1         image tag latest is not allowed
