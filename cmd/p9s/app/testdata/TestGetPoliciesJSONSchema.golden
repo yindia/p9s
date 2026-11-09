@@ -1,0 +1,273 @@
+{
+  "schemaVersion": "p9s/v1",
+  "command": "pol",
+  "title": "Policies",
+  "columns": [
+    {
+      "title": "ENGINE",
+      "role": "engine"
+    },
+    {
+      "title": "NAME",
+      "role": "name",
+      "flex": true
+    },
+    {
+      "title": "KIND",
+      "role": "kind"
+    },
+    {
+      "title": "NAMESPACE",
+      "role": "namespace"
+    },
+    {
+      "title": "ENFORCEMENT",
+      "role": "mode"
+    },
+    {
+      "title": "SEVERITY",
+      "role": "severity"
+    },
+    {
+      "title": "VIOLATIONS",
+      "role": "count"
+    },
+    {
+      "title": "AUDIT AGE",
+      "role": "age"
+    }
+  ],
+  "rows": [
+    {
+      "id": "alpha:AlphaRule/require-owner",
+      "cells": [
+        {
+          "kind": "text",
+          "text": "alpha",
+          "sortKey": "alpha"
+        },
+        {
+          "kind": "text",
+          "text": "require-owner",
+          "sortKey": "require-owner"
+        },
+        {
+          "kind": "text",
+          "text": "AlphaRule",
+          "sortKey": "alpharule"
+        },
+        {
+          "kind": "text",
+          "text": "-",
+          "sortKey": "-"
+        },
+        {
+          "kind": "mode",
+          "text": "enforce",
+          "mode": "enforce",
+          "sortKey": "4"
+        },
+        {
+          "kind": "severity",
+          "text": "high",
+          "severity": "error",
+          "sortKey": "3"
+        },
+        {
+          "kind": "count",
+          "text": "2",
+          "number": 2,
+          "sortKey": "000000000002"
+        },
+        {
+          "kind": "age",
+          "text": "30s",
+          "time": "2026-11-08T11:59:30Z",
+          "sortKey": "07429232866854775807"
+        }
+      ],
+      "policy": {
+        "engine": "alpha",
+        "kind": "AlphaRule",
+        "name": "require-owner"
+      },
+      "canDrill": true,
+      "canDescribe": true,
+      "hasYAML": true
+    },
+    {
+      "id": "beta:BetaPolicy/payments/no-latest",
+      "cells": [
+        {
+          "kind": "text",
+          "text": "beta",
+          "sortKey": "beta"
+        },
+        {
+          "kind": "text",
+          "text": "no-latest",
+          "sortKey": "no-latest"
+        },
+        {
+          "kind": "text",
+          "text": "BetaPolicy",
+          "sortKey": "betapolicy"
+        },
+        {
+          "kind": "text",
+          "text": "payments",
+          "sortKey": "payments"
+        },
+        {
+          "kind": "mode",
+          "text": "audit",
+          "mode": "audit",
+          "sortKey": "2"
+        },
+        {
+          "kind": "severity",
+          "text": "-",
+          "sortKey": "0"
+        },
+        {
+          "kind": "count",
+          "text": "1",
+          "number": 1,
+          "sortKey": "000000000001"
+        },
+        {
+          "kind": "age",
+          "text": "10s",
+          "time": "2026-11-08T11:59:50Z",
+          "sortKey": "07429232846854775807"
+        }
+      ],
+      "policy": {
+        "engine": "beta",
+        "kind": "BetaPolicy",
+        "namespace": "payments",
+        "name": "no-latest"
+      },
+      "canDrill": true,
+      "canDescribe": true
+    },
+    {
+      "id": "alpha:AlphaRule/prefer-limits",
+      "cells": [
+        {
+          "kind": "text",
+          "text": "alpha",
+          "sortKey": "alpha"
+        },
+        {
+          "kind": "text",
+          "text": "prefer-limits",
+          "sortKey": "prefer-limits"
+        },
+        {
+          "kind": "text",
+          "text": "AlphaRule",
+          "sortKey": "alpharule"
+        },
+        {
+          "kind": "text",
+          "text": "-",
+          "sortKey": "-"
+        },
+        {
+          "kind": "mode",
+          "text": "warn",
+          "mode": "warn",
+          "sortKey": "3"
+        },
+        {
+          "kind": "severity",
+          "text": "-",
+          "sortKey": "0"
+        },
+        {
+          "kind": "count",
+          "text": "0",
+          "number": 0,
+          "sortKey": "000000000000"
+        },
+        {
+          "kind": "age",
+          "text": "90s",
+          "time": "2026-11-08T11:58:30Z",
+          "sortKey": "07429232926854775807"
+        }
+      ],
+      "policy": {
+        "engine": "alpha",
+        "kind": "AlphaRule",
+        "name": "prefer-limits"
+      },
+      "canDrill": true,
+      "canDescribe": true,
+      "hasYAML": true
+    },
+    {
+      "id": "alpha:AlphaRule/observe-images",
+      "cells": [
+        {
+          "kind": "text",
+          "text": "alpha",
+          "sortKey": "alpha"
+        },
+        {
+          "kind": "text",
+          "text": "observe-images",
+          "sortKey": "observe-images"
+        },
+        {
+          "kind": "text",
+          "text": "AlphaRule",
+          "sortKey": "alpharule"
+        },
+        {
+          "kind": "text",
+          "text": "-",
+          "sortKey": "-"
+        },
+        {
+          "kind": "mode",
+          "text": "audit",
+          "mode": "audit",
+          "sortKey": "2"
+        },
+        {
+          "kind": "severity",
+          "text": "-",
+          "sortKey": "0"
+        },
+        {
+          "kind": "count",
+          "text": "-",
+          "unknown": true,
+          "sortKey": ""
+        },
+        {
+          "kind": "age",
+          "text": "-",
+          "sortKey": "~"
+        }
+      ],
+      "policy": {
+        "engine": "alpha",
+        "kind": "AlphaRule",
+        "name": "observe-images"
+      },
+      "canDrill": true,
+      "canDescribe": true,
+      "hasYAML": true
+    }
+  ],
+  "sort": {
+    "column": 6,
+    "desc": true
+  },
+  "notices": [
+    "beta: forbidden to list betareports.beta.example — data from it is missing"
+  ]
+}

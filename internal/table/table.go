@@ -92,7 +92,16 @@ type Cell struct {
 	Time     *time.Time            `json:"time,omitempty"`
 	// Full is the unabbreviated value when Text is an alias.
 	Full string `json:"full,omitempty"`
-	// SortKey orders rows by this column (numbers and times sort correctly).
+	// Unknown marks a count the engine cannot provide (Text "-"): never
+	// read it as 0 (AGENTS.md rule 2). The reason is in the table's
+	// notices or empty text, or the row's detail.
+	Unknown bool `json:"unknown,omitempty"`
+	// LowerBound marks a count from a capped list (Text "7+"): at least
+	// Number.
+	LowerBound bool `json:"lowerBound,omitempty"`
+	// SortKey orders rows by this column (numbers and times sort
+	// correctly). It is an opaque ordering key, not a value: compare it as
+	// a string, read values from Number, Time or Text.
 	SortKey string `json:"sortKey"`
 }
 
@@ -208,10 +217,10 @@ func BuildCell(c engine.Cell, now time.Time) Cell {
 	case engine.CellCount:
 		if c.NA {
 			// Not applicable sorts below every real count, including 0.
-			return Cell{Kind: KindCount, Text: "-", SortKey: ""}
+			return Cell{Kind: KindCount, Text: "-", Unknown: true, SortKey: ""}
 		}
 		n := c.Count
-		return Cell{Kind: KindCount, Text: c.Text, Number: &n, SortKey: fmt.Sprintf("%012d", n)}
+		return Cell{Kind: KindCount, Text: c.Text, Number: &n, LowerBound: strings.HasSuffix(c.Text, "+"), SortKey: fmt.Sprintf("%012d", n)}
 	case engine.CellMode:
 		return Cell{Kind: KindMode, Text: c.Text, Mode: c.Mode, SortKey: fmt.Sprint(modeRank[c.Mode])}
 	case engine.CellBool:

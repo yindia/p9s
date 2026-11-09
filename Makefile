@@ -28,7 +28,7 @@ cover:
 
 ## golden: regenerate golden files after an intentional UI change
 golden:
-	go test ./internal/ui/... ./test/golden/... ./cmd/... -update
+	go test ./internal/ui/... ./internal/render/... ./test/golden/... ./cmd/... -update
 
 lint:
 	golangci-lint run

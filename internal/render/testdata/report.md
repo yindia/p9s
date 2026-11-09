@@ -7,7 +7,7 @@
 | Engines | kyverno v1.19.2 |
 | Generated | 2026-11-09T10:00:00Z |
 | p9s | v1.0.0 |
-| Body SHA-256 | `94045ab8d1e73c7cfefe06ab7b983626de2a15e53ca543dd7c4962be697c76d4` |
+| Body SHA-256 | `228edf97010a2c522e2f3412e400c981f29d1c1d7d26a812a1820e6110fa928e` |
 
 > **Notice:** kyverno: forbidden to list clusterpolicies.kyverno.io \| data from it is missing
 

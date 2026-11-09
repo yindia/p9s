@@ -88,12 +88,14 @@ func (r ObjectRef) String() string {
 	return fmt.Sprintf("%s/%s/%s", r.Kind, r.Namespace, r.Name)
 }
 
-// PolicyKey uniquely identifies a policy across engines.
+// PolicyKey uniquely identifies a policy across engines. Its JSON names are
+// part of p9s/v1 output (get -o json, reports); encoding/json reads older
+// reports written with Go field names too, as it matches names case-blind.
 type PolicyKey struct {
-	Engine    string
-	Kind      string
-	Namespace string
-	Name      string
+	Engine    string `json:"engine"`
+	Kind      string `json:"kind"`
+	Namespace string `json:"namespace,omitempty"`
+	Name      string `json:"name"`
 }
 
 func (k PolicyKey) String() string {

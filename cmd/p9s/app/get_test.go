@@ -425,3 +425,18 @@ func TestGetViolationLayouts(t *testing.T) {
 		t.Errorf("health with an argument: %v", err)
 	}
 }
+
+// The p9s/v1 JSON shape is pinned here (docs/cli.md "JSON output"): camelCase
+// policy keys, unknown counts marked, not 0.
+func TestGetPoliciesJSONSchema(t *testing.T) {
+	out := get(t, fixtureEnv(t, ""), nil, "json", "", "pol")
+	for _, want := range []string{`"schemaVersion": "p9s/v1"`, `"engine": "alpha"`, `"unknown": true`} {
+		if !strings.Contains(out, want) {
+			t.Errorf("json missing %s", want)
+		}
+	}
+	if strings.Contains(out, `"Engine"`) {
+		t.Error("policy keys must use camelCase JSON names")
+	}
+	golden(t, out)
+}

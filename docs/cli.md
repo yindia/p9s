@@ -35,6 +35,29 @@ p9s --context prod get gk/c
   text, with a note on stderr.
 - RBAC notices and partial data are printed with the table, never hidden.
 
+### JSON output (`p9s/v1`)
+
+`get -o json` prints one table. Fields are stable within `p9s/v1`; a
+breaking change bumps the version.
+
+| Field | |
+|---|---|
+| `schemaVersion` | `"p9s/v1"` |
+| `command`, `title` | the view (`pol`, `v`, `gk/c`, …) |
+| `columns[]` | `title`, `role` (`name`, `count`, `mode`, `severity`, `age`, `target`, …), `flex` |
+| `rows[]` | `id`, `cells[]` (one per column), `target` (the object), `policy` (`engine`, `kind`, `namespace`, `name`) |
+| `sort` | `column` index and `desc` |
+| `partial` | caches still loading: counts are not final |
+| `notices`, `error`, `empty` | RBAC gaps, a failure, why there are no rows |
+
+Each cell has `kind` (`text`, `count`, `age`, `mode`, `severity`,
+`bool`) and `text` (what filters match), plus a typed value: `number`,
+`time`, `mode`, `severity` or `bool`. A count the engine cannot provide
+has `"unknown": true` and text `-`: never read it as 0. A count from a
+capped list has `"lowerBound": true` (text `7+`). `sortKey` is an opaque
+ordering key: compare it as a string, and read values from the typed
+fields.
+
 ## `p9s snapshot`
 
 ![recording a snapshot and browsing it offline](image/snapshot.gif)

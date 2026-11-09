@@ -1,6 +1,7 @@
 package model_test
 
 import (
+	"encoding/json"
 	"testing"
 
 	"github.com/yindia/p9s/internal/model"
@@ -30,5 +31,21 @@ func TestStrings(t *testing.T) {
 	p := model.Policy{Engine: "gk", Kind: "K", Name: "n"}
 	if p.Key() != (model.PolicyKey{Engine: "gk", Kind: "K", Name: "n"}) {
 		t.Errorf("Key() = %+v", p.Key())
+	}
+}
+
+// Reports written before PolicyKey had json tags used Go field names;
+// --since must still read them.
+func TestPolicyKeyReadsOldFieldNames(t *testing.T) {
+	var k model.PolicyKey
+	if err := json.Unmarshal([]byte(`{"Engine":"kyverno","Kind":"ClusterPolicy","Name":"require-team-label"}`), &k); err != nil {
+		t.Fatal(err)
+	}
+	if k != (model.PolicyKey{Engine: "kyverno", Kind: "ClusterPolicy", Name: "require-team-label"}) {
+		t.Errorf("decoded %+v", k)
+	}
+	b, _ := json.Marshal(k)
+	if string(b) != `{"engine":"kyverno","kind":"ClusterPolicy","name":"require-team-label"}` {
+		t.Errorf("encoded %s", b)
 	}
 }
