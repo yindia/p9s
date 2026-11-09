@@ -5,6 +5,8 @@ p9s opens on the [overview](#overview). Every view is a `:` command away,
 [`p9s get`](cli.md#p9s-get). Engine-specific views (`:gk/…`, `:kyv/…`,
 `:vap/…`) are described in [engines.md](engines.md#engine-views).
 
+![p9s end to end: a blocked request, its owner and fix, enforcement impact, health, and a report](image/demo.gif)
+
 ## Overview
 
 The start view (`:overview`, `:ov`) answers "is the policy layer working,
@@ -44,6 +46,8 @@ The overview follows the `:ns` scope.
 - Ownership uses metadata-only informers (about 3 MiB on the e2e cluster).
   If RBAC hides some kinds, violations group under the deepest owner p9s
   can see and a notice names the missing kinds.
+
+![violations grouped by owner, a group expanded, the flat list, then grouped by team](image/owners.gif)
 
 ## Violation detail and how to fix
 
@@ -122,6 +126,8 @@ panels, `enter` opens a row's detail, `g` goes to the object behind it.
 The webhook detail explains the failure policy, endpoints with Pod state,
 the certificate, namespace and object selectors, rules, and the impact in
 one line.
+
+![the health dashboard: a fail-open webhook's detail, then the controllers, audit and policies panels](image/health.gif)
 
 ## Commands
 

@@ -16,3 +16,5 @@ p9s works with whatever your identity may read and says what it could not:
 - `y` and `e` redact Secret values.
 - A cluster without any engine shows an empty state that says so; an
   unreachable context opens `:ctx` with the error.
+
+![p9s as a tenant with view on one namespace: the overview still works, forbidden lists become notices](image/rbac.gif)

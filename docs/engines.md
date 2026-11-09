@@ -22,6 +22,8 @@ and spelled out in details.
 
 **Gatekeeper**
 
+![the gatekeeper engine: a ConstraintTemplate's Rego, its constraint and the constraint's detail](image/gatekeeper.gif)
+
 | Command | View |
 |---|---|
 | `:gk/ct` | ConstraintTemplates: kind, language, constraint count. `d`: highlighted Rego/CEL and the parameters schema. `enter`: its constraints |
@@ -29,6 +31,8 @@ and spelled out in details.
 | `:gk/cfg` | the Gatekeeper Config: sync list, exclusions, readiness |
 
 **Kyverno**
+
+![the kyverno engine: ClusterPolicies, the CEL policies, PolicyReports and mutations](image/kyverno.gif)
 
 | Command | View |
 |---|---|
