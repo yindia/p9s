@@ -1,0 +1,17 @@
+# A Gatekeeper mutator for the e2e tests and demos, so :mut lists one from
+# each engine. It only adds a label to new Pods in p9s-demo.
+apiVersion: mutations.gatekeeper.sh/v1
+kind: AssignMetadata
+metadata:
+  name: p9s-demo-mutated-label
+spec:
+  match:
+    scope: Namespaced
+    namespaces: ["p9s-demo"]
+    kinds:
+      - apiGroups: [""]
+        kinds: ["Pod"]
+  location: 'metadata.labels."p9s.dev/mutated"'
+  parameters:
+    assign:
+      value: "true"

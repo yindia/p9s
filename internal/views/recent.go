@@ -17,7 +17,7 @@ const CmdViolationsRecent = "v.recent"
 func IsRecent(s Spec) bool { return s.Command() == CmdViolationsRecent }
 
 // recentNote is the reminder that Events are short-lived history.
-const recentNote = "Events are kept for a limited time (kube-apiserver --event-ttl, 1h by default): this is recent history only. Server-side dry-run requests are included (the engines do not mark them). Denials by generated ValidatingAdmissionPolicies are not recorded as Events."
+const recentNote = "Events are kept for a limited time (kube-apiserver --event-ttl, 1h by default): this is recent history only. Server-side dry-run requests are included (the engines do not mark them). Denials by ValidatingAdmissionPolicies (native or generated) are not recorded as Events."
 
 // RecentSpec builds the recent tab.
 func RecentSpec(env Env) Spec {
@@ -34,6 +34,11 @@ func RecentSpec(env Env) Spec {
 						n = append(n, st.Engine+": "+st.Hint)
 					}
 				}
+			}
+			if query.IsActive(env.Engines(), "vap") {
+				// The API server returns a VAP denial to the client and
+				// records no Event, so this tab can never list one.
+				n = append(n, "vap: ValidatingAdmissionPolicy denials are not recorded as Events, so none are listed here")
 			}
 			return n
 		},
@@ -75,18 +80,21 @@ func recentView(env Env) engine.View {
 		Rows: func(f engine.Filter) ([]engine.Row, error) {
 			es := env.Engines()
 			evs := RecentEvents(env, f)
+			pols := query.PolicyIndex(es)
 			rows := make([]engine.Row, 0, len(evs))
 			for _, e := range evs {
-				rows = append(rows, eventRow(env, es, e))
+				rows = append(rows, eventRow(env, es, pols, e))
 			}
 			return rows, nil
 		},
 	}
 }
 
-func eventRow(env Env, es []engine.Engine, e model.AdmissionEvent) engine.Row {
+// eventRow is one admission event. pols (may be nil) gives the row its
+// policy when p9s can read it, so i (impact) works from the recent tab too.
+func eventRow(env Env, es []engine.Engine, pols map[model.PolicyKey]model.Policy, e model.AdmissionEvent) engine.Row {
 	target := e.Target
-	return engine.Row{
+	row := engine.Row{
 		ID: eventRowID(e),
 		Cells: []engine.Cell{
 			engine.AgeCell(e.Time), engine.TextCell(e.Engine), engine.TextCell(e.Policy.Name),
@@ -107,6 +115,11 @@ func eventRow(env Env, es []engine.Engine, e model.AdmissionEvent) engine.Row {
 			}}, nil
 		},
 	}
+	if _, ok := pols[e.Policy]; ok {
+		key := e.Policy
+		row.Policy = &key
+	}
+	return row
 }
 
 // eventRowID is the Event object when known, so a repeating (aggregated)

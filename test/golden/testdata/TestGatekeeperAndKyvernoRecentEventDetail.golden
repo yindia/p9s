@@ -14,8 +14,8 @@
 
  Note
    Events are kept for a limited time (kube-apiserver --event-ttl, 1h by default): this is recent history only. Server-
-   side dry-run requests are included (the engines do not mark them). Denials by generated ValidatingAdmissionPolicies
-   are not recorded as Events.
+   side dry-run requests are included (the engines do not mark them). Denials by ValidatingAdmissionPolicies (native or
+   generated) are not recorded as Events.
 
 
 

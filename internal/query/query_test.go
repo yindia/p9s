@@ -82,6 +82,10 @@ func TestNamespacesFallsBackToViolationsWithoutRBAC(t *testing.T) {
 	if strings.Join(names, ",") != "payments,search" {
 		t.Errorf("fallback namespaces = %v", names)
 	}
+	// An older snapshot has no namespace list at all (no error): same fallback.
+	if empty, _ := query.Namespaces(es, nil, nil); len(empty) != 3 {
+		t.Errorf("an empty list must fall back to the violations' namespaces: %+v", empty)
+	}
 }
 
 func TestSyncedAndLatestAudit(t *testing.T) {

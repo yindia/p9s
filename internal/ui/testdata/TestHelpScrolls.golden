@@ -12,7 +12,7 @@
    g           go to the source object
    c           copy kind/namespace/name of the row's object
    C           copy a kubectl get command for it
-   N V A S     sort by name, violations, age, severity (again to reverse)
+   N V A S     sort by name, count, age, severity (again to reverse)
    o           :v grouped by owner ↔ flat list
    t           :v grouped by owner ↔ by --group-label
    [ ]         :v current tab (audit results) ↔ recent tab (admission events)

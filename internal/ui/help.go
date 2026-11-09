@@ -11,7 +11,7 @@ import (
 var navigationHelp = [][2]string{
 	{"j k ↑ ↓", "move"},
 	{"pgup pgdn", "page"},
-	{"home end G", "first / last"},
+	{"home end G", "first / last (end where a view uses G, e.g. vap/pol)"},
 	{"enter", "drill down (or describe when there is nothing to drill into)"},
 	{"esc", "clear filter, else back"},
 	{":", "command mode (tab completes)"},
@@ -28,7 +28,7 @@ var keysHelp = [][2]string{
 	{"g", "go to the source object"},
 	{"c", "copy kind/namespace/name of the row's object"},
 	{"C", "copy a kubectl get command for it"},
-	{"N V A S", "sort by name, violations, age, severity (again to reverse)"},
+	{"N V A S", "sort by name, count, age, severity (again to reverse)"},
 	{"o", ":v grouped by owner ↔ flat list"},
 	{"t", ":v grouped by owner ↔ by --group-label"},
 	{"[ ]", ":v current tab (audit results) ↔ recent tab (admission events)"},

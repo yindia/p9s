@@ -2,7 +2,6 @@ package gatekeeper_test
 
 import (
 	"context"
-	"errors"
 	"strings"
 	"sync/atomic"
 	"testing"
@@ -328,11 +327,39 @@ func TestNoGatekeeperStartsEmpty(t *testing.T) {
 
 func TestUnsupportedFeatures(t *testing.T) {
 	e := gatekeeper.New(gktest.NewCluster(t, gktest.Options{}))
-	if _, err := e.Mutations(); !errors.Is(err, engine.ErrNotSupported) {
-		t.Errorf("Mutations err = %v", err)
+	if e.Capabilities().Actions || e.Capabilities().Evaluator {
+		t.Error("p9s is read-only and does not evaluate: no actions or evaluator")
 	}
-	if e.Capabilities().Mutations || e.Capabilities().Actions || e.Capabilities().Evaluator {
-		t.Error("phase 1 must not advertise mutations, actions or evaluator")
+}
+
+// Mutators are listed at the version that serves each kind (AssignImage only
+// at v1alpha1 on Gatekeeper v3.23.1), with what they set and where.
+func TestMutators(t *testing.T) {
+	e, _ := started(t, gktest.NewCluster(t, gktest.Options{}))
+	if !e.Capabilities().Mutations {
+		t.Fatal("gatekeeper must advertise mutations")
+	}
+	var ms []model.Mutation
+	eventually(t, "three mutators cached", func() bool {
+		ms, _ = e.Mutations()
+		return len(ms) == 3
+	})
+	got := map[string]string{}
+	for _, m := range ms {
+		got[m.Kind+"/"+m.Name] = m.Location + " | " + m.Targets
+	}
+	want := map[string]string{
+		"Assign/default-pull-policy":  "spec.containers[name:*].imagePullPolicy | Pod",
+		"AssignMetadata/owner-label":  "metadata.labels.owner | Deployment, StatefulSet",
+		"AssignImage/registry-mirror": "spec.containers[name:*].image | Pod",
+	}
+	if len(got) != len(want) {
+		t.Fatalf("mutations = %v, want %v", got, want)
+	}
+	for k, v := range want {
+		if got[k] != v {
+			t.Errorf("%s = %q, want %q", k, got[k], v)
+		}
 	}
 }
 

@@ -182,7 +182,10 @@ func Namespaces(es []engine.Engine, names []string, namesErr error) ([]Namespace
 			counts[v.Target.Name]++
 		}
 	}
-	if namesErr != nil {
+	// No list (an error, or a snapshot taken before namespaces were
+	// recorded: a cluster always has some): use the namespaces violations
+	// name, so :ns still scopes.
+	if namesErr != nil || len(names) == 0 {
 		names = sortedKeys(counts)
 	}
 	out := []NamespaceCount{{Name: AllNamespaces, Violations: TotalViolations(es, len(vs))}}

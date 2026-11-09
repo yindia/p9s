@@ -3,7 +3,7 @@
  Navigation
    j k ↑ ↓     move
    pgup pgdn   page
-   home end G  first / last
+   home end G  first / last (end where a view uses G, e.g. vap/pol)
    enter       drill down (or describe when there is nothing to drill into)
    esc         clear filter, else back
    :           command mode (tab completes)

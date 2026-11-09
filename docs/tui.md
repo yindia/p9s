@@ -101,7 +101,8 @@ message. `[` returns to the audit results with their grouping.
 - Only matching Events are cached (server-side field selectors). Events
   expire (`--event-ttl`, 1 hour by default), so this is recent history.
   Server-side dry runs are recorded like real requests; denials by
-  generated VAPs are not recorded as Events.
+  ValidatingAdmissionPolicies (native or generated) are not recorded as
+  Events, and the tab says so when the `vap` engine is active.
 
 ## Health dashboard
 

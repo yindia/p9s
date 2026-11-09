@@ -21,4 +21,4 @@
 
 
 
- :cmd  /filter  ? help
+ :cmd  /filter  enter open  d describe  ? help

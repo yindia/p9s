@@ -67,11 +67,13 @@ func NewCluster(t testing.TB, opts Options) *Cluster {
 	if !opts.NoGatekeeper {
 		resources = append(resources, fakecluster.ResourcesFor("templates.gatekeeper.sh/v1", "constrainttemplates:ConstraintTemplate")...)
 		resources = append(resources, fakecluster.ResourcesFor("config.gatekeeper.sh/v1alpha1", "configs:Config:ns")...)
+		resources = append(resources, fakecluster.ResourcesFor("mutations.gatekeeper.sh/v1", "assign:Assign", "assignmetadata:AssignMetadata", "modifyset:ModifySet")...)
+		resources = append(resources, fakecluster.ResourcesFor("mutations.gatekeeper.sh/v1alpha1", "assignimage:AssignImage")...)
 		for _, k := range constraintKinds {
 			resources = append(resources, constraintResource(k))
 		}
 		resources = fakecluster.With(resources, fakecluster.PlatformResources...)
-		for _, f := range []string{"templates.yaml", "constraints.yaml", "config.yaml", "deployment.yaml", "platform.yaml", "events.yaml"} {
+		for _, f := range []string{"templates.yaml", "constraints.yaml", "config.yaml", "deployment.yaml", "platform.yaml", "events.yaml", "mutators.yaml"} {
 			objs = append(objs, Load(t, f)...)
 		}
 	}

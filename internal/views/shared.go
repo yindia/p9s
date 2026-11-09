@@ -220,6 +220,7 @@ func mutationsView(env Env) engine.View {
 						engine.TextCell(table.Dash(m.Location)), engine.TextCell(table.Dash(m.Targets)),
 					},
 					Object: m.Raw,
+					Detail: func() (engine.Detail, error) { return mutationDetail(m), nil },
 				})
 			}
 			return rows, err
@@ -323,4 +324,12 @@ func refText(r model.ObjectRef) string {
 		return "-"
 	}
 	return r.String()
+}
+
+// mutationDetail is d on a :mut row: what the mutation sets and where.
+func mutationDetail(m model.Mutation) engine.Detail {
+	return engine.Detail{Title: "Mutation " + m.Name, Sections: []engine.Section{{Title: "Summary", Body: table.KV(
+		"Engine", m.Engine, "Kind", m.Kind, "Name", m.Name, "Namespace", table.Dash(m.Namespace),
+		"Location", table.Dash(m.Location), "Applies to", table.Dash(m.Targets),
+	)}}}
 }

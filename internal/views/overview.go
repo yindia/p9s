@@ -264,7 +264,7 @@ func denialsBlock(env Env, f engine.Filter) Block {
 		Rows: func(engine.Filter) ([]engine.Row, error) {
 			rows := make([]engine.Row, 0, len(shown))
 			for _, e := range shown {
-				r := eventRow(env, es, e)
+				r := eventRow(env, es, nil, e)
 				r.Cells = []engine.Cell{r.Cells[0], r.Cells[1], r.Cells[2], r.Cells[5], r.Cells[6]}
 				rows = append(rows, r)
 			}

@@ -1,0 +1,51 @@
+# Gatekeeper mutators, shaped as on v3.23.1: Assign and AssignMetadata at
+# v1, AssignImage only at v1alpha1.
+apiVersion: mutations.gatekeeper.sh/v1
+kind: Assign
+metadata:
+  name: default-pull-policy
+  creationTimestamp: "2026-11-01T09:00:00Z"
+spec:
+  applyTo:
+    - groups: [""]
+      kinds: ["Pod"]
+      versions: ["v1"]
+  match:
+    scope: Namespaced
+    kinds:
+      - apiGroups: ["*"]
+        kinds: ["Pod"]
+  location: "spec.containers[name:*].imagePullPolicy"
+  parameters:
+    assign:
+      value: IfNotPresent
+---
+apiVersion: mutations.gatekeeper.sh/v1
+kind: AssignMetadata
+metadata:
+  name: owner-label
+  creationTimestamp: "2026-11-01T09:00:00Z"
+spec:
+  match:
+    scope: Namespaced
+    kinds:
+      - apiGroups: ["apps"]
+        kinds: ["Deployment", "StatefulSet"]
+  location: "metadata.labels.owner"
+  parameters:
+    assign:
+      value: platform
+---
+apiVersion: mutations.gatekeeper.sh/v1alpha1
+kind: AssignImage
+metadata:
+  name: registry-mirror
+  creationTimestamp: "2026-11-01T09:00:00Z"
+spec:
+  applyTo:
+    - groups: [""]
+      kinds: ["Pod"]
+      versions: ["v1"]
+  location: "spec.containers[name:*].image"
+  parameters:
+    assignDomain: mirror.example.com

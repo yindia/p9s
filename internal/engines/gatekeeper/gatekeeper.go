@@ -36,7 +36,7 @@ func init() { engine.Register(Name, New) }
 
 // New builds a Gatekeeper engine bound to a cluster.
 func New(c engine.Cluster) engine.Engine {
-	return &Engine{cluster: c, constraints: map[string]*kindInformer{}, access: newAccess(c), sync: enginekit.NewSync()}
+	return &Engine{cluster: c, constraints: map[string]*kindInformer{}, mutators: map[string]cache.SharedIndexInformer{}, access: newAccess(c), sync: enginekit.NewSync()}
 }
 
 // Engine is the Gatekeeper implementation of engine.Engine.
@@ -63,8 +63,9 @@ type Engine struct {
 	notify      engine.Notify
 	templates   cache.SharedIndexInformer
 	configs     cache.SharedIndexInformer
-	constraints map[string]*kindInformer // keyed by resource name
-	versions    map[string]string        // group -> preferred version
+	constraints map[string]*kindInformer             // keyed by resource name
+	mutators    map[string]cache.SharedIndexInformer // keyed by resource name (assign, …)
+	versions    map[string]string                    // group -> preferred version
 	kick        chan struct{}
 	wg          sync.WaitGroup
 
@@ -98,12 +99,12 @@ func (e *Engine) Prefix() string { return Prefix }
 
 // Capabilities implements engine.Engine.
 func (e *Engine) Capabilities() engine.Capabilities {
-	return engine.Capabilities{Policies: true, Violations: true, Health: true}
+	return engine.Capabilities{Policies: true, Violations: true, Mutations: true, Health: true}
 }
 
 // Start implements engine.Engine.
 func (e *Engine) Start(ctx context.Context, f dynamicinformer.DynamicSharedInformerFactory, notify engine.Notify) error {
-	versions, err := enginekit.PreferredVersions(e.cluster.Discovery(), groupTemplates, groupConfig, groupConstraints)
+	versions, err := enginekit.PreferredVersions(e.cluster.Discovery(), groupTemplates, groupConfig, groupConstraints, groupMutations)
 	if err != nil {
 		return fmt.Errorf("discover gatekeeper API groups: %w", err)
 	}
@@ -140,6 +141,7 @@ func (e *Engine) Start(ctx context.Context, f dynamicinformer.DynamicSharedInfor
 			e.sync.Track(gvr, e.configs)
 		}
 	}
+	e.startMutators(e.ctx, dyn, f, notify)
 	registered()
 	e.sync.Watch(e.ctx, notify)
 
@@ -282,8 +284,16 @@ func (e *Engine) SyncStatus() engine.SyncStatus { return e.sync.Status() }
 // AccessIssues implements engine.Engine.
 func (e *Engine) AccessIssues() []model.AccessIssue { return e.access.Issues() }
 
-// Mutations implements engine.Engine. Mutators land in phase 2.
-func (e *Engine) Mutations() ([]model.Mutation, error) { return nil, engine.ErrNotSupported }
+// Mutations implements engine.Engine: Assign, AssignMetadata, ModifySet
+// and AssignImage mutators.
+func (e *Engine) Mutations() ([]model.Mutation, error) {
+	ms := e.snapshot().mutators
+	out := make([]model.Mutation, 0, len(ms))
+	for _, o := range ms {
+		out = append(out, mutation(o))
+	}
+	return out, nil
+}
 
 // Evaluator implements engine.Engine. Local evaluation lands in phase 4.
 func (e *Engine) Evaluator() (engine.Evaluator, error) { return nil, engine.ErrNotSupported }
@@ -297,6 +307,7 @@ type snapshot struct {
 	templates   []*unstructured.Unstructured
 	constraints []*unstructured.Unstructured
 	configs     []*unstructured.Unstructured
+	mutators    []*unstructured.Unstructured
 	// templateByKind maps a constraint kind to its template.
 	templateByKind map[string]*unstructured.Unstructured
 }
@@ -321,6 +332,7 @@ func (e *Engine) buildSnapshot() snapshot {
 	s := snapshot{templateByKind: map[string]*unstructured.Unstructured{}}
 	s.templates = enginekit.Objects(e.templates)
 	s.configs = enginekit.Objects(e.configs)
+	s.mutators = mutatorObjects(e.mutators)
 	for _, ki := range e.constraints {
 		for _, o := range enginekit.Objects(ki.informer) {
 			if o.GetKind() == "" {

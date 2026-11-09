@@ -158,6 +158,16 @@ func TestLibraryPoliciesAndViolations(t *testing.T) {
 			t.Errorf("view %s: %d rows, err %v", v.Command, len(rows), err)
 		}
 	}
+	// hack/manifests/gatekeeper-mutators.yaml
+	eventually(t, "the AssignMetadata mutator", func() bool {
+		ms, _ := gk.Mutations()
+		for _, m := range ms {
+			if m.Kind == "AssignMetadata" && m.Name == "p9s-demo-mutated-label" && m.Targets == "Pod" {
+				return true
+			}
+		}
+		return false
+	})
 }
 
 func TestJumpToOffendingObject(t *testing.T) {
@@ -180,7 +190,9 @@ func TestUIAgainstCluster(t *testing.T) {
 	s := connect(t)
 	gk := engineNamed(t, s, "gatekeeper")
 	eventually(t, "violations", func() bool { vs, _ := gk.Violations(); return len(vs) > 0 })
-	screen := uitest.Run(t, s, uitest.Options(time.Now()), ready(t, s),
+	// Wide enough for the full header: on a narrow terminal the engine
+	// versions are the first thing it drops.
+	screen := uitest.RunSized(t, 160, uitest.Height, s, uitest.Options(time.Now()), ready(t, s),
 		uitest.WaitFor("gatekeeper  "),
 		uitest.Type(":gk/ct\n"), uitest.WaitFor("ConstraintTemplates ["),
 		uitest.Type(":ns kube-system\n:v\n"), uitest.WaitFor("ns kube-system"),
