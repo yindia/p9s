@@ -856,9 +856,11 @@ func TestTenantSeesNamespaceViolations(t *testing.T) {
 
 func TestTenantViolationDetailTUI(t *testing.T) {
 	s := connectTenant(t)
-	screen := uitest.Run(t, s, uitest.Options(time.Now()), ready(t, s), uitest.Type(":v\no/disallow-privilege-escalation\n"),
-		uitest.WaitFor("disallow-privilege-escalation"), uitest.Type("d"), uitest.WaitFor("How to fix"))
-	for _, want := range []string{"not readable with your permissions", "/p9s-demo/", "Owner:    apps/v1 Deployment/p9s-demo/checkout"} {
+	screen := uitest.Run(t, s, uitest.Options(time.Now()), ready(t, s), uitest.Type(":v\no/require-team-label\n"),
+		// The list title carries the applied filter (the typed one is only on
+		// the prompt line), drawn in the same frame as its rows.
+		uitest.WaitFor("/require-team-label ─"), uitest.Type("d"), uitest.WaitFor("How to fix"))
+	for _, want := range []string{"not readable with your permissions", "Deployment/p9s-demo/checkout"} {
 		if !strings.Contains(screen, want) {
 			t.Errorf("tenant detail missing %q:\n%s", want, screen)
 		}
@@ -867,9 +869,9 @@ func TestTenantViolationDetailTUI(t *testing.T) {
 
 func TestAdminViolationDetailHasGuidance(t *testing.T) {
 	s := connect(t)
-	screen := uitest.Run(t, s, uitest.Options(time.Now()), ready(t, s), uitest.Type(":v\no/disallow-privilege-escalation\n"),
-		uitest.WaitFor("disallow-privilege-escalation"), uitest.Type("d"), uitest.WaitFor("How to fix"))
-	for _, want := range []string{"Disallow Privilege Escalation", "policies.kyverno.io/description"} {
+	screen := uitest.Run(t, s, uitest.Options(time.Now()), ready(t, s), uitest.Type(":v\no/require-team-label\n"),
+		uitest.WaitFor("/require-team-label ─"), uitest.Type("d"), uitest.WaitFor("How to fix"))
+	for _, want := range []string{"Require Team Label", "policies.kyverno.io/description"} {
 		if !strings.Contains(screen, want) {
 			t.Errorf("admin detail missing %q:\n%s", want, screen)
 		}
