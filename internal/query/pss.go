@@ -100,7 +100,6 @@ type ControlCoverage struct {
 // Caveats.
 const (
 	CaveatParameters = "as strict as its parameters (not checked)"
-	CaveatScoped     = "has namespace or resource exclusions"
 )
 
 // paramDependent templates enforce a PSS control only as strictly as their
@@ -109,6 +108,9 @@ var paramDependent = map[string]bool{
 	"K8sPSPCapabilities": true, "K8sPSPSeccomp": true, "K8sPSPSeccompV2": true, "K8sPSPVolumeTypes": true,
 	"K8sPSPHostFilesystem": true, "K8sPSPHostNetworkingPorts": true, "K8sPSPAppArmor": true,
 	"K8sPSPSELinuxV2": true, "K8sPSPForbiddenSysctls": true, "K8sPSPProcMount": true,
+	// K8sPSPAllowedUsers allows any user unless its parameters say
+	// otherwise; parameters are not read, so it carries the caveat.
+	"K8sPSPAllowedUsers": true,
 }
 
 // PSSCoverage maps policies to controls from their metadata only. Policies
@@ -140,14 +142,9 @@ func PSSCoverage(ps []model.Policy) (controls []ControlCoverage, uncategorised [
 			if p.Engine == "gatekeeper" && paramDependent[p.Kind] {
 				caveats[CaveatParameters] = true
 			}
-			if hasExclusions(p) {
-				caveats[CaveatScoped] = true
-			}
 		}
-		for _, k := range []string{CaveatParameters, CaveatScoped} {
-			if caveats[k] {
-				cc.Caveats = append(cc.Caveats, k)
-			}
+		if caveats[CaveatParameters] {
+			cc.Caveats = append(cc.Caveats, CaveatParameters)
 		}
 		controls = append(controls, cc)
 	}
@@ -169,9 +166,6 @@ func pssControl(p model.Policy) (PSSControl, bool) {
 		return c, ok
 	case "gatekeeper":
 		c, ok := gatekeeperPSS[p.Kind]
-		if ok && p.Kind == "K8sPSPAllowedUsers" && !mustRunAsNonRoot(p.Raw) {
-			return PSSControl{}, false // the template allows any user unless told otherwise
-		}
 		return c, ok
 	}
 	return PSSControl{}, false
@@ -185,51 +179,6 @@ func notReady(o *unstructured.Unstructured) bool {
 		if m["type"] == "Ready" && m["status"] == "False" {
 			return true
 		}
-	}
-	return false
-}
-
-func mustRunAsNonRoot(o *unstructured.Unstructured) bool {
-	if o == nil {
-		return false
-	}
-	rule, _, _ := unstructured.NestedString(o.Object, "spec", "parameters", "runAsUser", "rule")
-	return rule == "MustRunAsNonRoot"
-}
-
-// hasExclusions reports namespace or resource carve-outs written in the
-// policy itself (Config-level and webhook exclusions are not read here).
-func hasExclusions(p model.Policy) bool {
-	if p.Raw == nil {
-		return false
-	}
-	o := p.Raw.Object
-	for _, path := range [][]string{
-		{"spec", "match", "excludedNamespaces"}, {"spec", "match", "namespaces"}, {"spec", "match", "namespaceSelector"},
-		{"spec", "matchConstraints", "namespaceSelector"}, {"spec", "matchConstraints", "excludeResourceRules"},
-	} {
-		if v, ok, _ := unstructured.NestedFieldNoCopy(o, path...); ok && !empty(v) {
-			return true
-		}
-	}
-	rules, _, _ := unstructured.NestedSlice(o, "spec", "rules")
-	for _, r := range rules {
-		m, _ := r.(map[string]any)
-		if ex, ok := m["exclude"]; ok && !empty(ex) {
-			return true
-		}
-	}
-	return false
-}
-
-func empty(v any) bool {
-	switch x := v.(type) {
-	case nil:
-		return true
-	case map[string]any:
-		return len(x) == 0
-	case []any:
-		return len(x) == 0
 	}
 	return false
 }

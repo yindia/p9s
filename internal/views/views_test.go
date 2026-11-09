@@ -190,7 +190,7 @@ func TestNeverAuditedEngineIsNotHidden(t *testing.T) {
 
 func TestOverviewBlocks(t *testing.T) {
 	ov := views.OverviewOf(env(t, ""))
-	if ov.SchemaVersion == "" || len(ov.Blocks) != 5 {
+	if ov.SchemaVersion == "" || len(ov.Blocks) != 4 {
 		t.Fatalf("overview = %+v", ov)
 	}
 	byID := map[string]views.Block{}
@@ -218,7 +218,7 @@ func TestOverviewBlocks(t *testing.T) {
 	if !strings.Contains(cand.Summary, "3 in audit or warn mode, 1 with no current violations") {
 		t.Errorf("candidate summary = %q", cand.Summary)
 	}
-	for _, id := range []string{views.BlockDenials, views.BlockExemptions} {
+	for _, id := range []string{views.BlockDenials} {
 		if b := byID[id]; b.Placeholder == "" || b.Target != nil {
 			t.Errorf("%s must be a placeholder without a target until its phase: %+v", id, b)
 		}

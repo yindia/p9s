@@ -327,15 +327,15 @@ func TestOverviewInNamespaceScope(t *testing.T) {
 func TestOverviewWithoutEngines(t *testing.T) {
 	b := NewBackend()
 	b.Dets = []engine.Detection{{Engine: fake.New(fake.Options{Name: "gatekeeper"})}}
-	RequireGolden(t, Run(t, b, overviewOpts(), WaitFor("Exemptions")))
+	RequireGolden(t, Run(t, b, overviewOpts(), WaitFor("Recent admission denials")))
 }
 
 // TestOverviewScrollsToSelectedBlock: at 24 rows the lower blocks only
 // become visible by moving to them.
 func TestOverviewScrollsToSelectedBlock(t *testing.T) {
 	b := NewBackend(fixtures.Alpha(), fixtures.Beta())
-	screen := RunSized(t, 100, 14, b, overviewOpts(), WaitFor("Health"), Type("jjjj"), WaitFor("▸ Exemptions"))
-	if !strings.Contains(screen, "▸ Exemptions") || strings.Contains(screen, "▸ Health") {
+	screen := RunSized(t, 100, 14, b, overviewOpts(), WaitFor("Health"), Type("jjj"), WaitFor("▸ Recent admission denials"))
+	if !strings.Contains(screen, "▸ Recent admission denials") || strings.Contains(screen, "▸ Health") {
 		t.Errorf("selected block must be on screen:\n%s", screen)
 	}
 	RequireGolden(t, screen)

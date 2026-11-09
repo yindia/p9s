@@ -93,7 +93,7 @@ p9s report --all-contexts --since yesterday.json --fail-on critical
 | Section | Contents |
 |---|---|
 | Summary | policies by enforcement, violation totals (the engines' own counts; policies without audit data counted separately), health grades |
-| Pod Security Standards | each baseline and restricted control as enforced, audit only or missing, from policy metadata only (Kyverno PSS policies with their category annotation; gatekeeper-library PSP templates). Caveats mark parameter-dependent templates and exclusions; nothing is guessed, the rest is "uncategorised" |
+| Pod Security Standards | each baseline and restricted control as enforced, audit only or missing, from policy metadata only (Kyverno PSS policies with their category annotation; gatekeeper-library PSP templates). Policy specs are not read: a policy maps to a control by its name, kind and category annotation, parameter-dependent templates carry a caveat, nothing is guessed, and the rest is "uncategorised" |
 | Violations | by severity (policy metadata), namespace and owner; capped Gatekeeper lists are flagged |
 | Health findings | fail-open webhooks and every other critical or warning check |
 | Unprotected kinds | served kinds no validating policy selects (approximate) |
@@ -111,8 +111,7 @@ reached is listed with its error and the others are still reported.
 | 1 | error, or a context failed |
 | 3 | written, and a finding is at or above `--fail-on critical\|warning` (printed without `Error:`; 2 is what Go uses for a crash) |
 
-Not included yet: the exemptions inventory, who can change policy, and
-unprotected namespaces. The report says so.
+Not included yet: who can change policy. The report says so.
 
 ## Config file
 

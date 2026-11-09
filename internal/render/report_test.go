@@ -37,7 +37,7 @@ func sample() views.ReportSet {
 		}},
 		Since: &views.ReportDiff{Previous: at.Add(-24 * time.Hour), Comparable: true,
 			NewViolations: []views.ReportViolation{{ID: "x"}}, EnforcementChanged: []views.ModeChange{{Policy: k, From: "audit", To: "enforce"}}},
-		Omitted: []string{"Exemptions inventory: not part of this release."},
+		Omitted: []string{"Who can change policy: arrives with the RBAC phase."},
 		Notices: []string{"kyverno: forbidden to list clusterpolicies.kyverno.io | data from it is missing"},
 	}
 	_ = r.Seal()

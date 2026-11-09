@@ -17,6 +17,3 @@ alpha   observe-images  AlphaRule   audit        -
 
 == Recent admission denials
 No active engine records admission events.
-
-== Exemptions
-Kyverno PolicyExceptions: :kyv/polex. A cross-engine inventory comes later.

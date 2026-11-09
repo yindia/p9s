@@ -95,15 +95,17 @@ func TestPSSDoesNotOverclaim(t *testing.T) {
 			t.Errorf("%s = %s: unready, namespaced and mutating policies cover nothing", k, by[k].Status)
 		}
 	}
+	// Policy specs are not read: K8sPSPAllowedUsers maps by kind, whatever its
+	// parameters or exclusions, and says its strictness is not checked.
 	nr := by["restricted/Running as Non-root"]
-	if nr.Status != query.CoverageEnforced || len(nr.Policies) != 1 || nr.Policies[0].Name != "non-root" ||
-		len(nr.Caveats) != 1 || nr.Caveats[0] != query.CaveatScoped {
-		t.Errorf("non-root = %+v: only MustRunAsNonRoot counts, and its exclusions are a caveat", nr)
+	if nr.Status != query.CoverageEnforced || len(nr.Policies) != 2 ||
+		len(nr.Caveats) != 1 || nr.Caveats[0] != query.CaveatParameters {
+		t.Errorf("non-root = %+v: mapped by kind, with the parameter caveat only", nr)
 	}
 	if c := by["baseline/Capabilities"]; c.Status != query.CoverageEnforced || len(c.Caveats) != 1 || c.Caveats[0] != query.CaveatParameters {
 		t.Errorf("capabilities = %+v: parameter-dependent", c)
 	}
-	if len(uncat) != 4 {
-		t.Errorf("uncategorised = %v", uncat)
+	if len(uncat) != 3 {
+		t.Errorf("uncategorised = %v: the unready, namespaced and mutating policies", uncat)
 	}
 }

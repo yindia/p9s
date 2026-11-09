@@ -7,7 +7,7 @@
 | Engines | kyverno v1.19.2 |
 | Generated | 2026-11-09T10:00:00Z |
 | p9s | v1.0.0 |
-| Body SHA-256 | `228edf97010a2c522e2f3412e400c981f29d1c1d7d26a812a1820e6110fa928e` |
+| Body SHA-256 | `cbbec8f753574522c52c532878e2835c4a5052a4481c9c042deb414c026e8058` |
 
 > **Notice:** kyverno: forbidden to list clusterpolicies.kyverno.io \| data from it is missing
 
@@ -71,4 +71,4 @@ Served, user-created kinds no active validating policy selects by kind. Approxim
 
 ## Not included
 
-- Exemptions inventory: not part of this release.
+- Who can change policy: arrives with the RBAC phase.

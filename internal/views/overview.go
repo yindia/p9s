@@ -50,7 +50,6 @@ const (
 	BlockViolators  = "violators"
 	BlockCandidates = "candidates"
 	BlockDenials    = "denials"
-	BlockExemptions = "exemptions"
 )
 
 // OverviewOf builds the overview for the current namespace scope.
@@ -63,8 +62,6 @@ func OverviewOf(env Env) Overview {
 		violatorsBlock(env, f, synced),
 		candidatesBlock(env, f, synced),
 		denialsBlock(env, f),
-		{ID: BlockExemptions, Title: "Exemptions",
-			Placeholder: "Kyverno PolicyExceptions: :kyv/polex. A cross-engine inventory comes later."},
 	}}
 }
 

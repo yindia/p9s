@@ -19,7 +19,6 @@ and what should I look at first" on one screen. `j`/`k` select a block,
 | Top violating owners | the owners (Deployments, CronJobs, …) with most affected objects | `:v` |
 | Enforcement candidates | policies in audit or warn mode, fewest violations first: those with none can enforce without blocking anything that exists today | `:pol /mode:audit,warn` |
 | Recent admission denials | the latest requests a policy blocked | `:events` |
-| Exemptions | where to find Kyverno PolicyExceptions (`:kyv/polex`); a cross-engine inventory arrives later | |
 
 The overview follows the `:ns` scope.
 

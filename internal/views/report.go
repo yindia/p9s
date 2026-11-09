@@ -169,9 +169,7 @@ func ReportOf(env Env, meta ReportMeta, apiResources func() ([]model.APIResource
 	r := Report{
 		Header: ReportHeader{Cluster: meta.Cluster, Context: env.ContextName(), GeneratedAt: meta.Generated.UTC(), P9sVersion: meta.P9sVersion},
 		Omitted: []string{
-			"Exemptions inventory: not part of this release.",
 			"Who can change policy: arrives with the RBAC phase.",
-			"Unprotected namespaces: needs the exemptions inventory.",
 		},
 		Notices: query.AccessNoticesDetailed(es),
 	}
