@@ -15,9 +15,9 @@ side by side, straight from your kubeconfig.
 
 [Install](#-install) · [Quick start](#-quick-start) · [Features](#-features) · [Docs](#-documentation) · [Contributing](#-contributing)
 
-[![p9s: a terminal UI for OPA Gatekeeper, Kyverno and ValidatingAdmissionPolicy. Click to watch the two-minute tour](docs/image/p9s-demo-poster.png)](docs/image/p9s-demo.mp4)
+https://github.com/user-attachments/assets/ae210c0c-c1b6-4dce-8591-bb18db81797b
 
-**[▶ Watch the 2-minute tour](docs/image/p9s-demo.mp4)**: a blocked deploy traced to its Gatekeeper policy, fix and impact, then every view, RBAC, snapshots and the CI gate.
+A blocked deploy traced to its Gatekeeper policy, fix and impact, then every view, RBAC, snapshots and the CI gate ([full quality](docs/image/p9s-demo.mp4)).
 Prefer the terminal recording? [Here it is](docs/image/demo.gif).
 
 </div>
