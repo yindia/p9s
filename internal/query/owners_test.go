@@ -23,11 +23,7 @@ var chains = query.StaticOwners{
 		// orphan-rs's ReplicaSet is not cached (RBAC or gone): stop there.
 		"Pod/a/orphan-x": ref("ReplicaSet", "a", "orphan"),
 	},
-	Objects: map[string]map[string]string{
-		"Deployment/a/web": {"team": "web"},
-		"CronJob/a/backup": {},
-	},
-	NSLabels: map[string]map[string]string{"a": {"team": "platform"}, "b": {}},
+	Known: map[string]bool{"Deployment/a/web": true, "CronJob/a/backup": true},
 }
 
 func TestResolveOwnerChains(t *testing.T) {
@@ -80,7 +76,7 @@ func fmtSscan(s string, r *model.ObjectRef) (int, error) {
 	return 3, nil
 }
 
-func TestGroupingByOwnerAndLabel(t *testing.T) {
+func TestGroupingByOwner(t *testing.T) {
 	pol := model.PolicyKey{Engine: "e", Kind: "K", Name: "p"}
 	other := model.PolicyKey{Engine: "e", Kind: "K", Name: "q"}
 	var vs []model.Violation
@@ -95,7 +91,7 @@ func TestGroupingByOwnerAndLabel(t *testing.T) {
 		vs[i].Owner = query.ResolveOwner(chains, vs[i].Target)
 	}
 
-	groups := query.GroupViolations(vs, chains, "")
+	groups := query.GroupViolations(vs)
 	if len(groups) != 4 || groups[0].Key != "Deployment/a/web" || groups[0].Objects != 2 || groups[0].Policy != pol {
 		t.Fatalf("first group = %+v (of %d)", groups[0], len(groups))
 	}
@@ -103,24 +99,8 @@ func TestGroupingByOwnerAndLabel(t *testing.T) {
 		t.Errorf("first message = %q", groups[0].FirstMessage())
 	}
 
-	byTeam := query.GroupViolations(vs, chains, "team")
-	got := map[string]int{}
-	for _, g := range byTeam {
-		got[g.Key+"|"+g.Policy.Name] = g.Objects
-	}
-	// web has its own label; db falls back to namespace a's; b has none.
-	want := map[string]int{"web|p": 2, "web|q": 1, "platform|p": 1, query.NoGroup + "|p": 1}
-	for k, n := range want {
-		if got[k] != n {
-			t.Errorf("label group %s = %d, want %d (all: %v)", k, got[k], n, got)
-		}
-	}
-
 	top := query.TopOwners(groups)
 	if top[0].Key != "Deployment/a/web" || top[0].Policies != 2 || top[0].Objects != 2 {
 		t.Errorf("top owner = %+v", top[0])
-	}
-	if query.GroupValue(chains, ref("Namespace", "", "a"), "team") != "platform" {
-		t.Error("a Namespace target groups by its own labels")
 	}
 }

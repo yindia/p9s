@@ -70,7 +70,7 @@ func runSnapshot(cmd *cobra.Command, f *flags, out string, timeout time.Duration
 	defer sess.Close()
 	// :ns lists namespaces with a one-off read the engines never make; make
 	// it here so the recorder keeps them (and their labels, which
-	// --group-label falls back to) for a replayed :ns.
+	// labels) for a replayed :ns.
 	nsCtx, nsCancel := context.WithTimeout(ctx, namespacesTimeout)
 	if _, err := sess.Namespaces(nsCtx); err != nil {
 		_, _ = fmt.Fprintf(log, "warning: namespaces not recorded (%v): :ns from this snapshot lists only namespaces with violations\n", err)

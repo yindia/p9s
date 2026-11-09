@@ -23,8 +23,8 @@ type getFlags struct {
 	namespace   string
 	filter      string
 	syncTimeout time.Duration
-	// flat and byLabel pick the :v layouts the TUI reaches with o and t.
-	flat, byLabel bool
+	// flat picks the :v layout the TUI reaches with o.
+	flat bool
 	// stderr gets notes about the filter (likely typos); results go to w.
 	stderr io.Writer
 }
@@ -41,7 +41,6 @@ Examples:
   p9s get pol
   p9s get v -n payments --filter 'engine:kyverno sev:high'
   p9s get v --flat                      # one row per violation (o in the TUI)
-  p9s get v --by-label --group-label team  # grouped by team (t in the TUI)
   p9s get impact require-team-label -o json
   p9s get health -o json`,
 		Args: cobra.MinimumNArgs(1),
@@ -55,7 +54,6 @@ Examples:
 	fl.StringVarP(&g.namespace, "namespace", "n", "", "scope to one namespace (as :ns in the TUI)")
 	fl.StringVar(&g.filter, "filter", "", "filter rows: free text, or engine: mode: ns: kind: sev: name: terms")
 	fl.BoolVar(&g.flat, "flat", false, "v: one row per violation instead of grouped by owner")
-	fl.BoolVar(&g.byLabel, "by-label", false, "v: group by the --group-label value instead of the owner")
 	fl.DurationVar(&g.syncTimeout, "sync-timeout", 0, "how long to wait for caches; 0 uses the config file's syncTimeout, else 60s")
 	return cmd
 }
@@ -93,7 +91,7 @@ func runGet(cmd *cobra.Command, f *flags, g *getFlags, args []string, w io.Write
 		return err
 	}
 	defer sess.Close()
-	env := headlessEnv(sess, g.namespace, st.groupLabel)
+	env := headlessEnv(sess, g.namespace)
 	if snap != nil {
 		at := snap.TakenAt // ages as of the snapshot
 		env.Now = func() time.Time { return at }
@@ -110,8 +108,8 @@ func printView(w io.Writer, env views.Env, sorts views.Sorts, name, rest string,
 	if (c == views.CmdOverview || c == views.CmdHealth) && strings.TrimSpace(rest) != "" {
 		return fmt.Errorf("%s takes no arguments (the dashboard is cluster-wide; -n scopes the overview)", c)
 	}
-	if (g.flat || g.byLabel) && c != views.CmdViolations {
-		return fmt.Errorf("--flat and --by-label apply to v")
+	if g.flat && c != views.CmdViolations {
+		return fmt.Errorf("--flat applies to v")
 	}
 	switch c {
 	case views.CmdOverview:
@@ -133,16 +131,8 @@ func printView(w io.Writer, env views.Env, sorts views.Sorts, name, rest string,
 	if so, ignored := sorts.Ignored(spec); ignored && g.stderr != nil {
 		fmt.Fprintf(g.stderr, "note: config sort.%s: %s has no %s column; using the view's default sort\n", spec.Command(), spec.View.Title, so.Role)
 	}
-	switch {
-	case g.flat && g.byLabel:
-		return fmt.Errorf("--flat and --by-label: pick one")
-	case g.flat:
+	if g.flat {
 		spec = views.ViolationsSpec(env, views.Flat)
-	case g.byLabel:
-		if env.GroupLabel == nil || env.GroupLabel() == "" {
-			return fmt.Errorf("--by-label needs --group-label (or groupLabel in the config file)")
-		}
-		spec = views.ViolationsSpec(env, views.GroupByLabel)
 	}
 	tbl := table.Build(sorts.WithSort(spec).Source, f, env.Now())
 	if g.filter != "" {
@@ -174,7 +164,7 @@ func printView(w io.Writer, env views.Env, sorts views.Sorts, name, rest string,
 }
 
 // headlessEnv is views.Env for a session without a UI.
-func headlessEnv(s *session.Session, namespace, groupLabel string) views.Env {
+func headlessEnv(s *session.Session, namespace string) views.Env {
 	return views.Env{
 		Engines: s.Engines, Detections: s.Detections, ContextName: s.ContextName, Contexts: s.Contexts,
 		ConnErr: func() error { return nil },
@@ -186,6 +176,5 @@ func headlessEnv(s *session.Session, namespace, groupLabel string) views.Env {
 		Scope:  func() string { return namespace },
 		Now:    time.Now,
 		Owners: s.Owners, Platform: s.Platform, Events: s.Events, UpdatedAt: s.UpdatedAt,
-		GroupLabel: func() string { return groupLabel },
 	}
 }

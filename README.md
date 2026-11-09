@@ -30,7 +30,7 @@ p9s answers the questions a platform or security team asks every day:
   expiring certificates, crash-looping controllers, stale audits, policies
   that never loaded.
 - 👥 **What is violating what, and whose is it?** Violations grouped by the
-  Deployment or CronJob that owns them, or by team label.
+  Deployment or CronJob that owns them.
 - 💥 **What would break if this policy enforced?** The objects a policy would
   reject today, by namespace and owner.
 - 🚫 **What was just blocked?** Recent admission denials, with the user who
@@ -56,7 +56,7 @@ And it stays out of the way:
 | | |
 |---|---|
 | 🩺 **Health dashboard** | Webhooks (failure policy, ready endpoints, certificate expiry), controllers, audit freshness and policies that never loaded, worst first. |
-| 👥 **Violations by owner** | A Deployment with 30 violating Pods is one row; group by the owners' `team` label instead with `--group-label team`. |
+| 👥 **Violations by owner** | A Deployment with 30 violating Pods is one row; `o` (or `get v --flat`) lists every violation. |
 | 🛠️ **How to fix** | A violation's detail carries the policy's own remediation text from Kyverno and gatekeeper-library metadata. |
 | 💥 **Enforcement impact** | What moving a policy from audit to enforce would reject today, by namespace and owner. |
 | 🚫 **Recent denials** | What was blocked or flagged at admission, from the engines' Events, with the requesting user where the engine records it. |
@@ -122,7 +122,7 @@ every [release](https://github.com/yindia/p9s/releases), with
 ```sh
 p9s                          # current context, every engine it finds
 p9s --context prod           # another kubeconfig context
-p9s --group-label team       # group violations by the owners' team label
+p9s -c v                     # open on violations, grouped by owner
 ```
 
 Your first five minutes:

@@ -12,7 +12,6 @@ import (
 )
 
 const sample = `startView: v
-groupLabel: team
 engines: kyverno
 syncTimeout: 90s
 sort:
@@ -31,11 +30,11 @@ func TestParseAndContextOverrides(t *testing.T) {
 		t.Fatal(err)
 	}
 	dev := f.For("dev")
-	if dev.StartView != "v" || dev.GroupLabel != "team" || dev.Engines != "kyverno" || time.Duration(dev.SyncTimeout) != 90*time.Second {
+	if dev.StartView != "v" || dev.Engines != "kyverno" || time.Duration(dev.SyncTimeout) != 90*time.Second {
 		t.Errorf("top level = %+v", dev)
 	}
 	prod := f.For("prod")
-	if prod.StartView != "health" || prod.GroupLabel != "team" || prod.Sort["v"] != "age" || prod.Sort["pol"] != "name" {
+	if prod.StartView != "health" || prod.Sort["v"] != "age" || prod.Sort["pol"] != "name" {
 		t.Errorf("prod = %+v: overrides on top, the rest inherited", prod)
 	}
 	if f.Sort["v"] != "violations desc" {
@@ -47,6 +46,9 @@ func TestUnknownKeysAndBadValuesAreErrors(t *testing.T) {
 	tests := []struct{ in, want string }{
 		{"startview: v\n", "line 1: field startview not found"},
 		{"contexts:\n  prod:\n    grouplabel: x\n", "line 3: field grouplabel not found"},
+		// Grouping by a label was removed: say so instead of ignoring it.
+		{"groupLabel: team\n", "groupLabel: grouping by a label was removed"},
+		{"contexts:\n  prod:\n    groupLabel: team\n", "contexts.prod.groupLabel: grouping by a label was removed"},
 		{"syncTimeout: soon\n", `syncTimeout "soon"`},
 		{"sort:\n  v: owners\n", `unknown column "owners"`},
 		{"sort:\n  v: name sideways\n", "direction must be asc or desc"},

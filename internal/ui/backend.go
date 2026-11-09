@@ -59,9 +59,6 @@ type Options struct {
 	// TickInterval controls how often ages re-render and flashes expire.
 	// Zero means 1s; negative disables.
 	TickInterval time.Duration
-	// GroupLabel groups violations by this label on their owner (falling
-	// back to the namespace's label); "" groups by owner only.
-	GroupLabel string
 	// Copy puts text on the clipboard. Defaults to OSC 52 on the terminal,
 	// which works over SSH.
 	Copy func(string) error

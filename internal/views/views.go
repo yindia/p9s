@@ -64,8 +64,6 @@ type Env struct {
 	// Owners resolves violation owners; nil or returning nil disables
 	// grouping by owner (targets stand for themselves).
 	Owners func() Owners
-	// GroupLabel is the --group-label key ("" when unset).
-	GroupLabel func() string
 	// Platform feeds the health dashboard; nil disables it.
 	Platform func() Platform
 	// Events feeds the recent tab of :v; nil disables it.
@@ -101,13 +99,6 @@ func (e Env) lookup() query.OwnerLookup {
 		return o
 	}
 	return nil
-}
-
-func (e Env) groupLabel() string {
-	if e.GroupLabel == nil {
-		return ""
-	}
-	return e.GroupLabel()
 }
 
 // eventsSynced is true when the events watcher is synced or absent.
@@ -438,9 +429,6 @@ func FilterLabel(f engine.Filter) string {
 		}
 	}
 	scope := f.Owner
-	if f.Group != "" {
-		scope = f.Group
-	}
 	if len(parts) == 0 && scope == "" {
 		return ""
 	}

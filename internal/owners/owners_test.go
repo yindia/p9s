@@ -44,11 +44,8 @@ func TestResolverWalksPodToDeployment(t *testing.T) {
 	if got.Kind != "Deployment" || got.Name != "web" || got.Group != "apps" || got.Version != "v1" || got.Namespace != "a" {
 		t.Errorf("owner = %+v", got)
 	}
-	if ls, ok := res.Labels(got); !ok || ls["team"] != "web" {
-		t.Errorf("deployment labels = %v %v", ls, ok)
-	}
-	if ls, ok := res.NamespaceLabels("a"); !ok || ls["team"] != "platform" {
-		t.Errorf("namespace labels = %v %v", ls, ok)
+	if !res.Cached(got) || !res.Cached(model.ObjectRef{Kind: "Namespace", Name: "a"}) {
+		t.Error("the deployment and its namespace are cached")
 	}
 	if _, ok := res.Controller(model.ObjectRef{Kind: "Secret", Namespace: "a", Name: "x"}); ok {
 		t.Error("unwatched kinds are not resolvable")
@@ -101,17 +98,17 @@ func TestOwnerEdgeCases(t *testing.T) {
 	if legacy.Group != "apps" || legacy.Kind != "Deployment" || legacy.Name != "web" {
 		t.Errorf("legacy extensions owner = %+v; want the apps Deployment", legacy)
 	}
-	if ls, ok := res.Labels(legacy); !ok || ls["team"] != "core" {
-		t.Errorf("canonicalised owner must find the Deployment's labels: %v %v", ls, ok)
+	if !res.Cached(legacy) {
+		t.Error("the canonicalised owner must be found in the cache")
 	}
-	if _, ok := res.Labels(model.ObjectRef{Group: "foo.io", Kind: "Deployment", Namespace: "a", Name: "web"}); ok {
+	if res.Cached(model.ObjectRef{Group: "foo.io", Kind: "Deployment", Namespace: "a", Name: "web"}) {
 		t.Error("a CRD kind named Deployment in another group must not match the core Deployment")
 	}
 	node := query.ResolveOwner(res, model.ObjectRef{Version: "v1", Kind: "Pod", Namespace: "kube-system", Name: "etcd-n1"})
 	if node.Kind != "Node" || node.Namespace != "" {
 		t.Errorf("cluster-scoped owner = %+v; want Node without a namespace", node)
 	}
-	if ls, ok := res.Labels(model.ObjectRef{Kind: "Namespace", Namespace: "a", Name: "a"}); !ok || ls["team"] != "ns" {
+	if !res.Cached(model.ObjectRef{Kind: "Namespace", Namespace: "a", Name: "a"}) {
 		t.Error("a Namespace target carrying its own name as namespace must still resolve")
 	}
 }

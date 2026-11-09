@@ -58,7 +58,6 @@ type flags struct {
 	engines    string
 	command    string
 	logFile    string
-	groupLabel string
 	configPath string
 	snapshot   string
 }
@@ -84,7 +83,6 @@ func newRootCommand(f *flags) *cobra.Command {
 	pf.StringVar(&f.context, "context", "", "kubeconfig context to use (default: current-context)")
 	pf.StringVar(&f.engines, "engine", "auto", "engines to load: auto, or a comma-separated list ("+joinNames()+")")
 	pf.StringVar(&f.logFile, "log-file", "", "write client-go logs to this file (default: discarded)")
-	pf.StringVar(&f.groupLabel, "group-label", "", "group violations by this label on their owner (falling back to the namespace label), e.g. team")
 	pf.StringVar(&f.configPath, "config", "", "config file (default: "+config.DefaultPath()+")")
 	pf.StringVar(&f.snapshot, "snapshot", "", "read a file written by p9s snapshot instead of a cluster")
 	fl := cmd.Flags()
@@ -131,7 +129,7 @@ func run(cmd *cobra.Command, f *flags) error {
 	}
 	defer sess.Close()
 
-	uo := ui.Options{InitialCommand: st.command, GroupLabel: st.groupLabel, Sorts: st.sorts,
+	uo := ui.Options{InitialCommand: st.command, Sorts: st.sorts,
 		NoHighlight: os.Getenv("NO_COLOR") != ""}
 	if snap != nil {
 		at := snap.TakenAt

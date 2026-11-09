@@ -1,5 +1,5 @@
 // Package config loads ~/.config/p9s/config.yaml: defaults for the start
-// view, grouping, engines, per-view sort and sync timeout, with per-context
+// view, engines, per-view sort and sync timeout, with per-context
 // overrides. Flags override the file; the file overrides built-in defaults.
 package config
 
@@ -21,7 +21,10 @@ import (
 // Settings are the values a file (or one context of it) may set. Empty
 // fields are unset.
 type Settings struct {
-	StartView   string            `yaml:"startView"`
+	StartView string `yaml:"startView"`
+	// GroupLabel is read only to reject it: grouping by a team label was
+	// removed, and a config that still sets it should say so, not silently
+	// group by owner.
 	GroupLabel  string            `yaml:"groupLabel"`
 	Engines     string            `yaml:"engines"`
 	SyncTimeout Duration          `yaml:"syncTimeout"`
@@ -102,6 +105,9 @@ func (s Settings) validate(ctx string) error {
 	if ctx != "" {
 		where = "contexts." + ctx + "."
 	}
+	if s.GroupLabel != "" {
+		return fmt.Errorf("%sgroupLabel: grouping by a label was removed; violations are grouped by owner (delete the key)", where)
+	}
 	for view, spec := range s.Sort {
 		if _, err := ParseSort(spec); err != nil {
 			return fmt.Errorf("%ssort.%s: %w", where, view, err)
@@ -120,9 +126,6 @@ func (f File) For(context string) Settings {
 	}
 	if o.StartView != "" {
 		out.StartView = o.StartView
-	}
-	if o.GroupLabel != "" {
-		out.GroupLabel = o.GroupLabel
 	}
 	if o.Engines != "" {
 		out.Engines = o.Engines

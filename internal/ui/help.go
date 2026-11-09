@@ -30,7 +30,6 @@ var keysHelp = [][2]string{
 	{"C", "copy a kubectl get command for it"},
 	{"N V A S", "sort by name, count, age, severity (again to reverse)"},
 	{"o", ":v grouped by owner ↔ flat list"},
-	{"t", ":v grouped by owner ↔ by --group-label"},
 	{"[ ]", ":v current tab (audit results) ↔ recent tab (admission events)"},
 	{"i", "enforcement impact of the policy on this row"},
 }

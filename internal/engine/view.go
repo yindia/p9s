@@ -218,11 +218,9 @@ type Filter struct {
 	// selection). It applies to violation targets and namespaced policies;
 	// cluster-scoped policies always pass it.
 	Namespace string
-	// Owner and Group select one violation group in the shared views (a
-	// top-level owner's ref string, or a group-label value). Engines ignore
-	// them.
+	// Owner selects one violation group in the shared views (a top-level
+	// owner's ref string). Engines ignore it.
 	Owner string
-	Group string
 	// Text is applied as the "/" filter.
 	Text string
 }

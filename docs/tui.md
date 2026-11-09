@@ -16,7 +16,7 @@ and what should I look at first" on one screen. `j`/`k` select a block,
 | Block | Shows | `enter` opens |
 |---|---|---|
 | Health | critical / warning / ok counts and the worst checks | `:health` |
-| Top violating owners | the owners (Deployments, CronJobs, …, or `--group-label` values) with most affected objects | `:v` |
+| Top violating owners | the owners (Deployments, CronJobs, …) with most affected objects | `:v` |
 | Enforcement candidates | policies in audit or warn mode, fewest violations first: those with none can enforce without blocking anything that exists today | `:pol /mode:audit,warn` |
 | Recent admission denials | the latest requests a policy blocked | `:events` |
 | Exemptions | where to find Kyverno PolicyExceptions (`:kyv/polex`); a cross-engine inventory arrives later | |
@@ -25,7 +25,7 @@ The overview follows the `:ns` scope.
 
 ![p9s tour: overview, policies, violations, engine views and the health dashboard](image/tour.gif)
 
-## Violations by owner and team
+## Violations by owner
 
 `:v` and a policy's drill-down group violations by the target's
 **top-level owner**, so a Deployment with 30 violating Pods is one row with
@@ -41,13 +41,11 @@ The overview follows the `:ns` scope.
   The original target is kept.
 - `enter` expands a group, `g` goes to the owner, `o` switches to the flat
   list (one row per violation).
-- With `--group-label team`, `t` groups by the owner's `team` label,
-  falling back to the namespace's, then `(none)`.
 - Ownership uses metadata-only informers (about 3 MiB on the e2e cluster).
   If RBAC hides some kinds, violations group under the deepest owner p9s
   can see and a notice names the missing kinds.
 
-![violations grouped by owner, a group expanded, the flat list, then grouped by team](image/owners.gif)
+![violations grouped by owner, a group expanded, then the flat list](image/owners.gif)
 
 ## Violation detail and how to fix
 
@@ -163,7 +161,7 @@ one line.
 | `c` / `C` | copy `kind/namespace/name`, or a `kubectl get … -o yaml` command (OSC 52, works over SSH) |
 | `i` | enforcement impact of the row's policy |
 | `N` `V` `A` `S` | sort by name, count (violations on `:pol` and `:v`, the view's own count elsewhere), age, severity; again to reverse |
-| `o` / `t` | `:v`: owner groups ↔ flat list / ↔ `--group-label` groups |
+| `o` | `:v`: owner groups ↔ flat list |
 | `[` `]` | `:v`: audit results ↔ recent admission events |
 | `G` | `:vap/pol`: show or hide generated policies (there `end` jumps to the last row) |
 | `0` | clear the namespace scope |

@@ -24,15 +24,13 @@ import (
 func twoEngines() *Backend {
 	b := NewBackend(fixtures.Alpha(), fixtures.Beta())
 	b.NsNames = []string{"default", "payments", "search"}
-	// api-0 belongs to StatefulSet api; namespaces carry team labels.
+	// api-0 belongs to StatefulSet api.
 	b.Ownership = &StaticOwners{StaticOwners: query.StaticOwners{
 		Parents: map[string]model.ObjectRef{
 			"Pod/payments/api-0": {Group: "apps", Version: "v1", Kind: "StatefulSet", Namespace: "payments", Name: "api"},
 		},
-		Objects: map[string]map[string]string{"StatefulSet/payments/api": {"team": "checkout"}},
-		NSLabels: map[string]map[string]string{
-			"payments": {"team": "payments"}, "search": {"team": "discovery"},
-		},
+		// The namespaces are cached: a Namespace target is known to be bare.
+		Known: map[string]bool{"Namespace/payments": true, "Namespace/search": true},
 	}}
 	b.Objects["Pod/payments/api-0"] = &unstructured.Unstructured{Object: map[string]any{
 		"apiVersion": "v1", "kind": "Pod",
@@ -366,22 +364,8 @@ func TestOverviewRejectsArguments(t *testing.T) {
 	}
 }
 
-func labelOpts() ui.Options {
-	o := Options(fixtures.Now)
-	o.GroupLabel = "team"
-	return o
-}
-
-func TestViolationsGroupedByLabel(t *testing.T) {
-	RequireGolden(t, Run(t, twoEngines(), labelOpts(), Type(":v\nt"), WaitFor("grouped by team")))
-}
-
 func TestViolationsFlatToggle(t *testing.T) {
 	golden(t, twoEngines(), Type(":v\no"), WaitFor("flat list"))
-}
-
-func TestGroupLabelRequiresFlag(t *testing.T) {
-	golden(t, twoEngines(), Type(":v\nt"), WaitFor("no group label"))
 }
 
 func TestGroupExpandsToItsViolations(t *testing.T) {

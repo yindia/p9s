@@ -18,7 +18,6 @@ p9s get v -n payments --filter 'engine:kyverno sev:high'
 p9s get impact require-team-label -o json
 p9s get health -o json
 p9s get v --flat                          # one row per violation (o in the TUI)
-p9s --group-label team get v --by-label   # grouped by team (t in the TUI)
 p9s --context prod get gk/c
 ```
 
@@ -27,8 +26,8 @@ p9s --context prod get gk/c
 - `-o table` prints aligned text without truncation (it pipes into `grep`
   and `awk`); `-o json` prints the versioned `p9s/v1` table.
 - `-n` is the namespace scope, `--filter` the `/` terms, `--sync-timeout`
-  how long to wait for caches. `--flat` and `--by-label` pick the `:v`
-  layouts the TUI reaches with `o` and `t`.
+  how long to wait for caches. `--flat` prints one row per violation (`o`
+  in the TUI) instead of owner groups.
 - A filter that cannot match (a `sev:` on a view without a severity
   column, a mistyped `mode:` or `sev:` value) is an error, so a typo never
   reads as "no violations" in CI. An unknown `key:` is matched as free
@@ -123,7 +122,6 @@ context's section wins over the top level.
 
 ```yaml
 startView: v            # like -c
-groupLabel: team        # like --group-label
 engines: auto           # like --engine
 syncTimeout: 90s        # get, snapshot, report
 sort:                   # per view: name | violations | age | severity [asc|desc]
@@ -144,7 +142,6 @@ Unknown keys and bad values are errors that name the key and line.
 | `--context` | current context | context to open (`report`: a comma-separated list) |
 | `--engine` | `auto` | engines to load: `auto`, or a list of `gatekeeper,kyverno,vap` |
 | `-c, --command` | `overview` | the first view |
-| `--group-label` | | group violations by this label on their owner |
 | `--snapshot <file>` | | read a snapshot instead of a cluster |
 | `--config <file>` | `~/.config/p9s/config.yaml` | config file |
 | `--log-file <file>` | discarded | client-go logs |

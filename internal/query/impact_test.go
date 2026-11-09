@@ -37,7 +37,7 @@ func impactEngine(t *testing.T, mode model.EnforcementMode, total int, known boo
 
 func TestImpactGroupsByNamespaceThenOwner(t *testing.T) {
 	lookup := chains
-	lookup.Objects = map[string]map[string]string{"Pod/b/bare": {}}
+	lookup.Known = map[string]bool{"Pod/b/bare": true}
 	es := impactEngine(t, model.ModeAudit, 5, true,
 		violation(ref("Pod", "a", "web-1-x"), false),
 		violation(ref("Pod", "a", "web-1-y"), false),

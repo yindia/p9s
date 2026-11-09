@@ -192,7 +192,7 @@ func reportFor(cmd *cobra.Command, f *flags, rf *reportFlags, name string) (view
 		return views.Report{}, err
 	}
 	defer sess.Close()
-	env := headlessEnv(sess, "", "")
+	env := headlessEnv(sess, "")
 	meta := views.ReportMeta{P9sVersion: Version, Generated: time.Now(), Cluster: clusterOf(sess)}
 	if snap != nil {
 		at := snap.TakenAt

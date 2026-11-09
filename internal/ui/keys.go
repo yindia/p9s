@@ -85,7 +85,7 @@ func (a *App) onHealthKey(h *healthScreen, k tea.KeyMsg) tea.Cmd {
 	case "shift+tab":
 		h.switchPanel(-1)
 		return nil
-	case "N", "V", "A", "S", "o", "t", "[", "]":
+	case "N", "V", "A", "S", "o", "[", "]":
 		return nil // panels have a fixed order: worst first
 	}
 	if p := h.panel(); p != nil {
@@ -220,8 +220,8 @@ func (a *App) onTableKey(t *tableScreen, k tea.KeyMsg) tea.Cmd {
 		return a.copyTarget(t, k.String() == "C")
 	case "N", "V", "A", "S":
 		a.sortBy(t, sortKeys[k.String()])
-	case "o", "t":
-		a.toggleGrouping(t, k.String())
+	case "o":
+		a.toggleGrouping(t)
 	case "[", "]":
 		a.switchViolationsTab(t, k.String() == "]")
 	case "i":
@@ -271,14 +271,14 @@ func (a *App) switchViolationsTab(t *tableScreen, recent bool) {
 		t.spec = a.opts.Sorts.WithSort(views.ViolationsSpec(a.env, t.vGrouping))
 		a.setFlash("current: audit results", false)
 	}
-	t.filter.Owner, t.filter.Group = "", ""
+	t.filter.Owner = ""
 	t.userSort = nil
 	t.refresh()
 }
 
-// toggleGrouping switches :v between grouped and flat (o), and between
-// owner and --group-label grouping (t). The policy filter is kept.
-func (a *App) toggleGrouping(t *tableScreen, key string) {
+// toggleGrouping switches :v between grouped by owner and flat (o). The
+// policy filter is kept.
+func (a *App) toggleGrouping(t *tableScreen) {
 	if views.IsRecent(t.spec) {
 		a.setFlash("grouping applies to the current tab of :v", true)
 		return
@@ -287,37 +287,15 @@ func (a *App) toggleGrouping(t *tableScreen, key string) {
 		a.setFlash("grouping applies to :v", true)
 		return
 	}
-	cur := views.GroupingOf(t.spec)
-	var next views.Grouping
-	switch {
-	case key == "o" && cur == views.Flat:
-		next = views.GroupByOwner
-	case key == "o":
-		next = views.Flat
-	case a.opts.GroupLabel == "":
-		a.setFlash("no group label: start p9s with --group-label <label>", true)
-		return
-	case cur == views.GroupByLabel:
-		next = views.GroupByOwner
-	default:
-		next = views.GroupByLabel
+	next, name := views.Flat, "flat list"
+	if views.GroupingOf(t.spec) == views.Flat {
+		next, name = views.GroupByOwner, "grouped by owner"
 	}
 	t.spec = a.opts.Sorts.WithSort(views.ViolationsSpec(a.env, next))
-	t.filter.Owner, t.filter.Group = "", "" // a group expansion does not survive a regroup
+	t.filter.Owner = "" // a group expansion does not survive a regroup
 	t.userSort = nil
 	t.refresh()
-	a.setFlash(groupingName(next, a.opts.GroupLabel), false)
-}
-
-func groupingName(g views.Grouping, label string) string {
-	switch g {
-	case views.Flat:
-		return "flat list"
-	case views.GroupByLabel:
-		return "grouped by " + label
-	default:
-		return "grouped by owner"
-	}
+	a.setFlash(name, false)
 }
 
 // sortKeys maps shift+letter to the column role it sorts by, with the

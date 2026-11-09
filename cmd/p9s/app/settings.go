@@ -18,7 +18,6 @@ import (
 // config file (with the context's overrides), else built-in defaults.
 type settings struct {
 	command     string
-	groupLabel  string
 	engines     string
 	syncTimeout time.Duration
 	sorts       views.Sorts
@@ -49,7 +48,7 @@ func resolveSettings(cmd *cobra.Command, f *flags) (settings, error) {
 		}
 	}
 	fs := file.For(ctx)
-	st := settings{command: f.command, groupLabel: f.groupLabel, engines: f.engines, syncTimeout: session.DefaultSyncTimeout}
+	st := settings{command: f.command, engines: f.engines, syncTimeout: session.DefaultSyncTimeout}
 	changed := func(name string) bool {
 		fl := cmd.Flags().Lookup(name)
 		return fl != nil && fl.Changed
@@ -59,9 +58,6 @@ func resolveSettings(cmd *cobra.Command, f *flags) (settings, error) {
 			return settings{}, fmt.Errorf("config %s: startView: %w", path, err)
 		}
 		st.command = fs.StartView
-	}
-	if !changed("group-label") && fs.GroupLabel != "" {
-		st.groupLabel = fs.GroupLabel
 	}
 	if !changed("engine") && fs.Engines != "" {
 		st.engines = fs.Engines

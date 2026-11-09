@@ -485,19 +485,6 @@ func TestReplicasCollapseIntoOneGroup(t *testing.T) {
 		}
 	}
 
-	// --group-label team: the Deployment's own label wins over the namespace's.
-	env.GroupLabel = func() string { return "team" }
-	byTeam := table.Build(views.ViolationsSpec(env, views.GroupByLabel).Source, engine.Filter{Namespace: "p9s-demo"}, time.Now())
-	found := false
-	for _, r := range byTeam.Rows {
-		found = found || r.Cells[1].Text == "payments"
-		if r.Cells[1].Text == "platform" {
-			t.Errorf("pods of a team=payments Deployment grouped under the namespace's team: %v", r.ID)
-		}
-	}
-	if !found {
-		t.Error("no team=payments group in p9s-demo")
-	}
 }
 
 // TestOwnerInformerMemory reports the cost of the metadata-only informers.

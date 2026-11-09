@@ -213,13 +213,11 @@ func managed(l OwnerLookup, target, owner model.ObjectRef) Managed {
 	if l == nil {
 		return ManagedUnknown
 	}
-	if _, cached := l.Labels(target); cached {
+	if l.Cached(target) {
 		return ManagedBare // cached with no controller reference
 	}
-	if target.Kind == "Namespace" && target.Group == "" {
-		if _, ok := l.NamespaceLabels(target.Name); ok {
-			return ManagedBare
-		}
+	if target.Kind == "Namespace" && target.Group == "" && l.Cached(model.ObjectRef{Kind: "Namespace", Name: target.Name}) {
+		return ManagedBare
 	}
 	return ManagedUnknown
 }

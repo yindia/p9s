@@ -98,7 +98,6 @@ func New(b Backend, opts Options) *App {
 		Platform:   b.Platform,
 		Events:     b.Events,
 		UpdatedAt:  b.UpdatedAt,
-		GroupLabel: func() string { return a.opts.GroupLabel },
 	}
 	return a
 }

@@ -73,7 +73,7 @@ func truncatedBackend() *Backend {
 	b.Ownership.Parents = map[string]model.ObjectRef{
 		"Pod/payments/api-0": {Group: "apps", Version: "v1", Kind: "StatefulSet", Namespace: "payments", Name: "api"},
 	}
-	b.Ownership.Objects = map[string]map[string]string{"Pod/payments/bare": {}}
+	b.Ownership.Known = map[string]bool{"Pod/payments/bare": true}
 	return b
 }
 

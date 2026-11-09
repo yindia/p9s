@@ -127,20 +127,20 @@ func TestGetUnknownView(t *testing.T) {
 func TestFlagsOverrideConfigFile(t *testing.T) {
 	dir := t.TempDir()
 	cfg := filepath.Join(dir, "config.yaml")
-	_ = os.WriteFile(cfg, []byte("startView: v\ngroupLabel: team\nengines: kyverno\nsyncTimeout: 5s\nsort:\n  v: severity\n"), 0o600)
+	_ = os.WriteFile(cfg, []byte("startView: pol\nengines: kyverno\nsyncTimeout: 5s\nsort:\n  v: severity\n"), 0o600)
 	kc := filepath.Join(dir, "kubeconfig")
 	_ = os.WriteFile(kc, []byte("apiVersion: v1\nkind: Config\ncurrent-context: \"\"\n"), 0o600)
 	f := &flags{}
 	cmd := newRootCommand(f)
-	if err := cmd.ParseFlags([]string{"--config", cfg, "--kubeconfig", kc, "--group-label", "owner"}); err != nil {
+	if err := cmd.ParseFlags([]string{"--config", cfg, "--kubeconfig", kc, "-c", "v"}); err != nil {
 		t.Fatal(err)
 	}
 	st, err := resolveSettings(cmd, f)
 	if err != nil {
 		t.Fatal(err)
 	}
-	if st.command != "v" || st.groupLabel != "owner" || st.engines != "kyverno" || st.syncTimeout != 5*time.Second {
-		t.Errorf("settings = %+v: file fills unset flags, --group-label wins", st)
+	if st.command != "v" || st.engines != "kyverno" || st.syncTimeout != 5*time.Second {
+		t.Errorf("settings = %+v: file fills unset flags, -c wins over startView", st)
 	}
 	if s, ok := st.sorts["v"]; !ok || s.Role != engine.RoleSeverity {
 		t.Errorf("sorts = %+v", st.sorts)
@@ -398,28 +398,12 @@ func TestGetFilterTypoIsAnError(t *testing.T) {
 
 func TestGetViolationLayouts(t *testing.T) {
 	env := fixtureEnv(t, "")
-	env.GroupLabel = func() string { return "team" }
 	var b bytes.Buffer
 	if err := printView(&b, env, nil, "v", "", &getFlags{output: "table", flat: true}); err != nil || !strings.Contains(b.String(), "TARGET") {
 		t.Errorf("--flat: %v\n%s", err, b.String())
 	}
-	b.Reset()
-	if err := printView(&b, env, nil, "v", "", &getFlags{output: "table", byLabel: true}); err != nil || !strings.Contains(b.String(), "TEAM") {
-		t.Errorf("--by-label: %v\n%s", err, b.String())
-	}
-	for _, tc := range []struct {
-		env        views.Env
-		view, want string
-		g          getFlags
-	}{
-		{env, "v", "pick one", getFlags{flat: true, byLabel: true}},
-		{env, "pol", "apply to v", getFlags{flat: true}},
-		{fixtureEnv(t, ""), "v", "needs --group-label", getFlags{byLabel: true}},
-	} {
-		tc.g.output = "table"
-		if err := printView(&b, tc.env, nil, tc.view, "", &tc.g); err == nil || !strings.Contains(err.Error(), tc.want) {
-			t.Errorf("%s %+v: err = %v, want %q", tc.view, tc.g, err, tc.want)
-		}
+	if err := printView(&b, env, nil, "pol", "", &getFlags{output: "table", flat: true}); err == nil || !strings.Contains(err.Error(), "applies to v") {
+		t.Errorf("--flat on pol: %v", err)
 	}
 	if err := printView(&b, env, nil, "health", "gatekeeper", &getFlags{output: "table"}); err == nil || !strings.Contains(err.Error(), "takes no arguments") {
 		t.Errorf("health with an argument: %v", err)

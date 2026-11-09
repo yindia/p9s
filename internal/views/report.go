@@ -165,7 +165,7 @@ type ReportMeta struct {
 func ReportOf(env Env, meta ReportMeta, apiResources func() ([]model.APIResource, error)) Report {
 	es := env.Engines()
 	ps, perr := query.Collect(query.Capable(es, engine.Filter{}, query.HasPolicies), engine.Engine.Policies)
-	vs, verr := query.ViolationsWithOwners(es, engine.Filter{}, env.lookup(), "")
+	vs, verr := query.ViolationsWithOwners(es, engine.Filter{}, env.lookup())
 	r := Report{
 		Header: ReportHeader{Cluster: meta.Cluster, Context: env.ContextName(), GeneratedAt: meta.Generated.UTC(), P9sVersion: meta.P9sVersion},
 		Omitted: []string{
@@ -194,7 +194,7 @@ func ReportOf(env Env, meta ReportMeta, apiResources func() ([]model.APIResource
 	r.Summary.Health = d.Overall
 	r.Findings = findingsOf(d)
 	r.PSS.Controls, r.PSS.Uncategorised = query.PSSCoverage(ps)
-	r.Violations = breakdowns(ps, vs, env.lookup())
+	r.Violations = breakdowns(ps, vs)
 	r.Unprotected = unprotectedOf(ps, apiResources)
 	for _, p := range ps {
 		r.Policies = append(r.Policies, ReportPolicy{Key: p.Key(), Mode: string(p.Enforcement.Mode)})
@@ -244,7 +244,7 @@ func findingsOf(d Dashboard) []Finding {
 	return out
 }
 
-func breakdowns(ps []model.Policy, vs []model.Violation, l query.OwnerLookup) ReportViolations {
+func breakdowns(ps []model.Policy, vs []model.Violation) ReportViolations {
 	sev := map[model.PolicyKey]string{}
 	for _, p := range ps {
 		sev[p.Key()] = p.Severity
@@ -266,7 +266,7 @@ func breakdowns(ps []model.Policy, vs []model.Violation, l query.OwnerLookup) Re
 	}
 	out.BySeverity = counts(bySev)
 	out.ByNamespace = counts(byNS)
-	for _, o := range query.TopOwners(query.GroupViolations(vs, l, "")) {
+	for _, o := range query.TopOwners(query.GroupViolations(vs)) {
 		out.ByOwner = append(out.ByOwner, Count{Name: o.Key, Count: o.Objects})
 	}
 	if len(out.ByOwner) > reportTopOwners {

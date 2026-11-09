@@ -171,24 +171,18 @@ func policyBlockView(title string, rows func() ([]query.PolicyEntry, error), wit
 	}
 }
 
-// violatorsBlock ranks owners (Deployments, CronJobs, …, or label values
-// with --group-label) by affected objects across all policies: what a team
-// would fix first.
+// violatorsBlock ranks owners (Deployments, CronJobs, …) by affected
+// objects across all policies: what a team would fix first.
 func violatorsBlock(env Env, f engine.Filter, synced func(engine.Filter) bool) Block {
-	l, label := env.lookup(), env.groupLabel()
-	vs, err := query.ViolationsWithOwners(env.Engines(), f, l, label)
-	owners := query.TopOwners(query.GroupViolations(vs, l, label))
+	vs, err := query.ViolationsWithOwners(env.Engines(), f, env.lookup())
+	owners := query.TopOwners(query.GroupViolations(vs))
 	shown := owners[:min(overviewLimit, len(owners))]
 	note := syncNote(synced(f) && env.ownersSynced())
-	first := "OWNER"
-	title := "Top violating owners"
-	if label != "" {
-		first, title = toUpper(label), "Top violating "+label+"s"
-	}
+	const title = "Top violating owners"
 	v := engine.View{
 		Command: CmdOverview, Title: title,
 		Columns: []engine.Column{
-			{Title: first, Role: engine.RoleTarget, Flex: true}, {Title: "POLICIES"},
+			{Title: "OWNER", Role: engine.RoleTarget, Flex: true}, {Title: "POLICIES"},
 			{Title: "OBJECTS", Role: engine.RoleCount},
 		},
 		Rows: func(engine.Filter) ([]engine.Row, error) {
@@ -210,16 +204,6 @@ func violatorsBlock(env Env, f engine.Filter, synced func(engine.Filter) bool) B
 		Empty: func(engine.Filter) string { return "No violations." + note }}, f, env.Now())
 	return Block{ID: BlockViolators, Title: title, Table: tbl, Total: len(owners),
 		Target: &BlockTarget{Command: CmdViolations}}
-}
-
-func toUpper(s string) string {
-	b := []byte(s)
-	for i, c := range b {
-		if c >= 'a' && c <= 'z' {
-			b[i] = c - 'a' + 'A'
-		}
-	}
-	return string(b)
 }
 
 func candidatesBlock(env Env, f engine.Filter, synced func(engine.Filter) bool) Block {

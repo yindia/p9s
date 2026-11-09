@@ -24,9 +24,6 @@ type Grouping int
 const (
 	// GroupByOwner groups by top-level owner (Deployment, CronJob, …) and policy.
 	GroupByOwner Grouping = iota
-	// GroupByLabel groups by the --group-label value of the owner (or its
-	// namespace) and policy.
-	GroupByLabel
 	// Flat lists every violation.
 	Flat
 )
@@ -40,18 +37,14 @@ func IsViolations(s Spec) bool {
 // GroupingOf returns a violations spec's grouping.
 func GroupingOf(s Spec) Grouping { return s.grouping }
 
-// ViolationsSpec builds :v with a grouping. GroupByLabel falls back to
-// GroupByOwner when no group label is configured.
+// ViolationsSpec builds :v with a grouping.
 func ViolationsSpec(env Env, g Grouping) Spec {
-	if g == GroupByLabel && env.groupLabel() == "" {
-		g = GroupByOwner
-	}
 	var v engine.View
 	switch g {
 	case Flat:
 		v = flatViolationsView(env)
 	default:
-		v = groupedViolationsView(env, g)
+		v = groupedViolationsView(env)
 	}
 	has := query.HasViolations
 	s := Spec{Scoped: true, grouping: g, Source: table.Source{
@@ -114,7 +107,7 @@ func flatViolationsView(env Env) engine.View {
 		DefaultSort: engine.Sort{Role: engine.RoleName},
 		Rows: func(f engine.Filter) ([]engine.Row, error) {
 			es := env.Engines()
-			vs, err := query.ViolationsWithOwners(es, f, env.lookup(), env.groupLabel())
+			vs, err := query.ViolationsWithOwners(es, f, env.lookup())
 			pols := query.PolicyIndex(es)
 			rows := make([]engine.Row, 0, len(vs))
 			for _, v := range vs {
@@ -125,15 +118,10 @@ func flatViolationsView(env Env) engine.View {
 	}
 }
 
-func groupedViolationsView(env Env, g Grouping) engine.View {
-	label := ""
+func groupedViolationsView(env Env) engine.View {
 	// Owners are what this view is about: keep them readable when space is
 	// short, and let the message give way first.
 	first := engine.Column{Title: "OWNER", Role: engine.RoleTarget, MinWidth: ownerMinWidth}
-	if g == GroupByLabel {
-		label = env.groupLabel()
-		first = engine.Column{Title: strings.ToUpper(label)}
-	}
 	return engine.View{
 		Command: CmdViolations, Title: "Violations",
 		Columns: []engine.Column{
@@ -145,27 +133,22 @@ func groupedViolationsView(env Env, g Grouping) engine.View {
 		Rows: func(f engine.Filter) ([]engine.Row, error) {
 			es := env.Engines()
 			l := env.lookup()
-			vs, err := query.ViolationsWithOwners(es, f, l, env.groupLabel())
-			groups := query.GroupViolations(vs, l, label)
+			vs, err := query.ViolationsWithOwners(es, f, l)
+			groups := query.GroupViolations(vs)
 			pols := query.PolicyIndex(es)
 			rows := make([]engine.Row, 0, len(groups))
 			for _, gr := range groups {
-				rows = append(rows, groupRow(env, es, pols, gr, g))
+				rows = append(rows, groupRow(es, pols, gr))
 			}
 			return rows, err
 		},
 	}
 }
 
-func groupRow(env Env, es []engine.Engine, pols map[model.PolicyKey]model.Policy, gr query.Group, g Grouping) engine.Row {
+func groupRow(es []engine.Engine, pols map[model.PolicyKey]model.Policy, gr query.Group) engine.Row {
 	key := gr.Policy
-	drill := engine.Filter{Engine: key.Engine, PolicyKind: key.Kind, PolicyName: key.Name, PolicyNamespace: key.Namespace}
+	drill := engine.Filter{Engine: key.Engine, PolicyKind: key.Kind, PolicyName: key.Name, PolicyNamespace: key.Namespace, Owner: gr.Key}
 	first := engine.TextCell(gr.Key)
-	if g == GroupByLabel {
-		drill.Group = gr.Key
-	} else {
-		drill.Owner = gr.Key
-	}
 	row := engine.Row{
 		ID: gr.Key + "|" + key.String(),
 		Cells: []engine.Cell{
@@ -175,7 +158,7 @@ func groupRow(env Env, es []engine.Engine, pols map[model.PolicyKey]model.Policy
 			engine.TextCell(table.OneLine(gr.FirstMessage())),
 		},
 		Drill:  &engine.Target{Command: CmdViolationsFlat, Filter: drill},
-		Detail: func() (engine.Detail, error) { return groupDetail(env, gr, g, pols), nil },
+		Detail: func() (engine.Detail, error) { return groupDetail(gr, pols), nil },
 	}
 	if p, ok := pols[key]; ok {
 		row.Object = p.Raw // y / e show the policy
@@ -183,20 +166,16 @@ func groupRow(env Env, es []engine.Engine, pols map[model.PolicyKey]model.Policy
 	} else {
 		row.NoObject = missingPolicy(key, gr.Violations[0].PolicyUnreadable)
 	}
-	if g != GroupByLabel && gr.Owner.Name != "" {
+	if gr.Owner.Name != "" {
 		owner := gr.Owner
 		row.Ref = &owner
 	}
 	return row
 }
 
-func groupDetail(env Env, gr query.Group, g Grouping, pols map[model.PolicyKey]model.Policy) engine.Detail {
-	by := "Owner"
-	if g == GroupByLabel {
-		by = strings.ToUpper(env.groupLabel()[:1]) + env.groupLabel()[1:]
-	}
+func groupDetail(gr query.Group, pols map[model.PolicyKey]model.Policy) engine.Detail {
 	body := table.KV(
-		by, gr.Key, "Policy", gr.Policy.String(), "Action", gr.Enforcement.String(),
+		"Owner", gr.Key, "Policy", gr.Policy.String(), "Action", gr.Enforcement.String(),
 		"Affected objects", fmt.Sprint(gr.Objects), "Violations", fmt.Sprint(len(gr.Violations)),
 	)
 	var b strings.Builder

@@ -26,10 +26,10 @@ import (
 // Name is used for access issues and sync status.
 const Name = "owners"
 
-// watched are the kinds the walk and label grouping need. Pods, ReplicaSets
-// and Jobs carry the ownerRefs of the common chains (Pod → ReplicaSet →
-// Deployment, Pod → Job → CronJob); the top-level kinds and Namespaces
-// carry the labels used by --group-label.
+// watched are the kinds the owner walk needs. Pods, ReplicaSets and Jobs
+// carry the ownerRefs of the common chains (Pod → ReplicaSet → Deployment,
+// Pod → Job → CronJob); the top-level kinds and Namespaces are cached so an
+// object without a controller is known to be bare (impact's MANAGED column).
 var watched = []struct {
 	gvr  schema.GroupVersionResource
 	kind string
@@ -210,22 +210,10 @@ func (r *Resolver) Controller(ref model.ObjectRef) (model.ObjectRef, bool) {
 	return model.ObjectRef{}, false
 }
 
-// Labels implements query.OwnerLookup.
-func (r *Resolver) Labels(ref model.ObjectRef) (map[string]string, bool) {
-	m, ok := r.get(ref)
-	if !ok {
-		return nil, false
-	}
-	return m.Labels, true
-}
-
-// NamespaceLabels implements query.OwnerLookup.
-func (r *Resolver) NamespaceLabels(ns string) (map[string]string, bool) {
-	m, ok := r.get(model.ObjectRef{Kind: "Namespace", Name: ns})
-	if !ok {
-		return nil, false
-	}
-	return m.Labels, true
+// Cached implements query.OwnerLookup.
+func (r *Resolver) Cached(ref model.ObjectRef) bool {
+	_, ok := r.get(ref)
+	return ok
 }
 
 var namespaceGK = schema.GroupKind{Kind: "Namespace"}

@@ -1,5 +1,6 @@
  p9s │ ctx kind-demo │ ns all │ alpha v1.2.0 · beta 0.9.1 │ last audit 30s ago (alpha)                               RO
 ─ Help ─────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+   :impact <policy>  what enforcing a policy would block (i on a policy row)
    :mut [engine]     mutations across engines
    :health           engine health: webhooks, controllers, audits, policies
    :ns [name|all]    scope every view to a namespace
@@ -14,7 +15,6 @@
    C           copy a kubectl get command for it
    N V A S     sort by name, count, age, severity (again to reverse)
    o           :v grouped by owner ↔ flat list
-   t           :v grouped by owner ↔ by --group-label
    [ ]         :v current tab (audit results) ↔ recent tab (admission events)
    i           enforcement impact of the policy on this row
 

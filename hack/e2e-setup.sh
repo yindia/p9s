@@ -72,7 +72,7 @@ echo "applied $applied sample constraints"
 # Demo workloads in p9s-demo: excluded from Gatekeeper *admission* (see the
 # Config above) so they can be created despite the deny-mode samples, but
 # still audited by both engines. Three replicas of one Deployment exercise
-# violation grouping by owner; team=payments exercises --group-label.
+# violation grouping by owner; team=payments satisfies require-team-label.
 k apply -f "$(dirname "$0")/manifests/demo-workloads.yaml" >/dev/null
 # A Gatekeeper mutator, so :mut lists one from each engine.
 k apply -f "$(dirname "$0")/manifests/gatekeeper-mutators.yaml" >/dev/null
