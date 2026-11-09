@@ -15,7 +15,10 @@ side by side, straight from your kubeconfig.
 
 [Install](#-install) · [Quick start](#-quick-start) · [Features](#-features) · [Docs](#-documentation) · [Contributing](#-contributing)
 
-![p9s end to end: a blocked request, its owner and fix, enforcement impact, health, and a report](docs/image/demo.gif)
+[![p9s: a terminal UI for OPA Gatekeeper, Kyverno and ValidatingAdmissionPolicy. Click to watch the two-minute tour](docs/image/p9s-demo-poster.png)](docs/image/p9s-demo.mp4)
+
+**[▶ Watch the 2-minute tour](docs/image/p9s-demo.mp4)**: a blocked deploy traced to its Gatekeeper policy, fix and impact, then every view, RBAC, snapshots and the CI gate.
+Prefer the terminal recording? [Here it is](docs/image/demo.gif).
 
 </div>
 
