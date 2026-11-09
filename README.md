@@ -141,7 +141,7 @@ The same views without the TUI:
 ```sh
 p9s get v -n payments -o json                 # any view, as a table or JSON
 p9s report --format html -o report.html       # a self-contained security report
-p9s report --fail-on critical                 # exit 2 on critical findings, for CI
+p9s report --fail-on critical                 # exit 3 on critical findings, for CI
 p9s snapshot -o prod.json                     # record now, browse later with --snapshot
 ```
 

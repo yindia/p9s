@@ -301,7 +301,7 @@ func HelpCommands() [][2]string {
 		{":events", "recent admission events (the recent tab of :v)"},
 		{":impact <policy>", "what enforcing a policy would block (i on a policy row)"},
 		{":mut [engine]", "mutations across engines"},
-		{":health [engine]", "engine health issues"},
+		{":health", "engine health: webhooks, controllers, audits, policies"},
 		{":ns [name|all]", "scope every view to a namespace"},
 		{":ctx", "kubeconfig contexts"},
 	}

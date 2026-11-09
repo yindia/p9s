@@ -294,13 +294,13 @@ func TestReportFailOnLevels(t *testing.T) {
 	crit := views.ReportSet{Reports: []views.Report{{Header: views.ReportHeader{Context: "c"}, Findings: []views.Finding{{Severity: "critical"}}}}}
 	warn := views.ReportSet{Reports: []views.Report{{Findings: []views.Finding{{Severity: "warning"}}}}}
 	var exit *ExitError
-	if err := failOn("critical", crit); !errors.As(err, &exit) || exit.Code != 2 {
+	if err := failOn("critical", crit); !errors.As(err, &exit) || exit.Code != 3 {
 		t.Errorf("critical finding, --fail-on critical: %v", err)
 	}
 	if err := failOn("critical", warn); err != nil {
 		t.Errorf("warning only, --fail-on critical: %v", err)
 	}
-	if err := failOn("warning", warn); !errors.As(err, &exit) || exit.Code != 2 {
+	if err := failOn("warning", warn); !errors.As(err, &exit) || exit.Code != 3 {
 		t.Errorf("warning, --fail-on warning: %v", err)
 	}
 	if err := failOn("", crit); err != nil {
@@ -393,5 +393,35 @@ func TestGetFilterTypoIsAnError(t *testing.T) {
 	err = printView(&b, fixtureEnv(t, ""), nil, "pol", "", &getFlags{output: "table", filter: "foo:bar", stderr: &e})
 	if err != nil || !strings.Contains(e.String(), `"foo:" is not a filter key`) {
 		t.Errorf("unknown key: err = %v, stderr %q", err, e.String())
+	}
+}
+
+func TestGetViolationLayouts(t *testing.T) {
+	env := fixtureEnv(t, "")
+	env.GroupLabel = func() string { return "team" }
+	var b bytes.Buffer
+	if err := printView(&b, env, nil, "v", "", &getFlags{output: "table", flat: true}); err != nil || !strings.Contains(b.String(), "TARGET") {
+		t.Errorf("--flat: %v\n%s", err, b.String())
+	}
+	b.Reset()
+	if err := printView(&b, env, nil, "v", "", &getFlags{output: "table", byLabel: true}); err != nil || !strings.Contains(b.String(), "TEAM") {
+		t.Errorf("--by-label: %v\n%s", err, b.String())
+	}
+	for _, tc := range []struct {
+		env        views.Env
+		view, want string
+		g          getFlags
+	}{
+		{env, "v", "pick one", getFlags{flat: true, byLabel: true}},
+		{env, "pol", "apply to v", getFlags{flat: true}},
+		{fixtureEnv(t, ""), "v", "needs --group-label", getFlags{byLabel: true}},
+	} {
+		tc.g.output = "table"
+		if err := printView(&b, tc.env, nil, tc.view, "", &tc.g); err == nil || !strings.Contains(err.Error(), tc.want) {
+			t.Errorf("%s %+v: err = %v, want %q", tc.view, tc.g, err, tc.want)
+		}
+	}
+	if err := printView(&b, env, nil, "health", "gatekeeper", &getFlags{output: "table"}); err == nil || !strings.Contains(err.Error(), "takes no arguments") {
+		t.Errorf("health with an argument: %v", err)
 	}
 }

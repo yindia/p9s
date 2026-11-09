@@ -17,6 +17,8 @@ p9s get pol
 p9s get v -n payments --filter 'engine:kyverno sev:high'
 p9s get impact require-team-label -o json
 p9s get health -o json
+p9s get v --flat                          # one row per violation (o in the TUI)
+p9s --group-label team get v --by-label   # grouped by team (t in the TUI)
 p9s --context prod get gk/c
 ```
 
@@ -25,7 +27,12 @@ p9s --context prod get gk/c
 - `-o table` prints aligned text without truncation (it pipes into `grep`
   and `awk`); `-o json` prints the versioned `p9s/v1` table.
 - `-n` is the namespace scope, `--filter` the `/` terms, `--sync-timeout`
-  how long to wait for caches.
+  how long to wait for caches. `--flat` and `--by-label` pick the `:v`
+  layouts the TUI reaches with `o` and `t`.
+- A filter that cannot match (a `sev:` on a view without a severity
+  column, a mistyped `mode:` or `sev:` value) is an error, so a typo never
+  reads as "no violations" in CI. An unknown `key:` is matched as free
+  text, with a note on stderr.
 - RBAC notices and partial data are printed with the table, never hidden.
 
 ## `p9s snapshot`
@@ -80,7 +87,7 @@ reached is listed with its error and the others are still reported.
 |---|---|
 | 0 | report written |
 | 1 | error, or a context failed |
-| 2 | written, and a finding is at or above `--fail-on critical\|warning` |
+| 3 | written, and a finding is at or above `--fail-on critical\|warning` (printed without `Error:`; 2 is what Go uses for a crash) |
 
 Not included yet: the exemptions inventory, who can change policy, and
 unprotected namespaces. The report says so.
@@ -118,6 +125,9 @@ Unknown keys and bad values are errors that name the key and line.
 | `--snapshot <file>` | | read a snapshot instead of a cluster |
 | `--config <file>` | `~/.config/p9s/config.yaml` | config file |
 | `--log-file <file>` | discarded | client-go logs |
+
+`p9s version` (or `--version`) prints the version; a `go install` build
+reports the module version it was installed at.
 
 p9s is read-only: it never creates, changes or deletes anything in a
 cluster.

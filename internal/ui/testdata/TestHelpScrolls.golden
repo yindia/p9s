@@ -1,7 +1,7 @@
  p9s │ ctx kind-demo │ ns all │ alpha v1.2.0 · beta 0.9.1 │ last audit 30s ago (alpha)                               RO
 ─ Help ─────────────────────────────────────────────────────────────────────────────────────────────────────────────────
    :mut [engine]     mutations across engines
-   :health [engine]  engine health issues
+   :health           engine health: webhooks, controllers, audits, policies
    :ns [name|all]    scope every view to a namespace
    :ctx              kubeconfig contexts
 

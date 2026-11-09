@@ -2,11 +2,11 @@
 package app
 
 import (
-	"errors"
 	"flag"
 	"fmt"
 	"io"
 	"os"
+	"runtime/debug"
 	"time"
 
 	tea "github.com/charmbracelet/bubbletea"
@@ -24,15 +24,38 @@ import (
 	"github.com/yindia/p9s/internal/ui"
 )
 
-// Version is set at build time with -ldflags.
+// Version is set at build time with -ldflags; a "go install …@vX.Y.Z"
+// build has none, so it falls back to the module version Go recorded.
 var Version = "dev"
+
+func init() { Version = resolveVersion(Version, debug.ReadBuildInfo) }
+
+func resolveVersion(v string, buildInfo func() (*debug.BuildInfo, bool)) string {
+	if v != "dev" {
+		return v
+	}
+	if bi, ok := buildInfo(); ok && bi.Main.Version != "" && bi.Main.Version != "(devel)" {
+		return bi.Main.Version
+	}
+	return v
+}
+
+func newVersionCommand() *cobra.Command {
+	return &cobra.Command{
+		Use:   "version",
+		Short: "Print the p9s version (same as --version)",
+		Args:  cobra.NoArgs,
+		RunE: func(c *cobra.Command, _ []string) error {
+			_, err := fmt.Fprintln(c.OutOrStdout(), "p9s version "+Version)
+			return err
+		},
+	}
+}
 
 type flags struct {
 	kubeconfig string
 	context    string
-	readOnly   bool
 	engines    string
-	offline    string
 	command    string
 	logFile    string
 	groupLabel string
@@ -49,10 +72,10 @@ func newRootCommand(f *flags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:           "p9s",
 		Short:         "A terminal UI for Kubernetes policy engines",
-		Long:          "p9s browses policies, violations, mutations and engine health for OPA Gatekeeper and Kyverno using your kubeconfig.",
+		Long:          "p9s browses policies, violations, mutations and engine health for OPA Gatekeeper, Kyverno and native ValidatingAdmissionPolicies using your kubeconfig. It never changes the cluster.",
 		Version:       Version,
 		SilenceUsage:  true,
-		SilenceErrors: false,
+		SilenceErrors: true, // main prints them, without "Error:" for --fail-on results
 		Args:          cobra.NoArgs,
 		RunE:          func(c *cobra.Command, _ []string) error { return run(c, f) },
 	}
@@ -65,10 +88,12 @@ func newRootCommand(f *flags) *cobra.Command {
 	pf.StringVar(&f.configPath, "config", "", "config file (default: "+config.DefaultPath()+")")
 	pf.StringVar(&f.snapshot, "snapshot", "", "read a file written by p9s snapshot instead of a cluster")
 	fl := cmd.Flags()
-	fl.BoolVar(&f.readOnly, "readonly", true, "disable all write actions")
-	fl.StringVar(&f.offline, "offline", "", "load policies and manifests from a directory instead of a cluster")
+	// --readonly is kept so existing scripts still run: p9s is always
+	// read-only (AGENTS.md rule 1), so the flag has no effect.
+	fl.Bool("readonly", true, "")
+	_ = fl.MarkDeprecated("readonly", "p9s is always read-only; the flag has no effect")
 	fl.StringVarP(&f.command, "command", "c", "overview", "initial view, e.g. overview, pol, v, gk/ct")
-	cmd.AddCommand(newGetCommand(f), newSnapshotCommand(f), newReportCommand(f))
+	cmd.AddCommand(newGetCommand(f), newSnapshotCommand(f), newReportCommand(f), newVersionCommand())
 	return cmd
 }
 
@@ -85,9 +110,6 @@ func joinNames() string {
 }
 
 func run(cmd *cobra.Command, f *flags) error {
-	if f.offline != "" {
-		return errors.New("--offline is not implemented yet (planned for phase 4)")
-	}
 	st, err := resolveSettings(cmd, f)
 	if err != nil {
 		return err
@@ -102,7 +124,7 @@ func run(cmd *cobra.Command, f *flags) error {
 	if err != nil {
 		return err
 	}
-	opts.ReadOnly = f.readOnly || snap != nil
+	opts.ReadOnly = true
 	sess, err := session.New(opts)
 	if err != nil {
 		return err

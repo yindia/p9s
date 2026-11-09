@@ -23,6 +23,8 @@ type getFlags struct {
 	namespace   string
 	filter      string
 	syncTimeout time.Duration
+	// flat and byLabel pick the :v layouts the TUI reaches with o and t.
+	flat, byLabel bool
 	// stderr gets notes about the filter (likely typos); results go to w.
 	stderr io.Writer
 }
@@ -38,6 +40,8 @@ default sort, then exits. It waits for every cache to sync first.
 Examples:
   p9s get pol
   p9s get v -n payments --filter 'engine:kyverno sev:high'
+  p9s get v --flat                      # one row per violation (o in the TUI)
+  p9s get v --by-label --group-label team  # grouped by team (t in the TUI)
   p9s get impact require-team-label -o json
   p9s get health -o json`,
 		Args: cobra.MinimumNArgs(1),
@@ -50,6 +54,8 @@ Examples:
 	fl.StringVarP(&g.output, "output", "o", "table", "output format: table or json")
 	fl.StringVarP(&g.namespace, "namespace", "n", "", "scope to one namespace (as :ns in the TUI)")
 	fl.StringVar(&g.filter, "filter", "", "filter rows: free text, or engine: mode: ns: kind: sev: name: terms")
+	fl.BoolVar(&g.flat, "flat", false, "v: one row per violation instead of grouped by owner")
+	fl.BoolVar(&g.byLabel, "by-label", false, "v: group by the --group-label value instead of the owner")
 	fl.DurationVar(&g.syncTimeout, "sync-timeout", 0, "how long to wait for caches; 0 uses the config file's syncTimeout, else 60s")
 	return cmd
 }
@@ -101,6 +107,12 @@ func printView(w io.Writer, env views.Env, sorts views.Sorts, name, rest string,
 	if (c == views.CmdOverview || c == views.CmdHealth) && g.filter != "" {
 		return fmt.Errorf("--filter applies to table views; %s is a dashboard", c)
 	}
+	if (c == views.CmdOverview || c == views.CmdHealth) && strings.TrimSpace(rest) != "" {
+		return fmt.Errorf("%s takes no arguments (the dashboard is cluster-wide; -n scopes the overview)", c)
+	}
+	if (g.flat || g.byLabel) && c != views.CmdViolations {
+		return fmt.Errorf("--flat and --by-label apply to v")
+	}
 	switch c {
 	case views.CmdOverview:
 		if g.output == "json" {
@@ -120,6 +132,17 @@ func printView(w io.Writer, env views.Env, sorts views.Sorts, name, rest string,
 	}
 	if so, ignored := sorts.Ignored(spec); ignored && g.stderr != nil {
 		fmt.Fprintf(g.stderr, "note: config sort.%s: %s has no %s column; using the view's default sort\n", spec.Command(), spec.View.Title, so.Role)
+	}
+	switch {
+	case g.flat && g.byLabel:
+		return fmt.Errorf("--flat and --by-label: pick one")
+	case g.flat:
+		spec = views.ViolationsSpec(env, views.Flat)
+	case g.byLabel:
+		if env.GroupLabel == nil || env.GroupLabel() == "" {
+			return fmt.Errorf("--by-label needs --group-label (or groupLabel in the config file)")
+		}
+		spec = views.ViolationsSpec(env, views.GroupByLabel)
 	}
 	tbl := table.Build(sorts.WithSort(spec).Source, f, env.Now())
 	if g.filter != "" {

@@ -1,20 +1,24 @@
 package app
 
 import (
+	"runtime/debug"
 	"strings"
 	"testing"
 )
 
 func TestFlagsAndDefaults(t *testing.T) {
 	cmd := NewRootCommand()
-	ro, err := cmd.Flags().GetBool("readonly")
-	if err != nil || !ro {
-		t.Errorf("--readonly default = %v, %v; want true", ro, err)
+	// --readonly survives as a deprecated no-op so old scripts still run.
+	if fl := cmd.Flags().Lookup("readonly"); fl == nil || fl.Deprecated == "" {
+		t.Errorf("--readonly should be kept and marked deprecated: %+v", fl)
+	}
+	if cmd.Flags().Lookup("offline") != nil {
+		t.Error("--offline was never implemented and must not be advertised")
 	}
 	if e, _ := cmd.PersistentFlags().GetString("engine"); e != "auto" {
 		t.Errorf("--engine default = %q", e)
 	}
-	for _, f := range []string{"kubeconfig", "context", "offline", "config"} {
+	for _, f := range []string{"kubeconfig", "context", "config", "snapshot"} {
 		if cmd.Flags().Lookup(f) == nil && cmd.PersistentFlags().Lookup(f) == nil {
 			t.Errorf("missing flag --%s", f)
 		}
@@ -26,7 +30,7 @@ func TestRunRejectsBadInput(t *testing.T) {
 		args []string
 		want string
 	}{
-		{[]string{"--offline", "dir"}, "phase 4"},
+		{[]string{"--offline", "dir"}, "unknown flag: --offline"},
 		{[]string{"--engine", "nope"}, `unknown engine "nope"`},
 		{[]string{"extra-arg"}, "unknown command"},
 	}
@@ -54,5 +58,32 @@ func TestSetupLogging(t *testing.T) {
 	closeFn()
 	if _, err := setupLogging("/nonexistent-dir/x.log"); err == nil {
 		t.Error("expected error for unwritable log path")
+	}
+}
+
+func TestResolveVersion(t *testing.T) {
+	bi := func(v string) func() (*debug.BuildInfo, bool) {
+		return func() (*debug.BuildInfo, bool) { return &debug.BuildInfo{Main: debug.Module{Version: v}}, true }
+	}
+	for _, tc := range []struct {
+		ldflags, module, want string
+	}{
+		{"0.0.2", "v0.0.1", "0.0.2"}, // -ldflags wins
+		{"dev", "v0.0.2", "v0.0.2"},  // go install …@v0.0.2
+		{"dev", "(devel)", "dev"},    // go run in the repo
+	} {
+		if got := resolveVersion(tc.ldflags, bi(tc.module)); got != tc.want {
+			t.Errorf("resolveVersion(%q, %q) = %q, want %q", tc.ldflags, tc.module, got, tc.want)
+		}
+	}
+}
+
+func TestVersionCommand(t *testing.T) {
+	var b strings.Builder
+	cmd := NewRootCommand()
+	cmd.SetOut(&b)
+	cmd.SetArgs([]string{"version"})
+	if err := cmd.Execute(); err != nil || !strings.HasPrefix(b.String(), "p9s version ") {
+		t.Errorf("version: %q, %v", b.String(), err)
 	}
 }

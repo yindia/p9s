@@ -20,7 +20,8 @@ import (
 	"github.com/yindia/p9s/internal/views"
 )
 
-// ExitError carries a process exit code (see the README's exit codes).
+// ExitError carries a process exit code (see "Exit codes" in docs/cli.md).
+// main prints it without the "Error:" prefix: it is a result, not a failure.
 type ExitError struct {
 	Code int
 	Err  error
@@ -31,7 +32,9 @@ func (e *ExitError) Unwrap() error { return e.Err }
 
 // Exit codes of p9s report.
 const (
-	exitFindings = 2 // findings at or above --fail-on
+	// exitFindings is 3, not 2: Go exits 2 on a panic, and a CI gate must
+	// tell "findings" from "p9s crashed".
+	exitFindings = 3 // findings at or above --fail-on
 )
 
 type reportFlags struct {
@@ -52,7 +55,7 @@ func newReportCommand(f *flags) *cobra.Command {
 findings and unprotected kinds for security teams. --context takes a
 comma-separated list; --all-contexts reports on every kubeconfig context.
 
-Exit codes: 0 ok; 1 error; 2 findings at or above --fail-on.`,
+Exit codes: 0 ok; 1 error; 3 findings at or above --fail-on.`,
 		Args: cobra.NoArgs,
 		RunE: func(c *cobra.Command, _ []string) error { return runReport(c, f, rf) },
 	}
@@ -61,7 +64,7 @@ Exit codes: 0 ok; 1 error; 2 findings at or above --fail-on.`,
 	fl.StringVarP(&rf.output, "output", "o", "", "file to write (default: stdout)")
 	fl.BoolVar(&rf.allContexts, "all-contexts", false, "report on every kubeconfig context")
 	fl.StringVar(&rf.since, "since", "", "a previous report (JSON) to compare with")
-	fl.StringVar(&rf.failOn, "fail-on", "", "exit 2 when a finding is at or above: critical or warning")
+	fl.StringVar(&rf.failOn, "fail-on", "", "exit 3 when a finding is at or above: critical or warning")
 	fl.DurationVar(&rf.syncTimeout, "sync-timeout", 0, "how long to wait for caches per context; 0 uses the config file, else 60s")
 	return cmd
 }
@@ -265,7 +268,7 @@ func readReportSet(path string) (*views.ReportSet, error) {
 	return &set, nil
 }
 
-// failOn returns exit code 2 when any report has a finding at or above
+// failOn returns exit code 3 when any report has a finding at or above
 // the level.
 func failOn(level string, set views.ReportSet) error {
 	if level == "" {

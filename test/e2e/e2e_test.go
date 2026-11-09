@@ -1045,7 +1045,7 @@ func TestReportOnRealCluster(t *testing.T) {
 	}
 	_, err = p9s(t, "report", "--fail-on", "critical")
 	var exit *app.ExitError
-	if !errors.As(err, &exit) || exit.Code != 2 {
+	if !errors.As(err, &exit) || exit.Code != 3 {
 		t.Errorf("--fail-on critical with a fail-open webhook: err = %v, want exit code 2", err)
 	}
 	html := filepath.Join(dir, "r.html")
